@@ -5,7 +5,7 @@ namespace KurumiConcursos.Domain.Entities;
 
 public sealed class StudyResource : EntityBase
 {
-    public Guid AccountId { get; set; }
+    public Guid UserId { get; set; }
     public long JourneyId { get; set; }
     public long? KnowledgeAreaId { get; set; }
     public long? SyllabusNodeId { get; set; }

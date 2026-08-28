@@ -31,10 +31,6 @@ namespace KurumiConcursos.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
-
                     b.Property<DateTimeOffset>("AchievedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("achieved_at");
@@ -68,9 +64,78 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("character varying(180)")
                         .HasColumnName("title");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("achievement_milestone", "kurumi_concursos");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.AdminProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_admin_profile_user_id");
+
+                    b.ToTable("AdminProfile", "kurumi_concursos");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.DomainLogger", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<byte>("Action")
+                        .HasColumnType("smallint")
+                        .HasColumnName("action")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTimeOffset>("ActionDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("action_date")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description")
+                        .HasColumnOrder(3);
+
+                    b.Property<string>("EntityId")
+                        .HasColumnType("varchar(80)")
+                        .HasColumnName("entity_id")
+                        .HasColumnOrder(6);
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(5);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DomainLogger", "kurumi_concursos");
                 });
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.ExamJourney", b =>
@@ -81,10 +146,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<int>("CompletedSyllabusCycles")
                         .HasColumnType("integer")
@@ -148,9 +209,13 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("character varying(180)")
                         .HasColumnName("title");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("exam_journey", "kurumi_concursos");
                 });
@@ -163,10 +228,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("timestamp with time zone")
@@ -194,6 +255,10 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("character varying(180)")
                         .HasColumnName("title");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("flash_collection", "kurumi_concursos");
@@ -207,10 +272,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("timestamp with time zone")
@@ -243,6 +304,10 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Property<long?>("SyllabusNodeId")
                         .HasColumnType("bigint")
                         .HasColumnName("syllabus_node_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -549,10 +614,6 @@ namespace KurumiConcursos.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
-
                     b.Property<DateOnly>("AssessmentDate")
                         .HasColumnType("date")
                         .HasColumnName("assessment_date");
@@ -586,6 +647,10 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Property<int>("TotalQuestions")
                         .HasColumnType("integer")
                         .HasColumnName("total_questions");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -632,6 +697,65 @@ namespace KurumiConcursos.Infra.Migrations
                     b.ToTable("mock_assessment_breakdown", "kurumi_concursos");
                 });
 
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.PersonalData", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("Age")
+                        .HasColumnType("integer")
+                        .HasColumnName("age")
+                        .HasColumnOrder(6);
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(8);
+
+                    b.Property<DateTimeOffset?>("DateOfBirth")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("date_of_birth")
+                        .HasColumnOrder(7);
+
+                    b.Property<string>("Document")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("document")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("full_name")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTimeOffset?>("LastUpdateDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(9);
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("phone")
+                        .HasColumnOrder(5);
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_personal_data_user_id");
+
+                    b.ToTable("PersonalData", "kurumi_concursos");
+                });
+
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.PracticeEntry", b =>
                 {
                     b.Property<long>("Id")
@@ -640,10 +764,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<int>("CorrectAnswers")
                         .HasColumnType("integer")
@@ -677,6 +797,10 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("syllabus_node_id");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("practice_entry", "kurumi_concursos");
@@ -690,10 +814,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("boolean")
@@ -723,9 +843,47 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("syllabus_node_id");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("review_appointment", "kurumi_concursos");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.StudentProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTimeOffset?>("LastUpdateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasColumnOrder(4);
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_student_profile_user_id");
+
+                    b.ToTable("StudentProfile", "kurumi_concursos");
                 });
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.StudyResource", b =>
@@ -736,10 +894,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("timestamp with time zone")
@@ -776,6 +930,10 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("text")
                         .HasColumnName("url");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id");
 
                     b.ToTable("study_resource", "kurumi_concursos");
@@ -789,10 +947,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("account_id");
 
                     b.Property<bool>("Active")
                         .HasColumnType("boolean")
@@ -823,6 +977,10 @@ namespace KurumiConcursos.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("title");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -890,87 +1048,109 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("access_failed_count")
+                        .HasColumnOrder(15);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("concurrency_stamp")
+                        .HasColumnOrder(9);
 
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("creation_date");
+                        .HasColumnName("creation_date")
+                        .HasColumnOrder(19);
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("email");
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("email")
+                        .HasColumnOrder(4);
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("email_confirmed")
+                        .HasColumnOrder(6);
 
                     b.Property<string>("Identifier")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("identifier");
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("identifier")
+                        .HasColumnOrder(16);
 
                     b.Property<DateTimeOffset?>("LastAccessDate")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_access_date");
+                        .HasColumnName("last_access_date")
+                        .HasColumnOrder(20);
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("lockout_enabled")
+                        .HasColumnOrder(14);
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)")
-                        .HasColumnName("name");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lockout_end")
+                        .HasColumnOrder(13);
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("normalized_email");
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("normalized_email")
+                        .HasColumnOrder(5);
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("normalized_username");
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("normalized_username")
+                        .HasColumnOrder(3);
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text")
-                        .HasColumnName("password_hash");
+                        .HasColumnName("password_hash")
+                        .HasColumnOrder(7);
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("phone_number")
+                        .HasColumnOrder(10);
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("phone_number_confirmed")
+                        .HasColumnOrder(11);
 
                     b.Property<int>("PreferredLanguage")
                         .HasColumnType("integer")
-                        .HasColumnName("preferred_language");
+                        .HasColumnName("preferred_language")
+                        .HasColumnOrder(18);
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("security_stamp")
+                        .HasColumnOrder(8);
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
-                        .HasColumnName("status");
+                        .HasColumnName("status")
+                        .HasColumnOrder(17);
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("two_factor_enabled")
+                        .HasColumnOrder(12);
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("username");
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("username")
+                        .HasColumnOrder(2);
 
                     b.HasKey("Id");
 
@@ -988,15 +1168,27 @@ namespace KurumiConcursos.Infra.Migrations
                     b.ToTable("User", "kurumi_concursos");
                 });
 
-            modelBuilder.Entity("KurumiConcursos.Domain.Entities.ExamJourney", b =>
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.AdminProfile", b =>
                 {
-                    b.HasOne("KurumiConcursos.Domain.Entities.User", "Account")
-                        .WithMany("ExamJourneys")
-                        .HasForeignKey("AccountId")
+                    b.HasOne("KurumiConcursos.Domain.Entities.User", "User")
+                        .WithOne("AdminProfile")
+                        .HasForeignKey("KurumiConcursos.Domain.Entities.AdminProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.ExamJourney", b =>
+                {
+                    b.HasOne("KurumiConcursos.Domain.Entities.StudentProfile", "StudentProfile")
+                        .WithMany("ExamJourneys")
+                        .HasForeignKey("UserId")
+                        .HasPrincipalKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StudentProfile");
                 });
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.IdentityEntities.RoleClaim", b =>
@@ -1098,6 +1290,28 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Navigation("MockAssessment");
                 });
 
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.PersonalData", b =>
+                {
+                    b.HasOne("KurumiConcursos.Domain.Entities.User", "User")
+                        .WithOne("PersonalData")
+                        .HasForeignKey("KurumiConcursos.Domain.Entities.PersonalData", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.StudentProfile", b =>
+                {
+                    b.HasOne("KurumiConcursos.Domain.Entities.User", "User")
+                        .WithOne("StudentProfile")
+                        .HasForeignKey("KurumiConcursos.Domain.Entities.StudentProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.SyllabusNode", b =>
                 {
                     b.HasOne("KurumiConcursos.Domain.Entities.KnowledgeArea", "KnowledgeArea")
@@ -1148,6 +1362,11 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Navigation("Breakdown");
                 });
 
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.StudentProfile", b =>
+                {
+                    b.Navigation("ExamJourneys");
+                });
+
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.SyllabusNode", b =>
                 {
                     b.Navigation("Children");
@@ -1155,7 +1374,11 @@ namespace KurumiConcursos.Infra.Migrations
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.User", b =>
                 {
-                    b.Navigation("ExamJourneys");
+                    b.Navigation("AdminProfile");
+
+                    b.Navigation("PersonalData");
+
+                    b.Navigation("StudentProfile");
 
                     b.Navigation("UserClaims");
 

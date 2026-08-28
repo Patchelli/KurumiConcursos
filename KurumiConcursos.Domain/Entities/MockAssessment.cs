@@ -4,7 +4,7 @@ namespace KurumiConcursos.Domain.Entities;
 
 public sealed class MockAssessment : EntityBase
 {
-    public Guid AccountId { get; set; }
+    public Guid UserId { get; set; }
     public long JourneyId { get; set; }
     public string Title { get; set; } = string.Empty;
     public DateOnly AssessmentDate { get; set; }

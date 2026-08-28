@@ -20,6 +20,15 @@
           "Microsoft.OpenApi": "1.6.17"
         }
       },
+      "Microsoft.IdentityModel.Tokens": {
+        "type": "Direct",
+        "requested": "[8.0.1, )",
+        "resolved": "8.0.1",
+        "contentHash": "kDimB6Dkd3nkW2oZPDkMkVHfQt3IDqO5gL0oa8WVy3OP4uE8Ij+8TXnqg9TOd9ufjsY3IDiGz7pCUbnfL18tjg==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Logging": "8.0.1"
+        }
+      },
       "Swashbuckle.AspNetCore": {
         "type": "Direct",
         "requested": "[9.0.4, )",
@@ -30,6 +39,16 @@
           "Swashbuckle.AspNetCore.Swagger": "9.0.4",
           "Swashbuckle.AspNetCore.SwaggerGen": "9.0.4",
           "Swashbuckle.AspNetCore.SwaggerUI": "9.0.4"
+        }
+      },
+      "System.IdentityModel.Tokens.Jwt": {
+        "type": "Direct",
+        "requested": "[8.0.1, )",
+        "resolved": "8.0.1",
+        "contentHash": "GJw3bYkWpOgvN3tJo5X4lYUeIFA2HD293FPUhKmp7qxS+g5ywAb34Dnd3cDAFLkcMohy5XTpoaZ4uAHuw0uSPQ==",
+        "dependencies": {
+          "Microsoft.IdentityModel.JsonWebTokens": "8.0.1",
+          "Microsoft.IdentityModel.Tokens": "8.0.1"
         }
       },
       "FluentValidation": {
@@ -331,14 +350,6 @@
           "System.IdentityModel.Tokens.Jwt": "8.0.1"
         }
       },
-      "Microsoft.IdentityModel.Tokens": {
-        "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "kDimB6Dkd3nkW2oZPDkMkVHfQt3IDqO5gL0oa8WVy3OP4uE8Ij+8TXnqg9TOd9ufjsY3IDiGz7pCUbnfL18tjg==",
-        "dependencies": {
-          "Microsoft.IdentityModel.Logging": "8.0.1"
-        }
-      },
       "Microsoft.OpenApi": {
         "type": "Transitive",
         "resolved": "1.6.25",
@@ -447,15 +458,6 @@
           "System.Composition.AttributedModel": "7.0.0",
           "System.Composition.Hosting": "7.0.0",
           "System.Composition.Runtime": "7.0.0"
-        }
-      },
-      "System.IdentityModel.Tokens.Jwt": {
-        "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "GJw3bYkWpOgvN3tJo5X4lYUeIFA2HD293FPUhKmp7qxS+g5ywAb34Dnd3cDAFLkcMohy5XTpoaZ4uAHuw0uSPQ==",
-        "dependencies": {
-          "Microsoft.IdentityModel.JsonWebTokens": "8.0.1",
-          "Microsoft.IdentityModel.Tokens": "8.0.1"
         }
       },
       "System.IO.Pipelines": {

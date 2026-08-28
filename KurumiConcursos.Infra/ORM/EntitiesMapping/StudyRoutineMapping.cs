@@ -11,7 +11,7 @@ public sealed class StudyRoutineMapping : MappingBase, IEntityTypeConfiguration<
     {
         b.ToTable("study_routine", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.JourneyId).HasColumnName("journey_id");
         b.Property(x => x.Title).HasColumnName("title");
         b.Property(x => x.Kind).HasColumnName("kind");

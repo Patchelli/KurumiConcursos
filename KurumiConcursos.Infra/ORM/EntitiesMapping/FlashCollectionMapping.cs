@@ -11,7 +11,7 @@ public sealed class FlashCollectionMapping : MappingBase, IEntityTypeConfigurati
     {
         b.ToTable("flash_collection", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.JourneyId).HasColumnName("journey_id");
         b.Property(x => x.ParentId).HasColumnName("parent_id");
         b.Property(x => x.Title).HasColumnName("title").HasMaxLength(180);

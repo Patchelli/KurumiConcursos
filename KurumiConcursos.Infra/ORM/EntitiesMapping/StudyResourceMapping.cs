@@ -11,7 +11,7 @@ public sealed class StudyResourceMapping : MappingBase, IEntityTypeConfiguration
     {
         b.ToTable("study_resource", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.JourneyId).HasColumnName("journey_id");
         b.Property(x => x.KnowledgeAreaId).HasColumnName("knowledge_area_id");
         b.Property(x => x.SyllabusNodeId).HasColumnName("syllabus_node_id");

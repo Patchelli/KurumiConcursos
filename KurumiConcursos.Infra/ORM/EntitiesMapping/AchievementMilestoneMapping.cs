@@ -11,7 +11,7 @@ public sealed class AchievementMilestoneMapping : MappingBase, IEntityTypeConfig
     {
         b.ToTable("achievement_milestone", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.JourneyId).HasColumnName("journey_id");
         b.Property(x => x.Code).HasColumnName("code").HasMaxLength(80);
         b.Property(x => x.Title).HasColumnName("title").HasMaxLength(180);

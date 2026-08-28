@@ -6,7 +6,6 @@ namespace KurumiConcursos.Domain.Entities;
 
 public class User : IdentityUser<Guid>
 {
-    public string Name { get; set; } = string.Empty;
     public EUserStatus Status { get; set; } = EUserStatus.Active;
     public string Identifier { get; set; } = Guid.NewGuid().ToString("N");
     public ELanguage PreferredLanguage { get; set; } = ELanguage.PtBr;
@@ -15,5 +14,7 @@ public class User : IdentityUser<Guid>
     public List<UserRole>? UserRoles { get; set; }
     public List<UserClaim>? UserClaims { get; set; }
     public List<UserToken>? UserTokens { get; set; }
-    public ICollection<ExamJourney> ExamJourneys { get; set; } = [];
+    public PersonalData? PersonalData { get; set; }
+    public AdminProfile? AdminProfile { get; set; }
+    public StudentProfile? StudentProfile { get; set; }
 }

@@ -8,7 +8,6 @@ public static class ControllersSettings
     {
         services.AddControllers().AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-        services.AddEndpointsApiExplorer();
         return services;
     }
 }

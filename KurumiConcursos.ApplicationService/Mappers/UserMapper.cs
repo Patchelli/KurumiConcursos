@@ -2,25 +2,33 @@ using KurumiConcursos.ApplicationService.DataTransferObjects.AuthenticationDtos.
 using KurumiConcursos.ApplicationService.DataTransferObjects.AuthenticationDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.Domain.Entities;
+using KurumiConcursos.Domain.Entities.IdentityEntities;
 using KurumiConcursos.Domain.Enums;
 
 namespace KurumiConcursos.ApplicationService.Mappers;
 
-public sealed class UserMapper : IUserMapper
+public sealed class UserMapper(IPersonalDataMapper personalDataMapper) : IUserMapper
 {
-    public User DtoRegisterToDomain(RegisterRequest request) => new()
+    public User DtoRegisterToDomain(RegisterRequest request, Guid roleId)
     {
-        Id = Guid.NewGuid(),
-        Name = request.Name,
-        UserName = request.Email,
-        NormalizedUserName = request.Email.ToUpperInvariant(),
-        Email = request.Email,
-        NormalizedEmail = request.Email.ToUpperInvariant(),
-        EmailConfirmed = false,
-        Status = EUserStatus.Active,
-        CreationDate = DateTimeOffset.UtcNow
-    };
+        var userId = Guid.NewGuid();
+        return new User
+        {
+            Id = userId,
+            UserName = request.Email,
+            NormalizedUserName = request.Email.ToUpperInvariant(),
+            Email = request.Email,
+            NormalizedEmail = request.Email.ToUpperInvariant(),
+            EmailConfirmed = false,
+            PhoneNumber = request.PersonalData.Phone,
+            PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(request.PersonalData.Phone),
+            CreationDate = DateTimeOffset.UtcNow,
+            Status = EUserStatus.Active,
+            PersonalData = personalDataMapper.DtoRegisterBasicToDomain(request.PersonalData),
+            UserRoles = [new UserRole { RoleId = roleId }]
+        };
+    }
 
     public AuthenticationResponse DomainToAuthenticationResponse(User user, string accessToken) =>
-        new(accessToken, user.Name, user.Email!);
+        new(accessToken, user.PersonalData?.FullName ?? string.Empty, user.Email!);
 }

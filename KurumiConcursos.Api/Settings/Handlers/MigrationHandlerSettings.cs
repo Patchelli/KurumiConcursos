@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using KurumiConcursos.Infra.ORM.Context;
+using KurumiConcursos.Domain.Entities;
+using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
+using Microsoft.AspNetCore.Identity;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 
@@ -7,8 +10,12 @@ public static class MigrationHandlerSettings
 {
     public static async Task MigrateDatabaseAsync(this WebApplication app)
     {
-        if (!app.Environment.IsDevelopment()) return;
         await using var scope = app.Services.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<ApplicationContext>().Database.MigrateAsync();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+        var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+        await context.Database.MigrateAsync();
+        var seedHandler = new DbInitializer(context, userRepository, passwordHasher);
+        await seedHandler.Seed();
     }
 }

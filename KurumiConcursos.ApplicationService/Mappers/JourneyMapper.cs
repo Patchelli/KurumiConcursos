@@ -7,9 +7,9 @@ namespace KurumiConcursos.ApplicationService.Mappers;
 
 public sealed class JourneyMapper : IJourneyMapper
 {
-    public ExamJourney DtoRegisterToDomain(Guid accountId, SaveJourneyStructureRequest dto)
+    public ExamJourney DtoRegisterToDomain(Guid userId, SaveJourneyStructureRequest dto)
     {
-        var journey = DtoUpdateToDomain(new ExamJourney { AccountId = accountId }, dto.Journey);
+        var journey = DtoUpdateToDomain(new ExamJourney { UserId = userId }, dto.Journey);
         journey.KnowledgeAreas = dto.KnowledgeAreas
             .OrderBy(item => item.Order)
             .Select(item => MapArea(journey, item))

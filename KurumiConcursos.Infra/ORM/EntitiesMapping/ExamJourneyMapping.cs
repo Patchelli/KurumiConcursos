@@ -11,7 +11,7 @@ public sealed class ExamJourneyMapping : MappingBase, IEntityTypeConfiguration<E
     {
         b.ToTable("exam_journey", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.Title).HasColumnName("title").HasMaxLength(180);
         b.Property(x => x.Institution).HasColumnName("institution").HasMaxLength(180);
         b.Property(x => x.ExamBoard).HasColumnName("exam_board").HasMaxLength(120);
@@ -24,7 +24,8 @@ public sealed class ExamJourneyMapping : MappingBase, IEntityTypeConfiguration<E
         b.Property(x => x.IncludeInStatistics).HasColumnName("include_in_statistics");
         b.Property(x => x.CompletedSyllabusCycles).HasColumnName("completed_syllabus_cycles");
         b.Property(x => x.LogoUrl).HasColumnName("logo_url");
-        b.HasOne(x => x.Account).WithMany(x => x.ExamJourneys).HasForeignKey(x => x.AccountId)
+        b.HasOne(x => x.StudentProfile).WithMany(x => x.ExamJourneys).HasForeignKey(x => x.UserId)
+            .HasPrincipalKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -13,7 +13,7 @@ public sealed class JourneyMapperTests : JourneyMapperTestBase
         var request = new SaveJourneyRequest(null, "Receita Federal", "RFB", "FGV", "Auditor", 25000, 200, null, null,
             EJourneyStage.PreNotice);
         var journey = Mapper.DtoRegisterToDomain(owner, new SaveJourneyStructureRequest(request, []));
-        Assert.Equal(owner, journey.AccountId);
+        Assert.Equal(owner, journey.UserId);
         Assert.Equal("Receita Federal", journey.Title);
         Assert.Equal("Auditor", journey.Position);
     }

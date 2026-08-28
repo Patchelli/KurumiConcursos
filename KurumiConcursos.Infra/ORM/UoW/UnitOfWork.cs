@@ -1,28 +1,49 @@
 using KurumiConcursos.Domain.Interface;
 using KurumiConcursos.Infra.ORM.Context;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace KurumiConcursos.Infra.ORM.UoW;
 
-public sealed class UnitOfWork(ApplicationContext applicationContext) : IUnitOfWork
+public sealed class UnitOfWork(
+    ApplicationContext applicationContext,
+    ILoggerHandler loggerHandler)
+    : IUnitOfWork
 {
-    public async Task CommitAsync(CancellationToken cancellationToken = default) =>
-        await applicationContext.SaveChangesAsync(cancellationToken);
+    private readonly DatabaseFacade _databaseFacade = applicationContext.Database;
+    private readonly List<Func<Task>> _postCommitActions = [];
 
-    public async Task ExecuteInTransactionAsync(
-        Func<CancellationToken, Task> operation,
-        CancellationToken cancellationToken = default)
+    public void BeginTransaction() => _databaseFacade.BeginTransaction();
+
+    public void RegisterPostCommitAction(Func<Task> action) => _postCommitActions.Add(action);
+
+    public async Task CommitAsync(CancellationToken cancellationToken = default)
     {
-        await using var transaction = await applicationContext.Database.BeginTransactionAsync(cancellationToken);
         try
         {
-            await operation(cancellationToken);
             await applicationContext.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            _databaseFacade.CommitTransaction();
+
+            if (loggerHandler.HasLogger())
+                await loggerHandler.SaveInDataBase();
         }
         catch
         {
-            await transaction.RollbackAsync(cancellationToken);
+            RollbackTransaction();
             throw;
         }
+
+        foreach (var action in _postCommitActions)
+        {
+            try
+            {
+                await action();
+            }
+            catch
+            {
+                // Post-commit actions are best-effort.
+            }
+        }
     }
+
+    public void RollbackTransaction() => _databaseFacade.RollbackTransaction();
 }

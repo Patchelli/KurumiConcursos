@@ -5,8 +5,8 @@ namespace KurumiConcursos.Domain.Entities;
 
 public sealed class ExamJourney : EntityBase
 {
-    public Guid AccountId { get; set; }
-    public User Account { get; set; } = null!;
+    public Guid UserId { get; set; }
+    public StudentProfile StudentProfile { get; set; } = null!;
     public string Title { get; set; } = string.Empty;
     public string? Institution { get; set; }
     public string? ExamBoard { get; set; }

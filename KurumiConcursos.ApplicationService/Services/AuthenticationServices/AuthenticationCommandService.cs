@@ -8,12 +8,16 @@ using KurumiConcursos.Domain.Extensions;
 using KurumiConcursos.Domain.Interface;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.ApplicationService.Traces;
+using KurumiConcursos.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace KurumiConcursos.ApplicationService.Services.AuthenticationServices;
 
 public sealed class AuthenticationCommandService(
     IUserRepository userRepository,
     IUserAuthenticationRepository userAuthenticationRepository,
+    IRoleRepository roleRepository,
+    IStudentProfileRepository studentProfileRepository,
     IUserMapper userMapper,
     ITokenService tokenService,
     INotificationHandler notificationHandler) : IAuthenticationCommandService
@@ -21,7 +25,7 @@ public sealed class AuthenticationCommandService(
     public async Task<AuthenticationResponse?> RegisterAsync(RegisterRequest request)
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        if (request.Name.Trim().Length < 2 || !normalizedEmail.Contains('@') || request.Password.Length < 8)
+        if ((request.PersonalData.FullName?.Trim().Length ?? 0) < 2 || !normalizedEmail.Contains('@') || request.Password.Length < 8)
         {
             notificationHandler.CreateNotification(UserTrace.Save,
                 "Informe nome, e-mail válido e senha com ao menos 8 caracteres.");
@@ -33,7 +37,16 @@ public sealed class AuthenticationCommandService(
             return null;
         }
 
-        var user = userMapper.DtoRegisterToDomain(request with { Email = normalizedEmail });
+        var studentRole = await roleRepository.FindByPredicateAsync(
+            role => role.Type == ERoleType.Student,
+            toQuery: true);
+        if (studentRole is null)
+        {
+            notificationHandler.CreateNotification(UserTrace.Save, "Perfil de estudante não configurado.");
+            return null;
+        }
+
+        var user = userMapper.DtoRegisterToDomain(request with { Email = normalizedEmail }, studentRole.Id);
         user.PasswordHash = userRepository.HashPassword(user, request.Password);
         var creation = await userRepository.SaveAsync(user);
         if (!creation.Succeeded)
@@ -43,13 +56,26 @@ public sealed class AuthenticationCommandService(
             return null;
         }
 
+        if (!await studentProfileRepository.SaveAsync(new StudentProfile { UserId = user.Id }))
+        {
+            notificationHandler.CreateNotification(UserTrace.Save, "Não foi possível criar o perfil de estudante.");
+            return null;
+        }
+
+        user.UserRoles![0].Role = studentRole;
+
         return CreateAuthentication(user);
     }
 
     public async Task<AuthenticationResponse?> CreateAccessTokenAsync(LoginRequest request)
     {
         var normalizedEmail = request.Email.Trim().ToUpperInvariant();
-        var user = await userRepository.FindByPredicateAsync(candidate => candidate.NormalizedEmail == normalizedEmail);
+        var user = await userRepository.FindByPredicateAsync(
+            candidate => candidate.NormalizedEmail == normalizedEmail,
+            query => query
+                .Include(candidate => candidate.PersonalData!)
+                .Include(candidate => candidate.UserRoles!)
+                .ThenInclude(userRole => userRole.Role!));
         if (user is null)
         {
             notificationHandler.CreateNotification(
@@ -80,7 +106,7 @@ public sealed class AuthenticationCommandService(
 
     private AuthenticationResponse CreateAuthentication(User user)
     {
-        var accessToken = tokenService.Create(user.Id, user.Name, user.Email!);
+        var accessToken = tokenService.Create(user);
         return userMapper.DomainToAuthenticationResponse(user, accessToken);
     }
 }

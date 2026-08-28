@@ -11,7 +11,7 @@ public sealed class MockAssessmentMapping : MappingBase, IEntityTypeConfiguratio
     {
         b.ToTable("mock_assessment", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.JourneyId).HasColumnName("journey_id");
         b.Property(x => x.Title).HasColumnName("title");
         b.Property(x => x.AssessmentDate).HasColumnName("assessment_date");

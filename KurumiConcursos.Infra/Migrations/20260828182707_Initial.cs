@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KurumiConcursos.Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialLongBusinessIds : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     code = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
                     title = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: false),
@@ -37,13 +37,31 @@ namespace KurumiConcursos.Infra.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DomainLogger",
+                schema: "kurumi_concursos",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    action = table.Column<byte>(type: "smallint", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    action_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    entity_id = table.Column<string>(type: "varchar(80)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DomainLogger", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "flash_collection",
                 schema: "kurumi_concursos",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     parent_id = table.Column<long>(type: "bigint", nullable: true),
                     title = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: false),
@@ -63,7 +81,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     knowledge_area_id = table.Column<long>(type: "bigint", nullable: true),
                     syllabus_node_id = table.Column<long>(type: "bigint", nullable: true),
@@ -85,7 +103,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     title = table.Column<string>(type: "text", nullable: false),
                     assessment_date = table.Column<DateOnly>(type: "date", nullable: false),
@@ -107,7 +125,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     knowledge_area_id = table.Column<long>(type: "bigint", nullable: true),
                     syllabus_node_id = table.Column<long>(type: "bigint", nullable: true),
@@ -129,7 +147,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     syllabus_node_id = table.Column<long>(type: "bigint", nullable: false),
                     scheduled_for = table.Column<DateOnly>(type: "date", nullable: false),
                     completed = table.Column<bool>(type: "boolean", nullable: false),
@@ -167,7 +185,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     knowledge_area_id = table.Column<long>(type: "bigint", nullable: true),
                     syllabus_node_id = table.Column<long>(type: "bigint", nullable: true),
@@ -189,7 +207,7 @@ namespace KurumiConcursos.Infra.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
                     title = table.Column<string>(type: "text", nullable: false),
                     kind = table.Column<int>(type: "integer", nullable: false),
@@ -209,26 +227,25 @@ namespace KurumiConcursos.Infra.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    username = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    normalized_username = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    normalized_email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
+                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    password_hash = table.Column<string>(type: "text", nullable: true),
+                    security_stamp = table.Column<string>(type: "text", nullable: true),
+                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
+                    phone_number = table.Column<string>(type: "varchar(50)", nullable: true),
+                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    access_failed_count = table.Column<int>(type: "integer", nullable: false),
+                    identifier = table.Column<string>(type: "varchar(100)", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
-                    identifier = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     preferred_language = table.Column<int>(type: "integer", nullable: false),
                     creation_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    last_access_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    username = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_username = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    password_hash = table.Column<string>(type: "text", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                    last_access_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -313,34 +330,72 @@ namespace KurumiConcursos.Infra.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "exam_journey",
+                name: "AdminProfile",
                 schema: "kurumi_concursos",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    account_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: false),
-                    institution = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: true),
-                    exam_board = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
-                    position = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: true),
-                    salary = table.Column<decimal>(type: "numeric(14,2)", precision: 14, scale: 2, nullable: true),
-                    openings = table.Column<int>(type: "integer", nullable: true),
-                    notice_url = table.Column<string>(type: "text", nullable: true),
-                    exam_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    stage = table.Column<int>(type: "integer", nullable: false),
-                    include_in_statistics = table.Column<bool>(type: "boolean", nullable: false),
-                    completed_syllabus_cycles = table.Column<int>(type: "integer", nullable: false),
-                    logo_url = table.Column<string>(type: "text", nullable: true),
-                    creation_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    last_update_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_exam_journey", x => x.id);
+                    table.PrimaryKey("PK_AdminProfile", x => x.id);
                     table.ForeignKey(
-                        name: "FK_exam_journey_User_account_id",
-                        column: x => x.account_id,
+                        name: "FK_AdminProfile_User_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "kurumi_concursos",
+                        principalTable: "User",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PersonalData",
+                schema: "kurumi_concursos",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    full_name = table.Column<string>(type: "varchar(255)", nullable: true),
+                    document = table.Column<string>(type: "varchar(50)", nullable: true),
+                    phone = table.Column<string>(type: "varchar(50)", nullable: true),
+                    age = table.Column<int>(type: "integer", nullable: true),
+                    date_of_birth = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PersonalData", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_PersonalData_User_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "kurumi_concursos",
+                        principalTable: "User",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentProfile",
+                schema: "kurumi_concursos",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentProfile", x => x.id);
+                    table.UniqueConstraint("AK_StudentProfile_user_id", x => x.user_id);
+                    table.ForeignKey(
+                        name: "FK_StudentProfile_User_user_id",
+                        column: x => x.user_id,
                         principalSchema: "kurumi_concursos",
                         principalTable: "User",
                         principalColumn: "id",
@@ -469,6 +524,41 @@ namespace KurumiConcursos.Infra.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "exam_journey",
+                schema: "kurumi_concursos",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: false),
+                    institution = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: true),
+                    exam_board = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
+                    position = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: true),
+                    salary = table.Column<decimal>(type: "numeric(14,2)", precision: 14, scale: 2, nullable: true),
+                    openings = table.Column<int>(type: "integer", nullable: true),
+                    notice_url = table.Column<string>(type: "text", nullable: true),
+                    exam_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    stage = table.Column<int>(type: "integer", nullable: false),
+                    include_in_statistics = table.Column<bool>(type: "boolean", nullable: false),
+                    completed_syllabus_cycles = table.Column<int>(type: "integer", nullable: false),
+                    logo_url = table.Column<string>(type: "text", nullable: true),
+                    creation_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    last_update_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_exam_journey", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_exam_journey_StudentProfile_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "kurumi_concursos",
+                        principalTable: "StudentProfile",
+                        principalColumn: "user_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "knowledge_area",
                 schema: "kurumi_concursos",
                 columns: table => new
@@ -532,10 +622,17 @@ namespace KurumiConcursos.Infra.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_exam_journey_account_id",
+                name: "ix_admin_profile_user_id",
+                schema: "kurumi_concursos",
+                table: "AdminProfile",
+                column: "user_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_exam_journey_user_id",
                 schema: "kurumi_concursos",
                 table: "exam_journey",
-                column: "account_id");
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_knowledge_area_journey_id",
@@ -562,6 +659,13 @@ namespace KurumiConcursos.Infra.Migrations
                 column: "mock_assessment_id");
 
             migrationBuilder.CreateIndex(
+                name: "ux_personal_data_user_id",
+                schema: "kurumi_concursos",
+                table: "PersonalData",
+                column: "user_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
                 schema: "kurumi_concursos",
                 table: "Role",
@@ -573,6 +677,13 @@ namespace KurumiConcursos.Infra.Migrations
                 schema: "kurumi_concursos",
                 table: "RoleClaim",
                 column: "role_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_student_profile_user_id",
+                schema: "kurumi_concursos",
+                table: "StudentProfile",
+                column: "user_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_syllabus_node_knowledge_area_id",
@@ -633,6 +744,14 @@ namespace KurumiConcursos.Infra.Migrations
                 schema: "kurumi_concursos");
 
             migrationBuilder.DropTable(
+                name: "AdminProfile",
+                schema: "kurumi_concursos");
+
+            migrationBuilder.DropTable(
+                name: "DomainLogger",
+                schema: "kurumi_concursos");
+
+            migrationBuilder.DropTable(
                 name: "focus_session",
                 schema: "kurumi_concursos");
 
@@ -642,6 +761,10 @@ namespace KurumiConcursos.Infra.Migrations
 
             migrationBuilder.DropTable(
                 name: "mock_assessment_breakdown",
+                schema: "kurumi_concursos");
+
+            migrationBuilder.DropTable(
+                name: "PersonalData",
                 schema: "kurumi_concursos");
 
             migrationBuilder.DropTable(
@@ -706,6 +829,10 @@ namespace KurumiConcursos.Infra.Migrations
 
             migrationBuilder.DropTable(
                 name: "exam_journey",
+                schema: "kurumi_concursos");
+
+            migrationBuilder.DropTable(
+                name: "StudentProfile",
                 schema: "kurumi_concursos");
 
             migrationBuilder.DropTable(

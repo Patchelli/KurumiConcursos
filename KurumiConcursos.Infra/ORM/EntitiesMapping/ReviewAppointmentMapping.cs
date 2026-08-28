@@ -11,7 +11,7 @@ public sealed class ReviewAppointmentMapping : MappingBase, IEntityTypeConfigura
     {
         b.ToTable("review_appointment", Schema);
         MappingColumns.Base(b);
-        b.Property(x => x.AccountId).HasColumnName("account_id");
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.SyllabusNodeId).HasColumnName("syllabus_node_id");
         b.Property(x => x.ScheduledFor).HasColumnName("scheduled_for");
         b.Property(x => x.Completed).HasColumnName("completed");

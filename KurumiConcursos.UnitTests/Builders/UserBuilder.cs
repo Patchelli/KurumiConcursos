@@ -18,5 +18,11 @@ public sealed class UserBuilder
         return this;
     }
 
-    public User Build() => new() { Id = Guid.NewGuid(), Name = _name, UserName = _email, Email = _email };
+    public User Build() => new()
+    {
+        Id = Guid.NewGuid(),
+        UserName = _email,
+        Email = _email,
+        PersonalData = new PersonalData { FullName = _name }
+    };
 }

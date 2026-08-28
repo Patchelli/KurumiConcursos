@@ -18,8 +18,6 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
     public async Task<bool> UpdateAsync(ExamJourney journey)
     {
         var areas = journey.KnowledgeAreas.ToList();
-        await using var transaction = await Context.Database.BeginTransactionAsync();
-
         Context.ChangeTracker.Clear();
         await Context.Set<SyllabusNode>()
             .Where(node => node.KnowledgeArea.JourneyId == journey.Id)
@@ -33,9 +31,7 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
         Context.Entry(journey).State = EntityState.Modified;
         Context.Set<KnowledgeArea>().AddRange(areas);
 
-        var saved = await Context.SaveChangesAsync() > 0;
-        await transaction.CommitAsync();
-        return saved;
+        return await Context.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> DeleteAsync(ExamJourney journey)
@@ -44,11 +40,11 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
         return await SaveInDatabaseAsync();
     }
 
-    public Task<List<ExamJourney>> FindAllByAccountAsync(Guid accountId, CancellationToken ct) => DbSetContext
-        .AsNoTracking().Where(x => x.AccountId == accountId).Include(x => x.KnowledgeAreas)
+    public Task<List<ExamJourney>> FindAllByAccountAsync(Guid userId, CancellationToken ct) => DbSetContext
+        .AsNoTracking().Where(x => x.UserId == userId).Include(x => x.KnowledgeAreas)
         .OrderByDescending(x => x.CreationDate).ToListAsync(ct);
 
-    public async Task<ExamJourney?> FindByIdAsync(long id, Guid accountId, CancellationToken ct,
+    public async Task<ExamJourney?> FindByIdAsync(long id, Guid userId, CancellationToken ct,
         bool includeStructure = false, bool tracking = false)
     {
         IQueryable<ExamJourney> q = tracking ? DbSetContext : DbSetContext.AsNoTracking();
@@ -57,22 +53,22 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
                 .ThenInclude(x => x.SyllabusNodes)
                 .AsSplitQuery();
 
-        return await q.FirstOrDefaultAsync(x => x.Id == id && x.AccountId == accountId, ct);
+        return await q.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
     }
 
-    public Task<KnowledgeArea?> FindAreaAsync(long id, Guid accountId, CancellationToken ct, bool tracking = false)
+    public Task<KnowledgeArea?> FindAreaAsync(long id, Guid userId, CancellationToken ct, bool tracking = false)
     {
         IQueryable<KnowledgeArea> q = Context.Set<KnowledgeArea>();
         if (!tracking) q = q.AsNoTracking();
         return q.Include(x => x.SyllabusNodes)
-            .FirstOrDefaultAsync(x => x.Id == id && x.Journey.AccountId == accountId, ct);
+            .FirstOrDefaultAsync(x => x.Id == id && x.Journey.UserId == userId, ct);
     }
 
-    public Task<SyllabusNode?> FindNodeAsync(long id, Guid accountId, CancellationToken ct, bool tracking = false)
+    public Task<SyllabusNode?> FindNodeAsync(long id, Guid userId, CancellationToken ct, bool tracking = false)
     {
         IQueryable<SyllabusNode> q = Context.Set<SyllabusNode>();
         if (!tracking) q = q.AsNoTracking();
-        return q.FirstOrDefaultAsync(x => x.Id == id && x.KnowledgeArea.Journey.AccountId == accountId, ct);
+        return q.FirstOrDefaultAsync(x => x.Id == id && x.KnowledgeArea.Journey.UserId == userId, ct);
     }
 
     public async Task<bool> SaveAreaAsync(KnowledgeArea area)

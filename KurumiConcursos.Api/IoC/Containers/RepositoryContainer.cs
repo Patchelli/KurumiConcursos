@@ -8,5 +8,8 @@ public static class RepositoryContainer
     public static IServiceCollection AddRepositoryContainer(this IServiceCollection services) => services
         .AddScoped<IUserRepository, UserRepository>()
         .AddScoped<IUserAuthenticationRepository, UserAuthenticationRepository>()
+        .AddScoped<IRoleRepository, RoleRepository>()
+        .AddScoped<IPersonalDataRepository, PersonalDataRepository>()
+        .AddScoped<IStudentProfileRepository, StudentProfileRepository>()
         .AddScoped<IJourneyRepository, JourneyRepository>();
 }

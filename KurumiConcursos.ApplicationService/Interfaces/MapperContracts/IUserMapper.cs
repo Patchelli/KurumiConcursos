@@ -6,6 +6,6 @@ namespace KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 
 public interface IUserMapper
 {
-    User DtoRegisterToDomain(RegisterRequest request);
+    User DtoRegisterToDomain(RegisterRequest request, Guid roleId);
     AuthenticationResponse DomainToAuthenticationResponse(User user, string token);
 }

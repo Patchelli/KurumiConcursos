@@ -4,7 +4,7 @@ namespace KurumiConcursos.Domain.Entities;
 
 public sealed class ReviewAppointment : EntityBase
 {
-    public Guid AccountId { get; set; }
+    public Guid UserId { get; set; }
     public long SyllabusNodeId { get; set; }
     public DateOnly ScheduledFor { get; set; }
     public bool Completed { get; set; }

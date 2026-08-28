@@ -13,7 +13,7 @@ public sealed class ExamJourneyValidation : Validate<ExamJourney>
 
     private void SetRules()
     {
-        RuleFor(entity => entity.AccountId)
+        RuleFor(entity => entity.UserId)
             .NotEmpty().WithMessage("Usuário obrigatório.");
 
         RuleFor(entity => entity.Title)

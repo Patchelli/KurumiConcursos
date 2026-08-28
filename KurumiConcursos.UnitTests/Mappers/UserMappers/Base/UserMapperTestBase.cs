@@ -4,5 +4,5 @@ namespace KurumiConcursos.UnitTests.Mappers.UserMappers.Base;
 
 public abstract class UserMapperTestBase
 {
-    protected readonly UserMapper Mapper = new();
+    protected readonly UserMapper Mapper = new(new PersonalDataMapper());
 }

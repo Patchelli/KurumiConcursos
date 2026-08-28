@@ -8,7 +8,7 @@ public sealed class ExamJourneyValidationTests
     [Fact]
     public void EmptyTitle_MustBeInvalid()
     {
-        var entity = new ExamJourney { AccountId = Guid.NewGuid(), Title = string.Empty };
+        var entity = new ExamJourney { UserId = Guid.NewGuid(), Title = string.Empty };
         var result = new ExamJourneyValidation().Validate(entity);
         Assert.False(result.IsValid);
     }

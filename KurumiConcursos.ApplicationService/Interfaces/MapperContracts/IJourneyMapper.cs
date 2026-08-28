@@ -6,7 +6,7 @@ namespace KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 
 public interface IJourneyMapper
 {
-    ExamJourney DtoRegisterToDomain(Guid accountId, SaveJourneyStructureRequest dto);
+    ExamJourney DtoRegisterToDomain(Guid userId, SaveJourneyStructureRequest dto);
 
     ExamJourney DtoUpdateToDomain(ExamJourney entity, SaveJourneyRequest dto);
 
