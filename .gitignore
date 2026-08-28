@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+Sinapse.Api/appsettings.Development.json
+Sinapse.Api/*.db
+Sinapse.Api/*.db-shm
+Sinapse.Api/*.db-wal
