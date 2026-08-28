@@ -8,8 +8,9 @@ public static class DatabaseConnectionSettings
     public static IServiceCollection AddDatabaseConnectionSettings(this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connection = configuration.GetConnectionString("Default") ??
-                         throw new InvalidOperationException("ConnectionStrings:Default não configurada.");
+        var connection = configuration.GetConnectionString("Default");
+        if (string.IsNullOrWhiteSpace(connection))
+            throw new InvalidOperationException("ConnectionStrings:Default não configurada.");
         services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection,
             npgsql => npgsql.MigrationsAssembly(typeof(ApplicationContext).Assembly.FullName)));
         return services;

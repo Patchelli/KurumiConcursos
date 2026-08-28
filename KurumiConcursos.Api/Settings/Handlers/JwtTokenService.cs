@@ -11,6 +11,9 @@ public sealed class JwtTokenService(IConfiguration configuration) : ITokenServic
     public string Create(Guid accountId, string name, string email)
     {
         var jwt = configuration.GetSection("Jwt");
+        var durationInMinutes = jwt.GetValue("DurationInMinutes", 480);
+        if (durationInMinutes <= 0)
+            throw new InvalidOperationException("Jwt:DurationInMinutes deve ser maior que zero.");
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, accountId.ToString()),
@@ -20,6 +23,6 @@ public sealed class JwtTokenService(IConfiguration configuration) : ITokenServic
         var credentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!)),
             SecurityAlgorithms.HmacSha256);
         return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(jwt["Issuer"], jwt["Audience"], claims,
-            expires: DateTime.UtcNow.AddHours(8), signingCredentials: credentials));
+            expires: DateTime.UtcNow.AddMinutes(durationInMinutes), signingCredentials: credentials));
     }
 }

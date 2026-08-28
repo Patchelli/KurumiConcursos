@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+.git/
+.github/
+.idea/
+*.user
+*.DotSettings.user
+docker-compose*.yml
+README.md

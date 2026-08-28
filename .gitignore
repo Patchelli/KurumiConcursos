@@ -1,6 +1,44 @@
+# .NET
 **/bin/
 **/obj/
-Sinapse.Api/appsettings.Development.json
-Sinapse.Api/*.db
-Sinapse.Api/*.db-shm
-Sinapse.Api/*.db-wal
+packages/
+
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.iml
+*.DotSettings.user
+_ReSharper.Caches/
+
+# Build / Publish
+publish/
+artifacts/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+*.trx
+
+# Coverage
+coverage/
+coverage.*
+*.coverage
+*.coveragexml

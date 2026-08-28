@@ -1,14 +1,49 @@
 services:
   postgres:
     image: postgres:17-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: kurumi_concursos
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-kurumi_concursos}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?configure POSTGRES_PASSWORD in .env}
     ports:
       - "5432:5432"
     volumes:
       - kurumi_concursos_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  kurumi-concursos-api:
+    build:
+      context: .
+      dockerfile: KurumiConcursos.Api/Dockerfile
+    image: ghcr.io/patchelli/kurumi-concursos-api:local
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${POSTGRES_DB:-kurumi_concursos};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER:-KurumiConcursos}
+      Jwt__Audience: ${JWT_AUDIENCE:-KurumiConcursos.Web}
+      Jwt__Key: ${JWT_KEY:?configure JWT_KEY in .env}
+      Jwt__DurationInMinutes: ${JWT_DURATION_MINUTES:-480}
+      Jwt__RequireHttpsMetadata: ${JWT_REQUIRE_HTTPS_METADATA:-true}
+      Cors__AllowedOrigins__0: ${CORS_ORIGIN:?configure CORS_ORIGIN in .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
 
 volumes:
   kurumi_concursos_postgres:

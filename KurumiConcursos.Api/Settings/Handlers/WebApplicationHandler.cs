@@ -7,7 +7,7 @@ public static class WebApplicationHandler
 {
     public static void AddWebApplication(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        if (app.Configuration.GetValue("EnvironmentConfiguration:ActiveSwagger", false))
         {
             app.UseSwagger();
             app.UseSwaggerUI();

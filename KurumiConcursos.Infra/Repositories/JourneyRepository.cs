@@ -1,17 +1,12 @@
-using System.Data;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using KurumiConcursos.Domain.Entities;
-using KurumiConcursos.Infra.Diagnostics;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Infra.ORM.Context;
 using KurumiConcursos.Infra.Repositories.Base;
 
 namespace KurumiConcursos.Infra.Repositories;
 
-public sealed class JourneyRepository(
-    ApplicationContext dbContext,
-    TemporaryJourneyPerformanceProbe performanceProbe)
+public sealed class JourneyRepository(ApplicationContext dbContext)
     : RepositoryBase<ExamJourney>(dbContext), IJourneyRepository
 {
     public async Task<bool> SaveAsync(ExamJourney journey)
@@ -62,26 +57,7 @@ public sealed class JourneyRepository(
                 .ThenInclude(x => x.SyllabusNodes)
                 .AsSplitQuery();
 
-        // TEMP-PERF-JOURNEY: isolate connection, LINQ compilation and execution/materialization.
-        if (Context.Database.GetDbConnection().State != ConnectionState.Open)
-        {
-            var connectionStopwatch = Stopwatch.StartNew();
-            await Context.Database.OpenConnectionAsync(ct);
-            connectionStopwatch.Stop();
-            performanceProbe.ConnectionOpenMs = connectionStopwatch.Elapsed.TotalMilliseconds;
-        }
-
-        var filteredQuery = q.Where(x => x.Id == id && x.AccountId == accountId);
-        var compilationStopwatch = Stopwatch.StartNew();
-        _ = filteredQuery.ToQueryString();
-        compilationStopwatch.Stop();
-        performanceProbe.QueryCompilationMs = compilationStopwatch.Elapsed.TotalMilliseconds;
-
-        var executionStopwatch = Stopwatch.StartNew();
-        var journey = await filteredQuery.FirstOrDefaultAsync(ct);
-        executionStopwatch.Stop();
-        performanceProbe.QueryExecutionMs = executionStopwatch.Elapsed.TotalMilliseconds;
-        return journey;
+        return await q.FirstOrDefaultAsync(x => x.Id == id && x.AccountId == accountId, ct);
     }
 
     public Task<KnowledgeArea?> FindAreaAsync(long id, Guid accountId, CancellationToken ct, bool tracking = false)
