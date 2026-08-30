@@ -7,13 +7,17 @@ public static class CorsSettings
 {
     public static IServiceCollection AddCorsSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        var frontConfiguration = configuration.GetSection(FrontConfigurationOptions.SectionName)
-            .Get<FrontConfigurationOptions>();
+        var corsConfiguration = configuration.GetSection(CorsConfigurationOptions.SectionName)
+            .Get<CorsConfigurationOptions>()!;
+        var allowedOrigins = new[] { corsConfiguration.Web, corsConfiguration.Mobile }
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .ToArray();
+
         services.AddCors(options => options.AddPolicy(CorsName.DefaultPolicy, builder =>
         {
-            builder.WithMethods(frontConfiguration!.Methods)
+            builder.WithOrigins(allowedOrigins)
+                .WithMethods(corsConfiguration.Methods)
                 .AllowAnyHeader()
-                .SetIsOriginAllowed(_ => true)
                 .AllowCredentials();
         }));
         return services;

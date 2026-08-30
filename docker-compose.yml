@@ -35,14 +35,14 @@ services:
       Jwt__JwtKey: ${JWT_KEY:?configure JWT_KEY in .env}
       Jwt__DurationInMinutes: ${JWT_DURATION_MINUTES:-480}
       Jwt__RequireHttpsMetadata: ${JWT_REQUIRE_HTTPS_METADATA:-true}
-      FrontConfiguration__Web: ${FRONT_WEB:?configure FRONT_WEB in .env}
-      FrontConfiguration__Mobile: ${FRONT_MOBILE:-}
-      FrontConfiguration__Methods__0: GET
-      FrontConfiguration__Methods__1: POST
-      FrontConfiguration__Methods__2: PUT
-      FrontConfiguration__Methods__3: DELETE
-      FrontConfiguration__Methods__4: PATCH
-      FrontConfiguration__Methods__5: OPTIONS
+      CorsConfiguration__Web: ${FRONT_WEB:?configure FRONT_WEB in .env}
+      CorsConfiguration__Mobile: ${FRONT_MOBILE:-}
+      CorsConfiguration__Methods__0: GET
+      CorsConfiguration__Methods__1: POST
+      CorsConfiguration__Methods__2: PUT
+      CorsConfiguration__Methods__3: PATCH
+      CorsConfiguration__Methods__4: DELETE
+      CorsConfiguration__Methods__5: OPTIONS
     depends_on:
       postgres:
         condition: service_healthy
