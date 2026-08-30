@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Infra.ORM.Context;
 using KurumiConcursos.Infra.Repositories.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace KurumiConcursos.Infra.Repositories;
 

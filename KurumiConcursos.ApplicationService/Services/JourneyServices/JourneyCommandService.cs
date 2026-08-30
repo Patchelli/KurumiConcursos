@@ -2,7 +2,6 @@ using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
-using KurumiConcursos.ApplicationService.Services;
 using KurumiConcursos.ApplicationService.Traces;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Enums;

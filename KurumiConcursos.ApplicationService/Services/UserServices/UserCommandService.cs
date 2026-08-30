@@ -5,9 +5,8 @@ using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 using KurumiConcursos.ApplicationService.Traces;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Enums;
-using KurumiConcursos.Domain.Interface;
 using KurumiConcursos.Domain.Extensions;
-using KurumiConcursos.ApplicationService.Services;
+using KurumiConcursos.Domain.Interface;
 using KurumiConcursos.Domain.ValueObjects;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 

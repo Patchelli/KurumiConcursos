@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Entities.IdentityEntities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace KurumiConcursos.Infra.ORM.Context;
 

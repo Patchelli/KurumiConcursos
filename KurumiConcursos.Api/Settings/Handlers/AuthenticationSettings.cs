@@ -1,9 +1,9 @@
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using KurumiConcursos.Domain.Providers;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using KurumiConcursos.Domain.Providers;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 
