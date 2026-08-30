@@ -25,19 +25,18 @@ public sealed class JourneyCommandService(
         IJourneyCommandService
 {
     public async Task<JourneyRegisterResponse?> RegisterAsync(
-        SaveJourneyStructureRequest request,
+        JourneyRegisterRequest request,
         UserCredential userCredential)
     {
-        var journey = journeyMapper.DtoRegisterToDomain(
-            userCredential.UserId,
-            request with { Journey = request.Journey with { Id = null } });
+        var journey = journeyMapper.DtoRegisterToDomain(userCredential.UserId, request);
 
         if (!await EntityValidationAsync(journey)) return null;
         foreach (var area in journey.KnowledgeAreas)
         {
             if (!await ValidateEntityAsync(knowledgeAreaValidation, area)) return null;
             foreach (var node in area.SyllabusNodes)
-                if (!await ValidateEntityAsync(syllabusNodeValidation, node)) return null;
+                if (!await ValidateEntityAsync(syllabusNodeValidation, node))
+                    return null;
         }
 
         if (!await journeyRepository.SaveAsync(journey))
@@ -69,28 +68,26 @@ public sealed class JourneyCommandService(
         return true;
     }
 
-    public async Task<bool> UpdateAsync(SaveJourneyStructureRequest request, UserCredential userCredential)
+    public async Task<bool> UpdateAsync(JourneyUpdateRequest request, UserCredential userCredential)
     {
-        if (request.Journey.Id is null)
-            return Notification.CreateNotification(JourneyTrace.Update, "Identificador da jornada não informado.");
-        var journey = await journeyRepository.FindByIdAsync(request.Journey.Id.Value, userCredential.UserId,
+        var journey = await journeyRepository.FindByIdAsync(request.Id, userCredential.UserId,
             CancellationToken.None, includeStructure: true, tracking: true);
         if (journey is null)
             return Notification.CreateNotification(JourneyTrace.Update, "Jornada não encontrada.");
 
-        journeyMapper.DtoUpdateToDomain(journey, request.Journey);
-        var replacement = journeyMapper.DtoRegisterToDomain(userCredential.UserId, request);
-        journey.KnowledgeAreas.Clear();
-        journey.KnowledgeAreas = replacement.KnowledgeAreas;
+        journeyMapper.DtoUpdateToDomain(journey, request);
 
         if (!await EntityValidationAsync(journey)) return false;
         foreach (var area in journey.KnowledgeAreas)
         {
+            area.Journey = journey;
             area.JourneyId = journey.Id;
             if (!await ValidateEntityAsync(knowledgeAreaValidation, area)) return false;
             foreach (var node in area.SyllabusNodes)
-                if (!await ValidateEntityAsync(syllabusNodeValidation, node)) return false;
+                if (!await ValidateEntityAsync(syllabusNodeValidation, node))
+                    return false;
         }
+
         if (!await journeyRepository.UpdateAsync(journey))
             return Notification.CreateNotification(JourneyTrace.Update, "Não foi possível atualizar a jornada.");
 
@@ -98,15 +95,21 @@ public sealed class JourneyCommandService(
         return true;
     }
 
-    public async Task<bool> AddAreaAsync(SaveKnowledgeAreaRequest request, UserCredential userCredential)
+    public async Task<bool> AddAreaAsync(KnowledgeAreaRegisterRequest request, UserCredential userCredential)
     {
-        var journey = await journeyRepository.FindByIdAsync(request.JourneyId, userCredential.UserId, CancellationToken.None);
+        var journey =
+            await journeyRepository.FindByIdAsync(request.JourneyId, userCredential.UserId, CancellationToken.None);
         if (journey is null)
             return Notification.CreateNotification(JourneyTrace.AddKnowledgeArea, "Jornada não encontrada.");
-        var area = new KnowledgeArea { JourneyId = journey.Id, Title = request.Title.Trim().ToUpperInvariant(), Order = request.Order, Weight = request.Weight, ExpectedQuestions = request.ExpectedQuestions };
+        var area = new KnowledgeArea
+        {
+            JourneyId = journey.Id, Title = request.Title.Trim().ToUpperInvariant(), Order = request.Order,
+            Weight = request.Weight, ExpectedQuestions = request.ExpectedQuestions
+        };
         if (!await ValidateEntityAsync(knowledgeAreaValidation, area)) return false;
         if (!await journeyRepository.SaveAreaAsync(area))
-            return Notification.CreateNotification(JourneyTrace.AddKnowledgeArea, "Não foi possível cadastrar a área de conhecimento.");
+            return Notification.CreateNotification(JourneyTrace.AddKnowledgeArea,
+                "Não foi possível cadastrar a área de conhecimento.");
 
         GenerateLogger(EUserAction.Save, JourneyTrace.AddKnowledgeArea, userCredential.UserId, area);
         return true;
@@ -116,25 +119,33 @@ public sealed class JourneyCommandService(
     {
         var area = await journeyRepository.FindAreaAsync(id, userCredential.UserId, CancellationToken.None, true);
         if (area is null)
-            return Notification.CreateNotification(JourneyTrace.DeleteKnowledgeArea, "Área de conhecimento não encontrada.");
+            return Notification.CreateNotification(JourneyTrace.DeleteKnowledgeArea,
+                "Área de conhecimento não encontrada.");
         if (!await journeyRepository.DeleteAreaAsync(area))
-            return Notification.CreateNotification(JourneyTrace.DeleteKnowledgeArea, "Não foi possível excluir a área de conhecimento.");
+            return Notification.CreateNotification(JourneyTrace.DeleteKnowledgeArea,
+                "Não foi possível excluir a área de conhecimento.");
 
         GenerateLogger(EUserAction.Delete, JourneyTrace.DeleteKnowledgeArea, userCredential.UserId, area.Id.ToString());
         return true;
     }
 
-    public async Task<bool> AddNodeAsync(SaveSyllabusNodeRequest request, UserCredential userCredential)
+    public async Task<bool> AddNodeAsync(SyllabusNodeRegisterRequest request, UserCredential userCredential)
     {
-        var area = await journeyRepository.FindAreaAsync(request.KnowledgeAreaId, userCredential.UserId, CancellationToken.None);
+        var area = await journeyRepository.FindAreaAsync(request.KnowledgeAreaId, userCredential.UserId,
+            CancellationToken.None);
         if (area is null)
-            return Notification.CreateNotification(JourneyTrace.AddSyllabusNode, "Área de conhecimento não encontrada.");
+            return Notification.CreateNotification(JourneyTrace.AddSyllabusNode,
+                "Área de conhecimento não encontrada.");
         if (request.ParentId.HasValue && !area.SyllabusNodes.Any(node => node.Id == request.ParentId.Value))
             return Notification.CreateNotification(JourneyTrace.AddSyllabusNode, "Tópico pai não encontrado.");
-        var node = new SyllabusNode { KnowledgeAreaId = area.Id, ParentId = request.ParentId, Title = request.Title.Trim(), Order = request.Order };
+        var node = new SyllabusNode
+        {
+            KnowledgeAreaId = area.Id, ParentId = request.ParentId, Title = request.Title.Trim(), Order = request.Order
+        };
         if (!await ValidateEntityAsync(syllabusNodeValidation, node)) return false;
         if (!await journeyRepository.SaveNodeAsync(node))
-            return Notification.CreateNotification(JourneyTrace.AddSyllabusNode, "Não foi possível cadastrar o tópico.");
+            return Notification.CreateNotification(JourneyTrace.AddSyllabusNode,
+                "Não foi possível cadastrar o tópico.");
 
         GenerateLogger(EUserAction.Save, JourneyTrace.AddSyllabusNode, userCredential.UserId, node);
         return true;
@@ -146,7 +157,8 @@ public sealed class JourneyCommandService(
         if (node is null)
             return Notification.CreateNotification(JourneyTrace.DeleteSyllabusNode, "Tópico não encontrado.");
         if (!await journeyRepository.DeleteNodeAsync(node))
-            return Notification.CreateNotification(JourneyTrace.DeleteSyllabusNode, "Não foi possível excluir o tópico.");
+            return Notification.CreateNotification(JourneyTrace.DeleteSyllabusNode,
+                "Não foi possível excluir o tópico.");
 
         GenerateLogger(EUserAction.Delete, JourneyTrace.DeleteSyllabusNode, userCredential.UserId, node.Id.ToString());
         return true;

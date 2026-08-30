@@ -58,7 +58,8 @@ public sealed class DbInitializer
 
             var result = await _userRepository.SaveAsync(user);
             if (!result.Succeeded)
-                throw new InvalidOperationException(string.Join("; ", result.Errors.Select(error => error.Description)));
+                throw new InvalidOperationException(string.Join("; ",
+                    result.Errors.Select(error => error.Description)));
         }
 
         await SaveAsync();

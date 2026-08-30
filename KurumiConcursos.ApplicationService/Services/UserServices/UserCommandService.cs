@@ -25,8 +25,7 @@ public sealed class UserCommandService(
         PersonalDataUpdateRequest request,
         UserCredential credential)
     {
-        var personalData = await personalDataRepository.FindByPredicateAsync(
-            item => item.UserId == credential.UserId);
+        var personalData = await personalDataRepository.FindByPredicateAsync(item => item.UserId == credential.UserId);
         if (personalData is null)
         {
             Notification.CreateNotification(UserTrace.Update, "Dados pessoais não encontrados.");

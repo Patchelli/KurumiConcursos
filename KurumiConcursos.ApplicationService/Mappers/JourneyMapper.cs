@@ -7,9 +7,10 @@ namespace KurumiConcursos.ApplicationService.Mappers;
 
 public sealed class JourneyMapper : IJourneyMapper
 {
-    public ExamJourney DtoRegisterToDomain(Guid userId, SaveJourneyStructureRequest dto)
+    public ExamJourney DtoRegisterToDomain(Guid userId, JourneyRegisterRequest dto)
     {
-        var journey = DtoUpdateToDomain(new ExamJourney { UserId = userId }, dto.Journey);
+        var journey = new ExamJourney { UserId = userId };
+        ApplyJourneyData(journey, dto);
         journey.KnowledgeAreas = dto.KnowledgeAreas
             .OrderBy(item => item.Order)
             .Select(item => MapArea(journey, item))
@@ -17,7 +18,17 @@ public sealed class JourneyMapper : IJourneyMapper
         return journey;
     }
 
-    public ExamJourney DtoUpdateToDomain(ExamJourney entity, SaveJourneyRequest dto)
+    public ExamJourney DtoUpdateToDomain(ExamJourney entity, JourneyUpdateRequest dto)
+    {
+        ApplyJourneyData(entity, dto);
+        entity.KnowledgeAreas = dto.KnowledgeAreas
+            .OrderBy(item => item.Order)
+            .Select(item => MapArea(entity, item))
+            .ToList();
+        return entity;
+    }
+
+    private static void ApplyJourneyData(ExamJourney entity, JourneyRegisterRequest dto)
     {
         entity.Title = dto.Title.Trim();
         entity.Institution = dto.Institution;
@@ -31,7 +42,22 @@ public sealed class JourneyMapper : IJourneyMapper
         entity.IncludeInStatistics = dto.IncludeInStatistics;
         entity.LogoUrl = dto.LogoUrl;
         entity.LastUpdateDate = DateTimeOffset.UtcNow;
-        return entity;
+    }
+
+    private static void ApplyJourneyData(ExamJourney entity, JourneyUpdateRequest dto)
+    {
+        entity.Title = dto.Title.Trim();
+        entity.Institution = dto.Institution;
+        entity.ExamBoard = dto.ExamBoard;
+        entity.Position = dto.Position;
+        entity.Salary = dto.Salary;
+        entity.Openings = dto.Openings;
+        entity.NoticeUrl = dto.NoticeUrl;
+        entity.ExamDate = dto.ExamDate;
+        entity.Stage = dto.Stage;
+        entity.IncludeInStatistics = dto.IncludeInStatistics;
+        entity.LogoUrl = dto.LogoUrl;
+        entity.LastUpdateDate = DateTimeOffset.UtcNow;
     }
 
     public JourneySummaryResponse DomainToDtoSummaryResponse(ExamJourney entity) =>
@@ -47,7 +73,7 @@ public sealed class JourneyMapper : IJourneyMapper
     public IList<JourneySummaryResponse> DomainToDtoSummaryResponseList(IList<ExamJourney> entities) =>
         entities.Select(DomainToDtoSummaryResponse).ToList();
 
-    private static KnowledgeArea MapArea(ExamJourney journey, SaveKnowledgeAreaStructureRequest dto)
+    private static KnowledgeArea MapArea(ExamJourney journey, KnowledgeAreaStructureRequest dto)
     {
         var area = new KnowledgeArea
         {
@@ -61,7 +87,7 @@ public sealed class JourneyMapper : IJourneyMapper
         return area;
     }
 
-    private static SyllabusNode MapNode(KnowledgeArea area, SyllabusNode? parent, SaveSyllabusNodeStructureRequest dto)
+    private static SyllabusNode MapNode(KnowledgeArea area, SyllabusNode? parent, SyllabusNodeStructureRequest dto)
     {
         var node = new SyllabusNode
         {

@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using KurumiConcursos.Domain.Entities.IdentityEntities;
 using KurumiConcursos.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace KurumiConcursos.Domain.Entities;
 

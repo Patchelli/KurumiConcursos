@@ -20,19 +20,19 @@ public static class AuthenticationSettings
             string.IsNullOrWhiteSpace(audience))
             throw new InvalidOperationException("Jwt:JwtKey, Jwt:Issuer e Jwt:Audience devem ser configurados.");
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-        {
-            options.RequireHttpsMetadata = jwt!.RequireHttpsMetadata;
-            options.SaveToken = true;
-            options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true,
-                ValidateIssuerSigningKey = true, ValidIssuer = issuer, ValidAudience = audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                ClockSkew = TimeSpan.Zero
-            };
-        })
-        .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-        .AddCookie(IdentityConstants.ApplicationScheme);
+                options.RequireHttpsMetadata = jwt!.RequireHttpsMetadata;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true, ValidIssuer = issuer, ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                    ClockSkew = TimeSpan.Zero
+                };
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(IdentityConstants.ApplicationScheme);
         services.AddAuthorization();
         return services;
     }

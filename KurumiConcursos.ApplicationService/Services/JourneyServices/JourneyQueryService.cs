@@ -1,8 +1,8 @@
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
-using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Domain.ValueObjects;
+using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 
 namespace KurumiConcursos.ApplicationService.Services.JourneyServices;
 

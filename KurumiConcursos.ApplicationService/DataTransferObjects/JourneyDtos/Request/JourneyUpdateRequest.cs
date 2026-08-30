@@ -1,8 +1,8 @@
 using KurumiConcursos.Domain.Enums;
 
-namespace KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Response;
+namespace KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request;
 
-public sealed record JourneyDetailsResponse(
+public sealed record JourneyUpdateRequest(
     long Id,
     string Title,
     string? Institution,
@@ -15,4 +15,4 @@ public sealed record JourneyDetailsResponse(
     EJourneyStage Stage,
     bool IncludeInStatistics,
     string? LogoUrl,
-    IReadOnlyList<KnowledgeAreaResponse> KnowledgeAreas);
+    IReadOnlyList<KnowledgeAreaStructureRequest> KnowledgeAreas);

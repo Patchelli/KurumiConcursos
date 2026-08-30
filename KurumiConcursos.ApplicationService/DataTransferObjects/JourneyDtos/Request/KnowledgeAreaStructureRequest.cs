@@ -1,6 +1,6 @@
 namespace KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request;
 
-public sealed record SaveSyllabusNodeStructureRequest(
+public sealed record KnowledgeAreaStructureRequest(
     string Title,
     int Order,
-    IReadOnlyList<SaveSyllabusNodeStructureRequest> Children);
+    IReadOnlyList<SyllabusNodeStructureRequest> Nodes);

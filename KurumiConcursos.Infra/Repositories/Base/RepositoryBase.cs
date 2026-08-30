@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 using KurumiConcursos.Domain.Handlers.PaginationHandler;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts.Base;
 using KurumiConcursos.Infra.ORM.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace KurumiConcursos.Infra.Repositories.Base;
 
@@ -32,11 +32,13 @@ public abstract class RepositoryBase<T>(ApplicationContext dbContext)
 
     protected void AddEntity(T entity) => DbSetContext.Add(entity);
     protected void AddRangeEntities(IReadOnlyCollection<T> entities) => DbSetContext.AddRange(entities);
+
     protected void UpdateEntity(T entity)
     {
         DetachedObject(entity);
         DbSetContext.Update(entity);
     }
+
     protected void UpdateRangeEntities(IReadOnlyCollection<T> entities) => DbSetContext.UpdateRange(entities);
     protected void RemoveEntity(T entity) => DbSetContext.Remove(entity);
     protected void RemoveRangeEntities(IReadOnlyCollection<T> entities) => DbSetContext.RemoveRange(entities);

@@ -2,13 +2,13 @@ using KurumiConcursos.ApplicationService.DataTransferObjects.AuthenticationDtos.
 using KurumiConcursos.ApplicationService.DataTransferObjects.AuthenticationDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
+using KurumiConcursos.ApplicationService.Traces;
 using KurumiConcursos.Domain.Entities;
-using KurumiConcursos.Domain.ValueObjects;
+using KurumiConcursos.Domain.Enums;
 using KurumiConcursos.Domain.Extensions;
 using KurumiConcursos.Domain.Interface;
+using KurumiConcursos.Domain.ValueObjects;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
-using KurumiConcursos.ApplicationService.Traces;
-using KurumiConcursos.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace KurumiConcursos.ApplicationService.Services.AuthenticationServices;
@@ -25,12 +25,14 @@ public sealed class AuthenticationCommandService(
     public async Task<AuthenticationResponse?> RegisterAsync(RegisterRequest request)
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-        if ((request.PersonalData.FullName?.Trim().Length ?? 0) < 2 || !normalizedEmail.Contains('@') || request.Password.Length < 8)
+        if ((request.PersonalData.FullName?.Trim().Length ?? 0) < 2 || !normalizedEmail.Contains('@') ||
+            request.Password.Length < 8)
         {
             notificationHandler.CreateNotification(UserTrace.Save,
                 "Informe nome, e-mail válido e senha com ao menos 8 caracteres.");
             return null;
         }
+
         if (await userRepository.ExistsAsync(user => user.NormalizedEmail == normalizedEmail.ToUpperInvariant()))
         {
             notificationHandler.CreateNotification(UserTrace.Save, "E-mail já cadastrado.");

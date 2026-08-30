@@ -21,12 +21,12 @@ public sealed class JourneyController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public Task<JourneyRegisterResponse?> Register([FromBody] SaveJourneyStructureRequest request) =>
+    public Task<JourneyRegisterResponse?> Register([FromBody] JourneyRegisterRequest request) =>
         journeyCommandService.RegisterAsync(request, User.GetUserCredential());
 
     [HttpPut("update")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    public Task<bool> Update([FromBody] SaveJourneyStructureRequest request) =>
+    public Task<bool> Update([FromBody] JourneyUpdateRequest request) =>
         journeyCommandService.UpdateAsync(request, User.GetUserCredential());
 
     [HttpGet("get_by_id")]
@@ -53,7 +53,7 @@ public sealed class JourneyController(
         journeyCommandService.DeleteRegisterAsync(id, User.GetUserCredential());
 
     [HttpPost("areas")]
-    public Task<bool> AddArea([FromBody] SaveKnowledgeAreaRequest request) =>
+    public Task<bool> AddArea([FromBody] KnowledgeAreaRegisterRequest request) =>
         journeyCommandService.AddAreaAsync(request, User.GetUserCredential());
 
     [HttpDelete("areas")]
@@ -61,7 +61,7 @@ public sealed class JourneyController(
         journeyCommandService.DeleteAreaAsync(id, User.GetUserCredential());
 
     [HttpPost("nodes")]
-    public Task<bool> AddNode([FromBody] SaveSyllabusNodeRequest request) =>
+    public Task<bool> AddNode([FromBody] SyllabusNodeRegisterRequest request) =>
         journeyCommandService.AddNodeAsync(request, User.GetUserCredential());
 
     [HttpDelete("nodes")]

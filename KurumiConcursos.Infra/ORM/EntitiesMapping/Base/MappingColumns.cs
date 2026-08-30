@@ -1,6 +1,6 @@
+using KurumiConcursos.Domain.Entities.Base;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using KurumiConcursos.Domain.Entities.Base;
 
 namespace KurumiConcursos.Infra.ORM.EntitiesMapping.Base;
 

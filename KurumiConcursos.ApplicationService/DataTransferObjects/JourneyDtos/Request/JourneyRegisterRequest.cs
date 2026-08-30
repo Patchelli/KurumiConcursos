@@ -2,8 +2,7 @@ using KurumiConcursos.Domain.Enums;
 
 namespace KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request;
 
-public sealed record SaveJourneyRequest(
-    long? Id,
+public sealed record JourneyRegisterRequest(
     string Title,
     string? Institution,
     string? ExamBoard,
@@ -13,5 +12,6 @@ public sealed record SaveJourneyRequest(
     string? NoticeUrl,
     DateOnly? ExamDate,
     EJourneyStage Stage,
-    bool IncludeInStatistics = true,
-    string? LogoUrl = null);
+    bool IncludeInStatistics,
+    string? LogoUrl,
+    IReadOnlyList<KnowledgeAreaStructureRequest> KnowledgeAreas);

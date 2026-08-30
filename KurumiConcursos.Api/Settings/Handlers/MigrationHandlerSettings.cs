@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using KurumiConcursos.Infra.ORM.Context;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
+using KurumiConcursos.Infra.ORM.Context;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 

@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using KurumiConcursos.Infra.ORM.Context;
 using KurumiConcursos.Domain.Providers;
+using KurumiConcursos.Infra.ORM.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 

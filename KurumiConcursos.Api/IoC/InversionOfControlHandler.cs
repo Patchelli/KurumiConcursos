@@ -1,9 +1,9 @@
 using KurumiConcursos.Api.IoC.Containers;
-using KurumiConcursos.Domain.Interface;
-using KurumiConcursos.Infra.ORM.UoW;
-using KurumiConcursos.Infra.Interfaces.ServiceContracts;
-using KurumiConcursos.Infra.Services;
 using KurumiConcursos.Domain.Handlers.NotificationHandler;
+using KurumiConcursos.Domain.Interface;
+using KurumiConcursos.Infra.Interfaces.ServiceContracts;
+using KurumiConcursos.Infra.ORM.UoW;
+using KurumiConcursos.Infra.Services;
 
 namespace KurumiConcursos.Api.IoC;
 

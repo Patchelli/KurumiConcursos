@@ -17,6 +17,7 @@ public sealed class NotificationHandler : INotificationHandler
 
     public void CreateNotifications(IEnumerable<DomainNotification> notifications) =>
         _notifications.AddRange(notifications);
+
     public void CreateNotification(DomainNotification notification) => _notifications.Add(notification);
 
     public void DeleteNotification(DomainNotification notification) => _notifications.Remove(notification);

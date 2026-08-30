@@ -1,5 +1,5 @@
-using KurumiConcursos.Domain.Interface;
 using KurumiConcursos.Api.Extensions;
+using KurumiConcursos.Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

@@ -1,10 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
-using KurumiConcursos.Domain.Providers;
 using KurumiConcursos.Domain.Entities;
+using KurumiConcursos.Domain.Providers;
+using Microsoft.IdentityModel.Tokens;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 

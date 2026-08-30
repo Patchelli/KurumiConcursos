@@ -1,6 +1,6 @@
 namespace KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request;
 
-public sealed record SaveKnowledgeAreaRequest(
+public sealed record KnowledgeAreaRegisterRequest(
     long? Id,
     long JourneyId,
     string Title,

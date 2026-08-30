@@ -95,5 +95,4 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
         Context.Set<SyllabusNode>().Remove(node);
         return await Context.SaveChangesAsync() > 0;
     }
-
 }

@@ -13,7 +13,9 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace KurumiConcursos.Infra.Repositories;
 
-public sealed class UserRepository(ApplicationContext dbContext, UserManager<User> userManager,
+public sealed class UserRepository(
+    ApplicationContext dbContext,
+    UserManager<User> userManager,
     IPaginationQueryService<User> paginationQueryService)
     : RepositoryBase<User>(dbContext), IUserRepository
 {
