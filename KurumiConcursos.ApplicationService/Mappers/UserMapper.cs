@@ -1,5 +1,6 @@
 using KurumiConcursos.ApplicationService.DataTransferObjects.AuthenticationDtos.Request;
 using KurumiConcursos.ApplicationService.DataTransferObjects.AuthenticationDtos.Response;
+using KurumiConcursos.ApplicationService.DataTransferObjects.UserDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Entities.IdentityEntities;
@@ -31,4 +32,18 @@ public sealed class UserMapper(IPersonalDataMapper personalDataMapper) : IUserMa
 
     public AuthenticationResponse DomainToAuthenticationResponse(User user, string accessToken) =>
         new(accessToken, user.PersonalData?.FullName ?? string.Empty, user.Email!);
+
+    public UserProfileResponse DomainToUserProfileResponse(User user) =>
+        new()
+        {
+            UserId = user.Id,
+            Email = user.Email ?? string.Empty,
+            Status = user.Status,
+            Roles = user.UserRoles?.Where(item => item.Role is not null)
+                .Select(item => item.Role!.Name ?? string.Empty)
+                .Where(item => item.Length > 0).ToList() ?? [],
+            PersonalData = user.PersonalData is null
+                ? null
+                : personalDataMapper.DomainToDtoResponse(user.PersonalData)
+        };
 }

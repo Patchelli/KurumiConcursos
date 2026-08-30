@@ -11,7 +11,8 @@ public static class ValidationContainer
         services
             .AddScoped<IValidate<ExamJourney>, ExamJourneyValidation>()
             .AddScoped<IValidate<KnowledgeArea>, KnowledgeAreaValidation>()
-            .AddScoped<IValidate<SyllabusNode>, SyllabusNodeValidation>();
+            .AddScoped<IValidate<SyllabusNode>, SyllabusNodeValidation>()
+            .AddScoped<IValidate<PersonalData>, PersonalDataValidation>();
 
         return services;
     }

@@ -3,6 +3,7 @@ using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 using KurumiConcursos.ApplicationService.Services.AuthenticationServices;
 using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
+using KurumiConcursos.ApplicationService.Services.UserServices;
 using KurumiConcursos.Domain.Interface;
 
 namespace KurumiConcursos.Api.IoC.Containers;
@@ -13,5 +14,8 @@ public static class ServiceContainer
         .AddScoped<ILoggerHandler, LoggerHandler>()
         .AddScoped<IAuthenticationCommandService, AuthenticationCommandService>()
         .AddScoped<IJourneyCommandService, JourneyCommandService>()
-        .AddScoped<IJourneyQueryService, JourneyQueryService>().AddSingleton<ITokenService, JwtTokenService>();
+        .AddScoped<IJourneyQueryService, JourneyQueryService>()
+        .AddScoped<IUserQueryService, UserQueryService>()
+        .AddScoped<IUserCommandService, UserCommandService>()
+        .AddSingleton<ITokenService, JwtTokenService>();
 }

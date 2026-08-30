@@ -23,11 +23,19 @@ public sealed class JwtTokenService(JwtOptions jwt) : ITokenService
             new(ClaimTypes.Email, user.Email ?? string.Empty)
         };
 
-        foreach (var userRole in user.UserRoles ?? [])
+        var roles = (user.UserRoles ?? [])
+            .Where(userRole => !string.IsNullOrWhiteSpace(userRole.Role?.Name))
+            .Select(userRole => userRole.Role!.Name!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        foreach (var role in roles)
         {
-            if (!string.IsNullOrWhiteSpace(userRole.Role?.Name))
-                claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
+
+        if (roles.Count > 0)
+            claims.Add(new Claim("profile", roles[0]));
 
         var credentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.JwtKey)),
             SecurityAlgorithms.HmacSha256);

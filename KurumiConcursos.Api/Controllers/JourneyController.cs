@@ -2,6 +2,7 @@ using KurumiConcursos.Api.Extensions;
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request;
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
+using KurumiConcursos.Domain.UserPolicies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,7 @@ namespace KurumiConcursos.Api.Controllers;
 
 [ApiController]
 [Route("api/journeys")]
-[Authorize]
+[Authorize(Roles = $"{Policy.Student}")]
 public sealed class JourneyController(
     IJourneyCommandService journeyCommandService,
     IJourneyQueryService journeyQueryService)
