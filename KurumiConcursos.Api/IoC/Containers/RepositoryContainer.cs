@@ -11,5 +11,6 @@ public static class RepositoryContainer
         .AddScoped<IRoleRepository, RoleRepository>()
         .AddScoped<IPersonalDataRepository, PersonalDataRepository>()
         .AddScoped<IStudentProfileRepository, StudentProfileRepository>()
-        .AddScoped<IJourneyRepository, JourneyRepository>();
+        .AddScoped<IJourneyRepository, JourneyRepository>()
+        .AddScoped<ICalendarEventRepository, CalendarEventRepository>();
 }

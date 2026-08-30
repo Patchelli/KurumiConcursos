@@ -1,6 +1,7 @@
 using KurumiConcursos.Api.Settings.Handlers;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 using KurumiConcursos.ApplicationService.Services.AuthenticationServices;
+using KurumiConcursos.ApplicationService.Services.CalendarServices;
 using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
 using KurumiConcursos.ApplicationService.Services.UserServices;
@@ -15,6 +16,8 @@ public static class ServiceContainer
         .AddScoped<IAuthenticationCommandService, AuthenticationCommandService>()
         .AddScoped<IJourneyCommandService, JourneyCommandService>()
         .AddScoped<IJourneyQueryService, JourneyQueryService>()
+        .AddScoped<ICalendarEventCommandService, CalendarEventService>()
+        .AddScoped<ICalendarEventQueryService, CalendarEventService>()
         .AddScoped<IUserQueryService, UserQueryService>()
         .AddScoped<IUserCommandService, UserCommandService>()
         .AddSingleton<ITokenService, JwtTokenService>();

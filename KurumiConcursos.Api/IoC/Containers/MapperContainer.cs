@@ -8,5 +8,6 @@ public static class MapperContainer
     public static IServiceCollection AddMapperContainer(this IServiceCollection services) => services
         .AddTransient<IPersonalDataMapper, PersonalDataMapper>()
         .AddTransient<IUserMapper, UserMapper>()
-        .AddTransient<IJourneyMapper, JourneyMapper>();
+        .AddTransient<IJourneyMapper, JourneyMapper>()
+        .AddTransient<ICalendarEventMapper, CalendarEventMapper>();
 }

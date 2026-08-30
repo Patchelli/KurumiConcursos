@@ -22,6 +22,10 @@ public static class EcosystemInitiation
             SupportedUICultures = supportedCultures
         });
 
+        // Apply CORS before exception/redirect middleware so error responses
+        // also carry the headers required by browsers.
+        app.UseCors(CorsName.DefaultPolicy);
+
         if (environmentConfiguration.ActiveSwagger)
         {
             app.UseSwagger();
@@ -43,7 +47,6 @@ public static class EcosystemInitiation
         }
 
         app.UseMiddleware<CaptureStatusCodeTooManyRequestsMiddleware>();
-        app.UseCors(CorsName.DefaultPolicy);
         app.UseWebSockets();
         app.UseRateLimiter();
         app.UseAuthentication();
