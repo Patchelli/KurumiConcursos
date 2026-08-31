@@ -13,7 +13,9 @@ namespace KurumiConcursos.Api.Controllers;
 [Authorize(Roles = $"{Policy.Student}")]
 public sealed class JourneyController(
     IJourneyCommandService journeyCommandService,
-    IJourneyQueryService journeyQueryService)
+    IJourneyQueryService journeyQueryService,
+    ISyllabusNodeStudyCommandService syllabusNodeStudyCommandService,
+    ISyllabusNodeStudyQueryService syllabusNodeStudyQueryService)
     : ControllerBase
 {
     [HttpPost("register")]
@@ -67,4 +69,12 @@ public sealed class JourneyController(
     [HttpDelete("nodes")]
     public Task<bool> DeleteNode([FromQuery] long id) =>
         journeyCommandService.DeleteNodeAsync(id, User.GetUserCredential());
+
+    [HttpGet("nodes/study")]
+    public Task<IList<SyllabusNodeStudyResponse>> FindNodeStudy([FromQuery] long journeyId) =>
+        syllabusNodeStudyQueryService.FindAllAsync(journeyId, User.GetUserCredential());
+
+    [HttpPut("nodes/study")]
+    public Task<SyllabusNodeStudyResponse?> SaveNodeStudy([FromBody] SyllabusNodeStudyRequest request) =>
+        syllabusNodeStudyCommandService.SaveAsync(request, User.GetUserCredential());
 }

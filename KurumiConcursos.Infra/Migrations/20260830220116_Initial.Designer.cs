@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KurumiConcursos.Infra.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260828182707_Initial")]
+    [Migration("20260830220116_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -98,6 +98,60 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasDatabaseName("ix_admin_profile_user_id");
 
                     b.ToTable("AdminProfile", "kurumi_concursos");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.CalendarEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("creation_date")
+                        .HasColumnOrder(7);
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("event_date")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTimeOffset?>("LastUpdateDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update_date")
+                        .HasColumnOrder(8);
+
+                    b.Property<string>("Note")
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("note")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("title")
+                        .HasColumnOrder(4);
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type")
+                        .HasColumnOrder(5);
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_calendar_event_user_id");
+
+                    b.ToTable("calendar_event", "kurumi_concursos");
                 });
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.DomainLogger", b =>
@@ -947,47 +1001,142 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("id");
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<bool>("Active")
                         .HasColumnType("boolean")
-                        .HasColumnName("active");
+                        .HasColumnName("active")
+                        .HasColumnOrder(6);
 
                     b.Property<string>("ConfigurationJson")
                         .IsRequired()
                         .HasColumnType("jsonb")
-                        .HasColumnName("configuration_json");
+                        .HasColumnName("configuration_json")
+                        .HasColumnOrder(7);
 
                     b.Property<DateTimeOffset>("CreationDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("creation_date");
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("creation_date")
+                        .HasColumnOrder(8);
 
                     b.Property<long>("JourneyId")
                         .HasColumnType("bigint")
-                        .HasColumnName("journey_id");
+                        .HasColumnName("journey_id")
+                        .HasColumnOrder(3);
 
                     b.Property<int>("Kind")
                         .HasColumnType("integer")
-                        .HasColumnName("kind");
+                        .HasColumnName("kind")
+                        .HasColumnOrder(5);
 
                     b.Property<DateTimeOffset?>("LastUpdateDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_update_date");
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update_date")
+                        .HasColumnOrder(9);
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("title");
+                        .HasColumnType("varchar(180)")
+                        .HasColumnName("title")
+                        .HasColumnOrder(4);
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("user_id");
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(2);
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId", "JourneyId")
+                        .HasDatabaseName("ix_study_routine_user_journey");
+
                     b.ToTable("study_routine", "kurumi_concursos");
+                });
+
+            modelBuilder.Entity("KurumiConcursos.Domain.Entities.StudyRoutineBlock", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasColumnOrder(1);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("completed_at")
+                        .HasColumnOrder(12);
+
+                    b.Property<int>("CompletedMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("completed_minutes")
+                        .HasColumnOrder(10);
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("creation_date")
+                        .HasColumnOrder(13);
+
+                    b.Property<long>("JourneyId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("journey_id")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTimeOffset?>("LastUpdateDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update_date")
+                        .HasColumnOrder(14);
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("display_order")
+                        .HasColumnOrder(11);
+
+                    b.Property<int>("PlannedMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("planned_minutes")
+                        .HasColumnOrder(9);
+
+                    b.Property<DateOnly>("ScheduledFor")
+                        .HasColumnType("date")
+                        .HasColumnName("scheduled_for")
+                        .HasColumnOrder(6);
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status")
+                        .HasColumnOrder(8);
+
+                    b.Property<long>("StudyRoutineId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("study_routine_id")
+                        .HasColumnOrder(4);
+
+                    b.Property<long>("SyllabusNodeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("syllabus_node_id")
+                        .HasColumnOrder(5);
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type")
+                        .HasColumnOrder(7);
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ScheduledFor")
+                        .HasDatabaseName("ix_study_routine_block_user_date");
+
+                    b.ToTable("study_routine_block", "kurumi_concursos");
                 });
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.SyllabusNode", b =>

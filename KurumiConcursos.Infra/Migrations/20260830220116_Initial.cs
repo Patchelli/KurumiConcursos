@@ -37,6 +37,26 @@ namespace KurumiConcursos.Infra.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "calendar_event",
+                schema: "kurumi_concursos",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    event_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    title = table.Column<string>(type: "varchar(255)", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    note = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    creation_date = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    last_update_date = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_calendar_event", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DomainLogger",
                 schema: "kurumi_concursos",
                 columns: table => new
@@ -209,16 +229,42 @@ namespace KurumiConcursos.Infra.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     journey_id = table.Column<long>(type: "bigint", nullable: false),
-                    title = table.Column<string>(type: "text", nullable: false),
+                    title = table.Column<string>(type: "varchar(180)", nullable: false),
                     kind = table.Column<int>(type: "integer", nullable: false),
                     active = table.Column<bool>(type: "boolean", nullable: false),
                     configuration_json = table.Column<string>(type: "jsonb", nullable: false),
-                    creation_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    last_update_date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    creation_date = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    last_update_date = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_study_routine", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "study_routine_block",
+                schema: "kurumi_concursos",
+                columns: table => new
+                {
+                    id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    journey_id = table.Column<long>(type: "bigint", nullable: false),
+                    study_routine_id = table.Column<long>(type: "bigint", nullable: false),
+                    syllabus_node_id = table.Column<long>(type: "bigint", nullable: false),
+                    scheduled_for = table.Column<DateOnly>(type: "date", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    planned_minutes = table.Column<int>(type: "integer", nullable: false),
+                    completed_minutes = table.Column<int>(type: "integer", nullable: false),
+                    display_order = table.Column<int>(type: "integer", nullable: false),
+                    completed_at = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true),
+                    creation_date = table.Column<DateTimeOffset>(type: "timestamptz", nullable: false),
+                    last_update_date = table.Column<DateTimeOffset>(type: "timestamptz", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_study_routine_block", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -629,6 +675,12 @@ namespace KurumiConcursos.Infra.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_calendar_event_user_id",
+                schema: "kurumi_concursos",
+                table: "calendar_event",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_exam_journey_user_id",
                 schema: "kurumi_concursos",
                 table: "exam_journey",
@@ -684,6 +736,18 @@ namespace KurumiConcursos.Infra.Migrations
                 table: "StudentProfile",
                 column: "user_id",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_study_routine_user_journey",
+                schema: "kurumi_concursos",
+                table: "study_routine",
+                columns: new[] { "user_id", "journey_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_study_routine_block_user_date",
+                schema: "kurumi_concursos",
+                table: "study_routine_block",
+                columns: new[] { "user_id", "scheduled_for" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_syllabus_node_knowledge_area_id",
@@ -748,6 +812,10 @@ namespace KurumiConcursos.Infra.Migrations
                 schema: "kurumi_concursos");
 
             migrationBuilder.DropTable(
+                name: "calendar_event",
+                schema: "kurumi_concursos");
+
+            migrationBuilder.DropTable(
                 name: "DomainLogger",
                 schema: "kurumi_concursos");
 
@@ -785,6 +853,10 @@ namespace KurumiConcursos.Infra.Migrations
 
             migrationBuilder.DropTable(
                 name: "study_routine",
+                schema: "kurumi_concursos");
+
+            migrationBuilder.DropTable(
+                name: "study_routine_block",
                 schema: "kurumi_concursos");
 
             migrationBuilder.DropTable(

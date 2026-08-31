@@ -1,0 +1,3 @@
+namespace KurumiConcursos.ApplicationService.DataTransferObjects.StudyRoutineBlockDtos.Request;
+
+public sealed record StudyRoutineGenerateRequest(long StudyRoutineId, long JourneyId);

@@ -1,37 +1,70 @@
+using System.Linq.Expressions;
 using KurumiConcursos.Domain.Entities;
+using KurumiConcursos.Domain.Handlers.PaginationHandler;
+using KurumiConcursos.Domain.Handlers.PaginationHandler.Filters;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
+using KurumiConcursos.Infra.Interfaces.ServiceContracts;
 using KurumiConcursos.Infra.ORM.Context;
+using KurumiConcursos.Infra.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace KurumiConcursos.Infra.Repositories;
 
-public sealed class CalendarEventRepository(ApplicationContext context) : ICalendarEventRepository
+public sealed class CalendarEventRepository(
+    ApplicationContext dbContext,
+    IPaginationQueryService<CalendarEvent> paginationQueryService)
+    : RepositoryBase<CalendarEvent>(dbContext), ICalendarEventRepository
 {
-    public Task<List<CalendarEvent>> FindAllAsync(Guid userId, CancellationToken ct) =>
-        context.Set<CalendarEvent>().AsNoTracking().Where(x => x.UserId == userId)
-            .OrderBy(x => x.Date).ThenBy(x => x.Id).ToListAsync(ct);
-
-    public Task<CalendarEvent?> FindByIdAsync(long id, Guid userId, CancellationToken ct, bool tracking = false) =>
-        (tracking ? context.Set<CalendarEvent>() : context.Set<CalendarEvent>().AsNoTracking())
-        .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
-
-    public async Task<bool> SaveAsync(CalendarEvent entity)
+    public async Task<bool> SaveAsync(CalendarEvent calendarEvent)
     {
-        context.Set<CalendarEvent>().Add(entity);
-        return await context.SaveChangesAsync() > 0;
+        await DbSetContext.AddAsync(calendarEvent);
+        return await SaveInDatabaseAsync();
     }
 
-    public async Task<bool> UpdateAsync(CalendarEvent entity)
+    public Task<bool> UpdateAsync(CalendarEvent calendarEvent)
     {
-        context.Set<CalendarEvent>().Update(entity);
-        return await context.SaveChangesAsync() > 0;
+        DetachedObject(calendarEvent);
+        DbSetContext.Update(calendarEvent);
+        return SaveInDatabaseAsync();
     }
 
-    public async Task<bool> DeleteAsync(CalendarEvent entity)
+    public Task<bool> DeleteAsync(CalendarEvent calendarEvent)
     {
-        context.Set<CalendarEvent>().Remove(entity);
-        return await context.SaveChangesAsync() > 0;
+        DbSetContext.Remove(calendarEvent);
+        return SaveInDatabaseAsync();
     }
 
-    public void Dispose() => context.Dispose();
+    public Task<bool> ExistsAsync(Expression<Func<CalendarEvent, bool>> predicate) =>
+        DbSetContext.AsNoTracking().AnyAsync(predicate);
+
+    public Task<CalendarEvent?> FindByPredicateAsync(Expression<Func<CalendarEvent, bool>> predicate,
+        Func<IQueryable<CalendarEvent>, IIncludableQueryable<CalendarEvent, object>>? include = null,
+        bool asNoTracking = false)
+    {
+        IQueryable<CalendarEvent> query = DbSetContext;
+        if (asNoTracking) query = query.AsNoTracking();
+        if (include is not null) query = include(query);
+        return query.FirstOrDefaultAsync(predicate);
+    }
+
+    public Task<PageList<CalendarEvent>> FindAllWithPaginationAsync(PageParams pageParams,
+        Expression<Func<CalendarEvent, bool>>? predicate = null,
+        Func<IQueryable<CalendarEvent>, IIncludableQueryable<CalendarEvent, object>>? include = null)
+    {
+        IQueryable<CalendarEvent> query = DbSetContext;
+        if (include is not null) query = include(query);
+        if (predicate is not null) query = query.Where(predicate);
+        query = query.OrderBy(x => x.Date).ThenBy(x => x.Id);
+        return paginationQueryService.CreatePaginationAsync(query, pageParams.PageSize, pageParams.PageNumber);
+    }
+
+    public async Task<IList<CalendarEvent>> FindAllAsync(Expression<Func<CalendarEvent, bool>>? predicate = null,
+        Func<IQueryable<CalendarEvent>, IIncludableQueryable<CalendarEvent, object>>? include = null)
+    {
+        IQueryable<CalendarEvent> query = DbSetContext;
+        if (include is not null) query = include(query);
+        if (predicate is not null) query = query.Where(predicate);
+        return await query.AsNoTracking().OrderBy(x => x.Date).ThenBy(x => x.Id).ToListAsync();
+    }
 }

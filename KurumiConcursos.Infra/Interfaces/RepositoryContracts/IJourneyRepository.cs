@@ -23,5 +23,6 @@ public interface IJourneyRepository : IReadOnlyRepository<ExamJourney>, IDisposa
     Task<bool> SaveAreaAsync(KnowledgeArea area);
     Task<bool> DeleteAreaAsync(KnowledgeArea area);
     Task<bool> SaveNodeAsync(SyllabusNode node);
+    Task<bool> UpdateNodeAsync(SyllabusNode node);
     Task<bool> DeleteNodeAsync(SyllabusNode node);
 }

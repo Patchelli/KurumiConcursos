@@ -12,5 +12,10 @@ public static class RepositoryContainer
         .AddScoped<IPersonalDataRepository, PersonalDataRepository>()
         .AddScoped<IStudentProfileRepository, StudentProfileRepository>()
         .AddScoped<IJourneyRepository, JourneyRepository>()
-        .AddScoped<ICalendarEventRepository, CalendarEventRepository>();
+        .AddScoped<ICalendarEventRepository, CalendarEventRepository>()
+        .AddScoped<IStudyRoutineRepository, StudyRoutineRepository>()
+        .AddScoped<IStudyRoutineBlockRepository, StudyRoutineBlockRepository>()
+        .AddScoped<IStudyResourceRepository, StudyResourceRepository>()
+        .AddScoped<IFocusSessionRepository, FocusSessionRepository>()
+        .AddScoped<IReviewAppointmentRepository, ReviewAppointmentRepository>();
 }

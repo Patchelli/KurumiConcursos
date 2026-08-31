@@ -89,6 +89,14 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
         return await Context.SaveChangesAsync() > 0;
     }
 
+    public async Task<bool> UpdateNodeAsync(SyllabusNode node)
+    {
+        if (Context.Entry(node).State == EntityState.Detached)
+            Context.Attach(node);
+        Context.Entry(node).State = EntityState.Modified;
+        return await Context.SaveChangesAsync() > 0;
+    }
+
     public async Task<bool> DeleteNodeAsync(SyllabusNode node)
     {
         await Context.Set<SyllabusNode>().Where(item => item.ParentId == node.Id).ExecuteDeleteAsync();

@@ -4,6 +4,9 @@ using KurumiConcursos.ApplicationService.Services.AuthenticationServices;
 using KurumiConcursos.ApplicationService.Services.CalendarServices;
 using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
+using KurumiConcursos.ApplicationService.Services.StudyResourceServices;
+using KurumiConcursos.ApplicationService.Services.StudyRoutineServices;
+using KurumiConcursos.ApplicationService.Services.SyllabusNodeStudyServices;
 using KurumiConcursos.ApplicationService.Services.UserServices;
 using KurumiConcursos.Domain.Interface;
 
@@ -16,8 +19,14 @@ public static class ServiceContainer
         .AddScoped<IAuthenticationCommandService, AuthenticationCommandService>()
         .AddScoped<IJourneyCommandService, JourneyCommandService>()
         .AddScoped<IJourneyQueryService, JourneyQueryService>()
-        .AddScoped<ICalendarEventCommandService, CalendarEventService>()
-        .AddScoped<ICalendarEventQueryService, CalendarEventService>()
+        .AddScoped<ICalendarEventCommandService, CalendarEventCommandService>()
+        .AddScoped<ICalendarEventQueryService, CalendarEventQueryService>()
+        .AddScoped<IStudyRoutineCommandService, StudyRoutineCommandService>()
+        .AddScoped<IStudyRoutineQueryService, StudyRoutineQueryService>()
+        .AddScoped<IStudyResourceCommandService, StudyResourceCommandService>()
+        .AddScoped<IStudyResourceQueryService, StudyResourceQueryService>()
+        .AddScoped<ISyllabusNodeStudyCommandService, SyllabusNodeStudyCommandService>()
+        .AddScoped<ISyllabusNodeStudyQueryService, SyllabusNodeStudyQueryService>()
         .AddScoped<IUserQueryService, UserQueryService>()
         .AddScoped<IUserCommandService, UserCommandService>()
         .AddSingleton<ITokenService, JwtTokenService>();

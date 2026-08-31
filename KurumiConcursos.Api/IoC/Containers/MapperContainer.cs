@@ -9,5 +9,8 @@ public static class MapperContainer
         .AddTransient<IPersonalDataMapper, PersonalDataMapper>()
         .AddTransient<IUserMapper, UserMapper>()
         .AddTransient<IJourneyMapper, JourneyMapper>()
-        .AddTransient<ICalendarEventMapper, CalendarEventMapper>();
+        .AddTransient<ICalendarEventMapper, CalendarEventMapper>()
+        .AddTransient<IStudyRoutineMapper, StudyRoutineMapper>()
+        .AddTransient<IStudyResourceMapper, StudyResourceMapper>()
+        .AddTransient<ISyllabusNodeStudyMapper, SyllabusNodeStudyMapper>();
 }

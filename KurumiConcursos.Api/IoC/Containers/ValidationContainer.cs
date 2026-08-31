@@ -12,6 +12,9 @@ public static class ValidationContainer
             .AddScoped<IValidate<ExamJourney>, ExamJourneyValidation>()
             .AddScoped<IValidate<KnowledgeArea>, KnowledgeAreaValidation>()
             .AddScoped<IValidate<SyllabusNode>, SyllabusNodeValidation>()
+            .AddScoped<IValidate<CalendarEvent>, CalendarEventValidation>()
+            .AddScoped<IValidate<StudyResource>, StudyResourceValidation>()
+            .AddScoped<IValidate<StudyRoutine>, StudyRoutineValidation>()
             .AddScoped<IValidate<PersonalData>, PersonalDataValidation>();
 
         return services;
