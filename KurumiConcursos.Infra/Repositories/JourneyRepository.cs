@@ -77,6 +77,14 @@ public sealed class JourneyRepository(ApplicationContext dbContext)
         return await Context.SaveChangesAsync() > 0;
     }
 
+    public async Task<bool> UpdateAreaAsync(KnowledgeArea area)
+    {
+        if (Context.Entry(area).State == EntityState.Detached)
+            Context.Attach(area);
+        Context.Entry(area).State = EntityState.Modified;
+        return await Context.SaveChangesAsync() > 0;
+    }
+
     public async Task<bool> DeleteAreaAsync(KnowledgeArea area)
     {
         Context.Set<KnowledgeArea>().Remove(area);

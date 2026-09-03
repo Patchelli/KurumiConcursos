@@ -114,6 +114,31 @@ public sealed class JourneyCommandService(
         return true;
     }
 
+    public async Task<bool> UpdateAreaAsync(KnowledgeAreaRegisterRequest request, UserCredential userCredential)
+    {
+        if (!request.Id.HasValue)
+            return Notification.CreateNotification(JourneyTrace.UpdateKnowledgeArea, "Id da área é obrigatório.");
+
+        var area = await journeyRepository.FindAreaAsync(request.Id.Value, userCredential.UserId,
+            CancellationToken.None, tracking: true);
+        if (area is null)
+            return Notification.CreateNotification(JourneyTrace.UpdateKnowledgeArea,
+                "Área de conhecimento não encontrada.");
+
+        area.Title = request.Title.Trim().ToUpperInvariant();
+        area.Order = request.Order;
+        area.Weight = request.Weight;
+        area.ExpectedQuestions = request.ExpectedQuestions;
+
+        if (!await ValidateEntityAsync(knowledgeAreaValidation, area)) return false;
+        if (!await journeyRepository.UpdateAreaAsync(area))
+            return Notification.CreateNotification(JourneyTrace.UpdateKnowledgeArea,
+                "Não foi possível atualizar a área de conhecimento.");
+
+        GenerateLogger(EUserAction.Update, JourneyTrace.UpdateKnowledgeArea, userCredential.UserId, area);
+        return true;
+    }
+
     public async Task<bool> DeleteAreaAsync(long id, UserCredential userCredential)
     {
         var area = await journeyRepository.FindAreaAsync(id, userCredential.UserId, CancellationToken.None, true);
@@ -147,6 +172,28 @@ public sealed class JourneyCommandService(
                 "Não foi possível cadastrar o tópico.");
 
         GenerateLogger(EUserAction.Save, JourneyTrace.AddSyllabusNode, userCredential.UserId, node);
+        return true;
+    }
+
+    public async Task<bool> UpdateNodeAsync(SyllabusNodeRegisterRequest request, UserCredential userCredential)
+    {
+        if (!request.Id.HasValue)
+            return Notification.CreateNotification(JourneyTrace.UpdateSyllabusNode, "Id do tópico é obrigatório.");
+
+        var node = await journeyRepository.FindNodeAsync(request.Id.Value, userCredential.UserId,
+            CancellationToken.None, tracking: true);
+        if (node is null)
+            return Notification.CreateNotification(JourneyTrace.UpdateSyllabusNode, "Tópico não encontrado.");
+
+        node.Title = request.Title.Trim();
+        node.Order = request.Order;
+
+        if (!await ValidateEntityAsync(syllabusNodeValidation, node)) return false;
+        if (!await journeyRepository.UpdateNodeAsync(node))
+            return Notification.CreateNotification(JourneyTrace.UpdateSyllabusNode,
+                "Não foi possível atualizar o tópico.");
+
+        GenerateLogger(EUserAction.Update, JourneyTrace.UpdateSyllabusNode, userCredential.UserId, node);
         return true;
     }
 

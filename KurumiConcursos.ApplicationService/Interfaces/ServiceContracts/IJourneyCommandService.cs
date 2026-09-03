@@ -14,7 +14,9 @@ public interface IJourneyCommandService
 
     Task<bool> DeleteRegisterAsync(long id, UserCredential userCredential);
     Task<bool> AddAreaAsync(KnowledgeAreaRegisterRequest request, UserCredential userCredential);
+    Task<bool> UpdateAreaAsync(KnowledgeAreaRegisterRequest request, UserCredential userCredential);
     Task<bool> DeleteAreaAsync(long id, UserCredential userCredential);
     Task<bool> AddNodeAsync(SyllabusNodeRegisterRequest request, UserCredential userCredential);
+    Task<bool> UpdateNodeAsync(SyllabusNodeRegisterRequest request, UserCredential userCredential);
     Task<bool> DeleteNodeAsync(long id, UserCredential userCredential);
 }

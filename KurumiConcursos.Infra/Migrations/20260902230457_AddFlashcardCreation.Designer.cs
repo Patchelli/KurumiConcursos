@@ -3,6 +3,7 @@ using System;
 using KurumiConcursos.Infra.ORM.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KurumiConcursos.Infra.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260902230457_AddFlashcardCreation")]
+    partial class AddFlashcardCreation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -587,10 +590,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("back");
-
-                    b.Property<bool?>("CorrectAnswer")
-                        .HasColumnType("boolean")
-                        .HasColumnName("correct_answer");
 
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("timestamp with time zone")

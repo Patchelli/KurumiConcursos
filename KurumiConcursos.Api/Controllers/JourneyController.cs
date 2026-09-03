@@ -58,6 +58,10 @@ public sealed class JourneyController(
     public Task<bool> AddArea([FromBody] KnowledgeAreaRegisterRequest request) =>
         journeyCommandService.AddAreaAsync(request, User.GetUserCredential());
 
+    [HttpPut("areas")]
+    public Task<bool> UpdateArea([FromBody] KnowledgeAreaRegisterRequest request) =>
+        journeyCommandService.UpdateAreaAsync(request, User.GetUserCredential());
+
     [HttpDelete("areas")]
     public Task<bool> DeleteArea([FromQuery] long id) =>
         journeyCommandService.DeleteAreaAsync(id, User.GetUserCredential());
@@ -65,6 +69,10 @@ public sealed class JourneyController(
     [HttpPost("nodes")]
     public Task<bool> AddNode([FromBody] SyllabusNodeRegisterRequest request) =>
         journeyCommandService.AddNodeAsync(request, User.GetUserCredential());
+
+    [HttpPut("nodes")]
+    public Task<bool> UpdateNode([FromBody] SyllabusNodeRegisterRequest request) =>
+        journeyCommandService.UpdateNodeAsync(request, User.GetUserCredential());
 
     [HttpDelete("nodes")]
     public Task<bool> DeleteNode([FromQuery] long id) =>

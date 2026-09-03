@@ -6,6 +6,8 @@ public sealed class FlashCollection : EntityBase
 {
     public Guid UserId { get; set; }
     public long JourneyId { get; set; }
+    public long? KnowledgeAreaId { get; set; }
+    public long? SyllabusNodeId { get; set; }
     public long? ParentId { get; set; }
     public string Title { get; set; } = string.Empty;
     public int Order { get; set; }

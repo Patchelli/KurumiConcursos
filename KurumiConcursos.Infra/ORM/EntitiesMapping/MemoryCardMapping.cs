@@ -14,6 +14,9 @@ public sealed class MemoryCardMapping : MappingBase, IEntityTypeConfiguration<Me
         b.Property(x => x.FlashCollectionId).HasColumnName("collection_id");
         b.Property(x => x.Front).HasColumnName("front");
         b.Property(x => x.Back).HasColumnName("back");
+        b.Property(x => x.Model).HasColumnName("model").HasMaxLength(40);
+        b.Property(x => x.Type).HasColumnName("type").HasMaxLength(40);
+        b.Property(x => x.CorrectAnswer).HasColumnName("correct_answer");
         b.Property(x => x.NextReviewOn).HasColumnName("next_review_on");
         b.Property(x => x.IntervalDays).HasColumnName("interval_days");
         b.Property(x => x.EaseFactor).HasColumnName("ease_factor").HasPrecision(6, 3);
