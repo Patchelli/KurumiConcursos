@@ -19,6 +19,7 @@ public sealed class StudyRoutineCommandService(
     IJourneyRepository journeyRepository,
     IStudyRoutineMapper studyRoutineMapper,
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
+    IStudySummaryRepository studySummaryRepository,
     IValidate<StudyRoutine> studyRoutineValidation,
     INotificationHandler notificationHandler,
     ILoggerHandler logger)
@@ -383,6 +384,15 @@ public sealed class StudyRoutineCommandService(
             return null;
         }
 
+        if (request.Completed && !string.IsNullOrWhiteSpace(request.Summary))
+            await studySummaryRepository.SaveAsync(new StudySummary
+            {
+                UserId = credential.UserId, JourneyId = block.JourneyId,
+                SyllabusNodeId = block.SyllabusNodeId,
+                IsReview = block.Type == EStudyBlockType.Review,
+                Content = request.Summary.Trim()
+            });
+
         if (block.Type == EStudyBlockType.Study)
         {
             var reviews = await studyRoutineBlockRepository.FindAllAsync(item =>
@@ -395,7 +405,7 @@ public sealed class StudyRoutineCommandService(
                 await studyRoutineBlockRepository.DeleteAsync(review);
         }
 
-        if (block.Type == EStudyBlockType.Study &&
+        if ((block.Type == EStudyBlockType.Study || block.Type == EStudyBlockType.Review) &&
             request.Completed &&
             request.ScheduleReview &&
             request.ReviewDate.HasValue)

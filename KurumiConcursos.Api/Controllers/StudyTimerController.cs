@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace KurumiConcursos.Api.Controllers;
 
 [ApiController, Route("api/[controller]"), Authorize]
-public sealed class StudyTimerController(IStudyTimerCommandService command, IStudyTimerQueryService query) : ControllerBase
+public sealed class StudyTimerController(IStudyTimerCommandService command, IStudyTimerQueryService query)
+    : ControllerBase
 {
     [HttpGet("active")]
     public Task<StudyTimerResponse?> Active() => query.FindActiveAsync(User.GetUserCredential());

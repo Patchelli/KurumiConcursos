@@ -18,5 +18,8 @@ public sealed class PracticeEntryMapping : MappingBase, IEntityTypeConfiguration
         b.Property(x => x.PracticeDate).HasColumnName("practice_date");
         b.Property(x => x.QuestionsAnswered).HasColumnName("questions_answered");
         b.Property(x => x.CorrectAnswers).HasColumnName("correct_answers");
+        b.Property(x => x.VoidedQuestions).HasColumnName("voided_questions");
+        b.Property(x => x.ErrorReasonsJson).HasColumnName("error_reasons_json").HasColumnType("jsonb");
+        b.Property(x => x.Notes).HasColumnName("notes").HasMaxLength(500);
     }
 }

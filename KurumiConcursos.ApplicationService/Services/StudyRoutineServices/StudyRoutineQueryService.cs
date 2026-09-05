@@ -53,7 +53,7 @@ public sealed class StudyRoutineQueryService(
         if (overdue.Count > 0)
         {
             var routine = await studyRoutineRepository.FindByPredicateAsync(item =>
-                item.Id == routineId && item.UserId == credential.UserId,
+                    item.Id == routineId && item.UserId == credential.UserId,
                 asNoTracking: true);
             pending = await studyRoutineBlockRepository.FindAllAsync(item =>
                 item.StudyRoutineId == routineId &&
@@ -76,7 +76,7 @@ public sealed class StudyRoutineQueryService(
         if (pending is null)
         {
             var routine = await studyRoutineRepository.FindByPredicateAsync(item =>
-                item.Id == routineId && item.UserId == credential.UserId,
+                    item.Id == routineId && item.UserId == credential.UserId,
                 asNoTracking: true);
             configuration = routine is null
                 ? null
@@ -88,6 +88,7 @@ public sealed class StudyRoutineQueryService(
                 item.UserId == credential.UserId &&
                 item.Status == EStudyBlockStatus.Pending);
         }
+
         if (configuration is not null)
             await EnforceDailyCapacityAsync(pending, scheduleFrom, configuration);
 

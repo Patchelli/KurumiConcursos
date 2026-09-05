@@ -11,4 +11,7 @@ public sealed class PracticeEntry : EntityBase
     public DateOnly PracticeDate { get; set; }
     public int QuestionsAnswered { get; set; }
     public int CorrectAnswers { get; set; }
+    public int VoidedQuestions { get; set; }
+    public string ErrorReasonsJson { get; set; } = "{}";
+    public string? Notes { get; set; }
 }

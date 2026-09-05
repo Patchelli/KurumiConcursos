@@ -9,4 +9,7 @@ public sealed class MockAssessmentBreakdown : EntityBase
     public long KnowledgeAreaId { get; set; }
     public int TotalQuestions { get; set; }
     public int CorrectAnswers { get; set; }
+    public int VoidedQuestions { get; set; }
+    public string ErrorReasonsJson { get; set; } = "{}";
+    public string? Notes { get; set; }
 }

@@ -47,18 +47,21 @@ public sealed class StudyTimerCommandService(
                 Notification.CreateNotification(StudyTimerTrace.Save, "Nao foi possivel iniciar o temporizador.");
                 return null;
             }
+
             GenerateLogger(EUserAction.Save, StudyTimerTrace.Save, credential.UserId, session.Id.ToString());
         }
         else
         {
             var current = mapper.DomainToDtoResponse(session, now);
-            if ((session.KnowledgeAreaId != request.KnowledgeAreaId || session.SyllabusNodeId != request.SyllabusNodeId) &&
+            if ((session.KnowledgeAreaId != request.KnowledgeAreaId ||
+                 session.SyllabusNodeId != request.SyllabusNodeId) &&
                 current.AccumulatedFocusSeconds > 0)
             {
                 Notification.CreateNotification(StudyTimerTrace.Save,
                     "Finalize ou descarte a sessao atual antes de trocar o conteudo.");
                 return null;
             }
+
             var normalized = request with
             {
                 AccumulatedFocusSeconds = Math.Max(request.AccumulatedFocusSeconds, current.AccumulatedFocusSeconds),
@@ -73,15 +76,18 @@ public sealed class StudyTimerCommandService(
                 Notification.CreateNotification(StudyTimerTrace.Save, "Nao foi possivel atualizar o temporizador.");
                 return null;
             }
+
             GenerateLogger(EUserAction.Update, StudyTimerTrace.Save, credential.UserId, session.Id.ToString());
         }
+
         return mapper.DomainToDtoResponse(session, now);
     }
 
     public async Task<bool> FinishAsync(StudyTimerFinishRequest request, UserCredential credential)
     {
         var session = await repository.FindByUserAsync(credential.UserId, tracking: true);
-        if (session is null) return Notification.CreateNotification(StudyTimerTrace.Finish, "Sessao ativa nao encontrada.");
+        if (session is null)
+            return Notification.CreateNotification(StudyTimerTrace.Finish, "Sessao ativa nao encontrada.");
         var current = mapper.DomainToDtoResponse(session, DateTimeOffset.UtcNow);
         if (current.AccumulatedFocusSeconds <= 0)
             return Notification.CreateNotification(StudyTimerTrace.Finish, "Nao ha tempo de foco para registrar.");
@@ -103,11 +109,13 @@ public sealed class StudyTimerCommandService(
                 Notes = request.Completed ? "Concluido pelo temporizador" : "Pendente pelo temporizador"
             };
             if (!await focusSessionRepository.SaveAsync(focus))
-                return Notification.CreateNotification(StudyTimerTrace.Finish, "Nao foi possivel registrar o tempo estudado.");
+                return Notification.CreateNotification(StudyTimerTrace.Finish,
+                    "Nao foi possivel registrar o tempo estudado.");
         }
 
         if (!await repository.DeleteAsync(session))
-            return Notification.CreateNotification(StudyTimerTrace.Finish, "O tempo foi registrado, mas a sessao ativa nao foi encerrada.");
+            return Notification.CreateNotification(StudyTimerTrace.Finish,
+                "O tempo foi registrado, mas a sessao ativa nao foi encerrada.");
         GenerateLogger(EUserAction.Save, StudyTimerTrace.Finish, credential.UserId, session.Id.ToString());
         return true;
     }
@@ -117,7 +125,8 @@ public sealed class StudyTimerCommandService(
         var session = await repository.FindByUserAsync(credential.UserId, tracking: true);
         if (session is null) return true;
         if (!await repository.DeleteAsync(session))
-            return Notification.CreateNotification(StudyTimerTrace.Discard, "Nao foi possivel descartar o temporizador.");
+            return Notification.CreateNotification(StudyTimerTrace.Discard,
+                "Nao foi possivel descartar o temporizador.");
         GenerateLogger(EUserAction.Delete, StudyTimerTrace.Discard, credential.UserId, session.Id.ToString());
         return true;
     }

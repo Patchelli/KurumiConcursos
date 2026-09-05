@@ -14,7 +14,9 @@ public sealed class MockAssessmentMapping : MappingBase, IEntityTypeConfiguratio
         b.Property(x => x.UserId).HasColumnName("user_id");
         b.Property(x => x.JourneyId).HasColumnName("journey_id");
         b.Property(x => x.Title).HasColumnName("title");
+        b.Property(x => x.Source).HasColumnName("source").HasMaxLength(180);
         b.Property(x => x.AssessmentDate).HasColumnName("assessment_date");
+        b.Property(x => x.DurationMinutes).HasColumnName("duration_minutes");
         b.Property(x => x.TotalQuestions).HasColumnName("total_questions");
         b.Property(x => x.CorrectAnswers).HasColumnName("correct_answers");
         b.Property(x => x.Score).HasColumnName("score").HasPrecision(8, 2);

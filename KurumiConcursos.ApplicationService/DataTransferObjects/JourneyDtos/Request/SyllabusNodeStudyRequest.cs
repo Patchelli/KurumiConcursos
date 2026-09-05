@@ -8,4 +8,6 @@ public sealed record SyllabusNodeStudyRequest(
     bool ScheduleReview,
     DateOnly? ReviewDate,
     bool ClearPending = false,
-    int? StudiedSeconds = null);
+    int? StudiedSeconds = null,
+    string? Summary = null,
+    bool IsReview = false);

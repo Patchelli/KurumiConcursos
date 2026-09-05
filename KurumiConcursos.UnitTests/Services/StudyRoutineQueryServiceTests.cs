@@ -7,6 +7,7 @@ using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Enums;
 using KurumiConcursos.Domain.ValueObjects;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
+using Microsoft.EntityFrameworkCore.Query;
 using Moq;
 
 namespace KurumiConcursos.UnitTests.Services;
@@ -48,7 +49,8 @@ public sealed class StudyRoutineQueryServiceTests
                 It.IsAny<Expression<Func<StudyRoutineBlock, bool>>>(),
                 null))
             .ReturnsAsync((Expression<Func<StudyRoutineBlock, bool>> predicate,
-                Func<IQueryable<StudyRoutineBlock>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<StudyRoutineBlock, object>>? _) =>
+                    Func<IQueryable<StudyRoutineBlock>, IIncludableQueryable<
+                        StudyRoutineBlock, object>>? _) =>
                 blocks.Where(predicate.Compile()).ToList());
         blockRepository.Setup(repository => repository.UpdateAsync(It.IsAny<StudyRoutineBlock>()))
             .ReturnsAsync(true);
@@ -133,7 +135,8 @@ public sealed class StudyRoutineQueryServiceTests
         repository.Setup(item => item.FindAllAsync(
                 It.IsAny<Expression<Func<StudyRoutineBlock, bool>>>(), null))
             .ReturnsAsync((Expression<Func<StudyRoutineBlock, bool>> predicate,
-                Func<IQueryable<StudyRoutineBlock>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<StudyRoutineBlock, object>>? _) =>
+                    Func<IQueryable<StudyRoutineBlock>, IIncludableQueryable<
+                        StudyRoutineBlock, object>>? _) =>
                 blocks.Where(predicate.Compile()).ToList());
         repository.Setup(item => item.UpdateAsync(It.IsAny<StudyRoutineBlock>())).ReturnsAsync(true);
         return repository;

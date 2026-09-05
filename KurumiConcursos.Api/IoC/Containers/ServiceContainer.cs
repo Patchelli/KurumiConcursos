@@ -5,6 +5,8 @@ using KurumiConcursos.ApplicationService.Services.CalendarServices;
 using KurumiConcursos.ApplicationService.Services.FlashcardServices;
 using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
+using KurumiConcursos.ApplicationService.Services.MockAssessmentServices;
+using KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
 using KurumiConcursos.ApplicationService.Services.StudyResourceServices;
 using KurumiConcursos.ApplicationService.Services.StudyRoutineServices;
 using KurumiConcursos.ApplicationService.Services.StudyTimerServices;
@@ -21,6 +23,8 @@ public static class ServiceContainer
         .AddScoped<IAuthenticationCommandService, AuthenticationCommandService>()
         .AddScoped<IJourneyCommandService, JourneyCommandService>()
         .AddScoped<IJourneyQueryService, JourneyQueryService>()
+        .AddScoped<IMockAssessmentService, MockAssessmentService>()
+        .AddScoped<IPracticeEntryService, PracticeEntryService>()
         .AddScoped<ICalendarEventCommandService, CalendarEventCommandService>()
         .AddScoped<ICalendarEventQueryService, CalendarEventQueryService>()
         .AddScoped<IStudyRoutineCommandService, StudyRoutineCommandService>()

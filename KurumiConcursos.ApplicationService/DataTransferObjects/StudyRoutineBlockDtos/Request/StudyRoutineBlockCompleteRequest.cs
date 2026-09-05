@@ -6,4 +6,5 @@ public sealed record StudyRoutineBlockCompleteRequest(
     int CompletedMinutes,
     bool ScheduleReview,
     DateOnly? ReviewDate,
-    bool ClearPending = false);
+    bool ClearPending = false,
+    string? Summary = null);

@@ -10,6 +10,7 @@ public sealed class SyllabusNodeStudyQueryService(
     IJourneyRepository journeyRepository,
     IFocusSessionRepository focusSessionRepository,
     IReviewAppointmentRepository reviewAppointmentRepository,
+    IStudySummaryRepository studySummaryRepository,
     ISyllabusNodeStudyMapper mapper) : ISyllabusNodeStudyQueryService
 {
     public async Task<IList<SyllabusNodeStudyResponse>> FindAllAsync(long journeyId, UserCredential credential)
@@ -26,12 +27,20 @@ public sealed class SyllabusNodeStudyQueryService(
             x.UserId == credential.UserId && x.SyllabusNodeId.HasValue && ids.Contains(x.SyllabusNodeId.Value));
         var appointments = await reviewAppointmentRepository.FindAllAsync(x =>
             x.UserId == credential.UserId && ids.Contains(x.SyllabusNodeId) && !x.Completed && !x.Superseded);
+        var summaries = await studySummaryRepository.FindAllAsync(x =>
+            x.UserId == credential.UserId && ids.Contains(x.SyllabusNodeId));
+        var latestSummary = summaries.GroupBy(x => x.SyllabusNodeId)
+            .ToDictionary(x => x.Key, x => x.First().Content);
         var secondsByNode = sessions.GroupBy(x => x.SyllabusNodeId!.Value)
             .ToDictionary(group => group.Key, group => group.Sum(x => x.DurationSeconds));
         var childrenByParent = nodes.Where(x => x.ParentId.HasValue)
             .GroupBy(x => x.ParentId!.Value).ToDictionary(x => x.Key, x => x.Select(n => n.Id).ToList());
+
         int TotalSeconds(long nodeId) => secondsByNode.GetValueOrDefault(nodeId) +
-            (childrenByParent.TryGetValue(nodeId, out var children) ? children.Sum(TotalSeconds) : 0);
+                                         (childrenByParent.TryGetValue(nodeId, out var children)
+                                             ? children.Sum(TotalSeconds)
+                                             : 0);
+
         var reviewsByNode = appointments.GroupBy(x => x.SyllabusNodeId)
             .ToDictionary(group => group.Key, group => group.Min(x => x.ScheduledFor));
 
@@ -40,6 +49,9 @@ public sealed class SyllabusNodeStudyQueryService(
             StudiedMinutes: TotalSeconds(node.Id) / 60,
             ReviewDate: reviewsByNode.TryGetValue(node.Id, out var reviewDate)
                 ? (DateOnly?)reviewDate
-                : null)));
+                : null))).Select(x => x with
+        {
+            LatestSummary = latestSummary.GetValueOrDefault(x.SyllabusNodeId)
+        }).ToList();
     }
 }

@@ -16,6 +16,7 @@ public sealed class SyllabusNodeStudyCommandService(
     IFocusSessionRepository focusSessionRepository,
     IReviewAppointmentRepository reviewAppointmentRepository,
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
+    IStudySummaryRepository studySummaryRepository,
     ISyllabusNodeStudyMapper mapper,
     IValidate<SyllabusNode> validation,
     INotificationHandler notification,
@@ -65,8 +66,7 @@ public sealed class SyllabusNodeStudyCommandService(
                 Completed = false,
                 StudiedMinutes = 0,
                 ScheduleReview = false,
-                ReviewDate = null
-                , StudiedSeconds = 0
+                ReviewDate = null, StudiedSeconds = 0
             };
         }
 
@@ -220,6 +220,13 @@ public sealed class SyllabusNodeStudyCommandService(
                 shouldRecordStudy ? (int)Math.Ceiling(studiedSeconds / 60d) : 0,
                 clearPending))
             return null;
+
+        if (request.Completed && !string.IsNullOrWhiteSpace(request.Summary))
+            await studySummaryRepository.SaveAsync(new StudySummary
+            {
+                UserId = credential.UserId, JourneyId = request.JourneyId,
+                SyllabusNodeId = node.Id, IsReview = request.IsReview, Content = request.Summary.Trim()
+            });
 
         GenerateLogger(
             EUserAction.Update,
