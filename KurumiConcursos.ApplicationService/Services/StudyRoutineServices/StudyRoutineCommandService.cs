@@ -20,6 +20,7 @@ public sealed class StudyRoutineCommandService(
     IStudyRoutineMapper studyRoutineMapper,
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
     IStudySummaryRepository studySummaryRepository,
+    ITimeCapsuleCommandService timeCapsuleCommandService,
     IValidate<StudyRoutine> studyRoutineValidation,
     INotificationHandler notificationHandler,
     ILoggerHandler logger)
@@ -429,6 +430,7 @@ public sealed class StudyRoutineCommandService(
             StudyRoutineTrace.CompleteBlock,
             credential.UserId,
             block.Id.ToString());
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(credential.UserId, block.JourneyId);
         return ToResponse(block);
     }
 

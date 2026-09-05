@@ -14,6 +14,7 @@ namespace KurumiConcursos.ApplicationService.Services.FlashcardServices;
 public sealed class FlashcardCommandService(
     IFlashcardRepository flashcardRepository,
     IJourneyRepository journeyRepository,
+    ITimeCapsuleCommandService timeCapsuleCommandService,
     IFlashcardMapper mapper,
     IValidate<MemoryCard> validation,
     INotificationHandler notification,
@@ -135,6 +136,8 @@ public sealed class FlashcardCommandService(
         }
 
         GenerateLogger(EUserAction.Update, FlashcardTrace.Recall, credential.UserId, card.Id.ToString());
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(
+            credential.UserId, card.Collection.JourneyId);
         return mapper.DomainToDtoResponse(card, card.Collection);
     }
 

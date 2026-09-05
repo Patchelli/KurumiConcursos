@@ -17,6 +17,7 @@ public sealed class SyllabusNodeStudyCommandService(
     IReviewAppointmentRepository reviewAppointmentRepository,
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
     IStudySummaryRepository studySummaryRepository,
+    ITimeCapsuleCommandService timeCapsuleCommandService,
     ISyllabusNodeStudyMapper mapper,
     IValidate<SyllabusNode> validation,
     INotificationHandler notification,
@@ -235,6 +236,7 @@ public sealed class SyllabusNodeStudyCommandService(
             node);
         var minutes = await GetStudiedMinutesAsync(node.Id, credential.UserId);
         var reviewDate = await GetReviewDateAsync(node.Id, credential.UserId);
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(credential.UserId, request.JourneyId);
         return mapper.DomainToDtoResponse(node, minutes, reviewDate);
     }
 

@@ -22,5 +22,6 @@ public static class RepositoryContainer
         .AddScoped<IReviewAppointmentRepository, ReviewAppointmentRepository>()
         .AddScoped<IMockAssessmentRepository, MockAssessmentRepository>()
         .AddScoped<IStudySummaryRepository, StudySummaryRepository>()
-        .AddScoped<IPracticeEntryRepository, PracticeEntryRepository>();
+        .AddScoped<IPracticeEntryRepository, PracticeEntryRepository>()
+        .AddScoped<ITimeCapsuleRepository, TimeCapsuleRepository>();
 }

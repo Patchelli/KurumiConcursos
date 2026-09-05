@@ -17,6 +17,7 @@ public sealed class StudyTimerCommandService(
     IFocusSessionRepository focusSessionRepository,
     IJourneyRepository journeyRepository,
     ISyllabusNodeStudyCommandService nodeStudyCommandService,
+    ITimeCapsuleCommandService timeCapsuleCommandService,
     IStudyTimerMapper mapper,
     IValidate<StudyTimerSession> validation,
     INotificationHandler notification,
@@ -117,6 +118,7 @@ public sealed class StudyTimerCommandService(
             return Notification.CreateNotification(StudyTimerTrace.Finish,
                 "O tempo foi registrado, mas a sessao ativa nao foi encerrada.");
         GenerateLogger(EUserAction.Save, StudyTimerTrace.Finish, credential.UserId, session.Id.ToString());
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(credential.UserId, session.JourneyId);
         return true;
     }
 

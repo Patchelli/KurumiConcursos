@@ -11,6 +11,7 @@ namespace KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
 public sealed class PracticeEntryService(
     IPracticeEntryRepository repository,
     IJourneyRepository journeys,
+    ITimeCapsuleCommandService timeCapsuleCommandService,
     INotificationHandler notification) : IPracticeEntryService
 {
     public async Task<IList<PracticeEntryResponse>> FindAllAsync(long j, long a, long? n, UserCredential c) =>
@@ -60,6 +61,7 @@ public sealed class PracticeEntryService(
             return null;
         }
 
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(c.UserId, r.JourneyId);
         return Map(e);
     }
 

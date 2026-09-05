@@ -12,6 +12,7 @@ namespace KurumiConcursos.ApplicationService.Services.MockAssessmentServices;
 public sealed class MockAssessmentService(
     IMockAssessmentRepository repository,
     IJourneyRepository journeys,
+    ITimeCapsuleCommandService timeCapsuleCommandService,
     INotificationHandler notification) : IMockAssessmentService
 {
     public async Task<IList<MockAssessmentResponse>> FindAllAsync(long journeyId, UserCredential c) =>
@@ -29,6 +30,7 @@ public sealed class MockAssessmentService(
             return null;
         }
 
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(c.UserId, r.JourneyId);
         return ToResponse(e);
     }
 
@@ -50,6 +52,7 @@ public sealed class MockAssessmentService(
             return null;
         }
 
+        await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(c.UserId, r.JourneyId);
         return ToResponse(e);
     }
 

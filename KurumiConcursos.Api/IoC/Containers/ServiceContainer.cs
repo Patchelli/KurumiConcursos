@@ -11,6 +11,7 @@ using KurumiConcursos.ApplicationService.Services.StudyResourceServices;
 using KurumiConcursos.ApplicationService.Services.StudyRoutineServices;
 using KurumiConcursos.ApplicationService.Services.StudyTimerServices;
 using KurumiConcursos.ApplicationService.Services.SyllabusNodeStudyServices;
+using KurumiConcursos.ApplicationService.Services.TimeCapsuleServices;
 using KurumiConcursos.ApplicationService.Services.UserServices;
 using KurumiConcursos.Domain.Interface;
 
@@ -37,6 +38,8 @@ public static class ServiceContainer
         .AddScoped<IFlashcardQueryService, FlashcardQueryService>()
         .AddScoped<ISyllabusNodeStudyCommandService, SyllabusNodeStudyCommandService>()
         .AddScoped<ISyllabusNodeStudyQueryService, SyllabusNodeStudyQueryService>()
+        .AddScoped<ITimeCapsuleCommandService, TimeCapsuleCommandService>()
+        .AddScoped<ITimeCapsuleQueryService, TimeCapsuleQueryService>()
         .AddScoped<IUserQueryService, UserQueryService>()
         .AddScoped<IUserCommandService, UserCommandService>()
         .AddSingleton<ITokenService, JwtTokenService>();
