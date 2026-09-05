@@ -13,5 +13,6 @@ public static class MapperContainer
         .AddTransient<IStudyRoutineMapper, StudyRoutineMapper>()
         .AddTransient<IStudyResourceMapper, StudyResourceMapper>()
         .AddTransient<IFlashcardMapper, FlashcardMapper>()
+        .AddTransient<IStudyTimerMapper, StudyTimerMapper>()
         .AddTransient<ISyllabusNodeStudyMapper, SyllabusNodeStudyMapper>();
 }

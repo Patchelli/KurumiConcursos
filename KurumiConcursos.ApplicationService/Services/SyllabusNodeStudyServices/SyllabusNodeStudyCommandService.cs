@@ -32,7 +32,7 @@ public sealed class SyllabusNodeStudyCommandService(
             return null;
         }
 
-        if (request.StudiedMinutes < 0)
+        if (request.StudiedMinutes < 0 || request.StudiedSeconds < 0)
         {
             Notification.CreateNotification(SyllabusNodeStudyTrace.Save, "O tempo estudado nao pode ser negativo.");
             return null;
@@ -66,11 +66,13 @@ public sealed class SyllabusNodeStudyCommandService(
                 StudiedMinutes = 0,
                 ScheduleReview = false,
                 ReviewDate = null
+                , StudiedSeconds = 0
             };
         }
 
+        var studiedSeconds = request.StudiedSeconds ?? request.StudiedMinutes * 60;
         var wasCompleted = node.Progress == EStudyProgress.Studied;
-        if (request.Completed && request.StudiedMinutes == 0 && !wasCompleted)
+        if (request.Completed && studiedSeconds == 0 && !wasCompleted)
         {
             Notification.CreateNotification(
                 SyllabusNodeStudyTrace.Save,
@@ -79,7 +81,7 @@ public sealed class SyllabusNodeStudyCommandService(
         }
 
         // Agendar revisao de um topico ja concluido nao cria uma nova sessao de estudo.
-        var shouldRecordStudy = request.StudiedMinutes > 0 &&
+        var shouldRecordStudy = studiedSeconds > 0 &&
                                 !(wasCompleted && request.Completed && request.ScheduleReview);
 
         node.Progress = clearPending
@@ -93,7 +95,7 @@ public sealed class SyllabusNodeStudyCommandService(
             node.StudyStartedOn = null;
             node.StudiedOn = null;
         }
-        else if (request.Completed || request.StudiedMinutes > 0 || node.StudyStartedOn.HasValue)
+        else if (request.Completed || studiedSeconds > 0 || node.StudyStartedOn.HasValue)
             node.StudyStartedOn ??= today;
 
         node.StudiedOn = request.Completed ? today : null;
@@ -215,7 +217,7 @@ public sealed class SyllabusNodeStudyCommandService(
                 credential.UserId,
                 rootNode,
                 rootChildren,
-                shouldRecordStudy ? request.StudiedMinutes : 0,
+                shouldRecordStudy ? (int)Math.Ceiling(studiedSeconds / 60d) : 0,
                 clearPending))
             return null;
 

@@ -14,6 +14,7 @@ public static class ValidationContainer
             .AddScoped<IValidate<SyllabusNode>, SyllabusNodeValidation>()
             .AddScoped<IValidate<CalendarEvent>, CalendarEventValidation>()
             .AddScoped<IValidate<StudyResource>, StudyResourceValidation>()
+            .AddScoped<IValidate<StudyTimerSession>, StudyTimerSessionValidation>()
             .AddScoped<IValidate<MemoryCard>, MemoryCardValidation>()
             .AddScoped<IValidate<StudyRoutine>, StudyRoutineValidation>()
             .AddScoped<IValidate<PersonalData>, PersonalDataValidation>();

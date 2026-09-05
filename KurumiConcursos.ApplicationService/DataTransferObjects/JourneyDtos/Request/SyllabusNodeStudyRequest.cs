@@ -7,4 +7,5 @@ public sealed record SyllabusNodeStudyRequest(
     int StudiedMinutes,
     bool ScheduleReview,
     DateOnly? ReviewDate,
-    bool ClearPending = false);
+    bool ClearPending = false,
+    int? StudiedSeconds = null);

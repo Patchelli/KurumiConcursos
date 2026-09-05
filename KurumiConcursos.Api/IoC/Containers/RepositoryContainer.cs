@@ -18,5 +18,6 @@ public static class RepositoryContainer
         .AddScoped<IStudyResourceRepository, StudyResourceRepository>()
         .AddScoped<IFlashcardRepository, FlashcardRepository>()
         .AddScoped<IFocusSessionRepository, FocusSessionRepository>()
+        .AddScoped<IStudyTimerSessionRepository, StudyTimerSessionRepository>()
         .AddScoped<IReviewAppointmentRepository, ReviewAppointmentRepository>();
 }

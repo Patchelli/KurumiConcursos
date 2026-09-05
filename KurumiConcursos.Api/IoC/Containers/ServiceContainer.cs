@@ -7,6 +7,7 @@ using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
 using KurumiConcursos.ApplicationService.Services.StudyResourceServices;
 using KurumiConcursos.ApplicationService.Services.StudyRoutineServices;
+using KurumiConcursos.ApplicationService.Services.StudyTimerServices;
 using KurumiConcursos.ApplicationService.Services.SyllabusNodeStudyServices;
 using KurumiConcursos.ApplicationService.Services.UserServices;
 using KurumiConcursos.Domain.Interface;
@@ -26,6 +27,8 @@ public static class ServiceContainer
         .AddScoped<IStudyRoutineQueryService, StudyRoutineQueryService>()
         .AddScoped<IStudyResourceCommandService, StudyResourceCommandService>()
         .AddScoped<IStudyResourceQueryService, StudyResourceQueryService>()
+        .AddScoped<IStudyTimerCommandService, StudyTimerCommandService>()
+        .AddScoped<IStudyTimerQueryService, StudyTimerQueryService>()
         .AddScoped<IFlashcardCommandService, FlashcardCommandService>()
         .AddScoped<IFlashcardQueryService, FlashcardQueryService>()
         .AddScoped<ISyllabusNodeStudyCommandService, SyllabusNodeStudyCommandService>()

@@ -15,7 +15,7 @@ public sealed class SyllabusNodeStudyMapper : ISyllabusNodeStudyMapper
         KnowledgeAreaId = node.KnowledgeAreaId,
         SyllabusNodeId = node.Id,
         StudyDate = studyDate,
-        DurationSeconds = Math.Max(0, request.StudiedMinutes) * 60
+        DurationSeconds = Math.Max(0, request.StudiedSeconds ?? request.StudiedMinutes * 60)
     };
 
     public ReviewAppointment DtoToReviewAppointment(Guid userId, SyllabusNode node, DateOnly reviewDate) => new()

@@ -26,14 +26,18 @@ public sealed class SyllabusNodeStudyQueryService(
             x.UserId == credential.UserId && x.SyllabusNodeId.HasValue && ids.Contains(x.SyllabusNodeId.Value));
         var appointments = await reviewAppointmentRepository.FindAllAsync(x =>
             x.UserId == credential.UserId && ids.Contains(x.SyllabusNodeId) && !x.Completed && !x.Superseded);
-        var minutesByNode = sessions.GroupBy(x => x.SyllabusNodeId!.Value)
-            .ToDictionary(group => group.Key, group => group.Sum(x => x.DurationSeconds) / 60);
+        var secondsByNode = sessions.GroupBy(x => x.SyllabusNodeId!.Value)
+            .ToDictionary(group => group.Key, group => group.Sum(x => x.DurationSeconds));
+        var childrenByParent = nodes.Where(x => x.ParentId.HasValue)
+            .GroupBy(x => x.ParentId!.Value).ToDictionary(x => x.Key, x => x.Select(n => n.Id).ToList());
+        int TotalSeconds(long nodeId) => secondsByNode.GetValueOrDefault(nodeId) +
+            (childrenByParent.TryGetValue(nodeId, out var children) ? children.Sum(TotalSeconds) : 0);
         var reviewsByNode = appointments.GroupBy(x => x.SyllabusNodeId)
             .ToDictionary(group => group.Key, group => group.Min(x => x.ScheduledFor));
 
         return mapper.DomainToDtoResponseList(nodes.Select(node => (
             Node: node,
-            StudiedMinutes: minutesByNode.GetValueOrDefault(node.Id),
+            StudiedMinutes: TotalSeconds(node.Id) / 60,
             ReviewDate: reviewsByNode.TryGetValue(node.Id, out var reviewDate)
                 ? (DateOnly?)reviewDate
                 : null)));
