@@ -17,5 +17,6 @@ public static class MapperContainer
         .AddTransient<IStudyTimerMapper, StudyTimerMapper>()
         .AddTransient<ISyllabusNodeStudyMapper, SyllabusNodeStudyMapper>()
         .AddTransient<IQuestionAppointmentMapper, QuestionAppointmentMapper>()
+        .AddTransient<IPerformanceAdaptationMapper, PerformanceAdaptationMapper>()
         .AddTransient<ITimeCapsuleMapper, TimeCapsuleMapper>();
 }

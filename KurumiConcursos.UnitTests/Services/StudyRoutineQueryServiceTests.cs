@@ -35,10 +35,6 @@ public sealed class StudyRoutineQueryServiceTests
             [10, 20, 30],
             new Dictionary<long, string>(),
             1,
-            7,
-            50,
-            25,
-            25,
             EveryDay(1),
             new Dictionary<long, decimal>(),
             new Dictionary<long, decimal>());
@@ -105,7 +101,7 @@ public sealed class StudyRoutineQueryServiceTests
             Block(4, userId, 301, from.AddDays(1), 2)
         };
         var configuration = new StudyRoutineConfigurationRequest(
-            [10, 20, 30], new Dictionary<long, string>(), 1, 7, 50, 25, 25,
+            [10, 20, 30], new Dictionary<long, string>(), 1,
             EveryDay(1), new Dictionary<long, decimal>(), new Dictionary<long, decimal>());
         var blockRepository = BlockRepository(blocks);
         var routineRepository = RoutineRepository(userId, configuration);

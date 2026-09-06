@@ -11,6 +11,7 @@ namespace KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
 public sealed class PracticeEntryService(
     IPracticeEntryRepository repository,
     IQuestionAppointmentCommandService questionAppointmentCommandService,
+    IPerformanceAdaptationCommandService performanceAdaptationCommandService,
     IJourneyRepository journeys,
     ITimeCapsuleCommandService timeCapsuleCommandService,
     INotificationHandler notification) : IPracticeEntryService
@@ -62,9 +63,12 @@ public sealed class PracticeEntryService(
             return null;
         }
 
-        if (!id.HasValue && r.SyllabusNodeId.HasValue)
+        if (r.SyllabusNodeId.HasValue)
         {
-            await questionAppointmentCommandService.CompletePendingAsync(
+            if (!id.HasValue)
+                await questionAppointmentCommandService.CompletePendingAsync(
+                    c.UserId, r.JourneyId, r.SyllabusNodeId.Value);
+            await performanceAdaptationCommandService.EvaluateQuestionsAsync(
                 c.UserId, r.JourneyId, r.SyllabusNodeId.Value);
         }
 
@@ -75,7 +79,12 @@ public sealed class PracticeEntryService(
     public async Task<bool> DeleteAsync(long id, UserCredential c)
     {
         var e = await repository.FindAsync(x => x.Id == id && x.UserId == c.UserId, true);
-        return e is not null && await repository.DeleteAsync(e);
+        if (e is null || !await repository.DeleteAsync(e))
+            return false;
+        if (e.SyllabusNodeId.HasValue)
+            await performanceAdaptationCommandService.EvaluateQuestionsAsync(
+                c.UserId, e.JourneyId, e.SyllabusNodeId.Value);
+        return true;
     }
 
     private static PracticeEntryResponse Map(PracticeEntry e) => new(e.Id, e.JourneyId, e.KnowledgeAreaId!.Value,

@@ -18,6 +18,7 @@ public sealed class QuestionAppointmentMapping : MappingBase, IEntityTypeConfigu
         builder.Property(item => item.Completed).HasColumnName("completed");
         builder.Property(item => item.CompletedAt).HasColumnName("completed_at");
         builder.Property(item => item.Superseded).HasColumnName("superseded");
+        builder.Property(item => item.AdaptationTrigger).HasColumnName("adaptation_trigger");
         builder.HasOne(item => item.SyllabusNode).WithMany().HasForeignKey(item => item.SyllabusNodeId);
         builder.HasIndex(item => new { item.UserId, item.JourneyId, item.ScheduledFor });
     }

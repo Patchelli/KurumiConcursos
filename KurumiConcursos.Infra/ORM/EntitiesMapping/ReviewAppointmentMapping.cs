@@ -17,5 +17,6 @@ public sealed class ReviewAppointmentMapping : MappingBase, IEntityTypeConfigura
         b.Property(x => x.Completed).HasColumnName("completed");
         b.Property(x => x.CompletedAt).HasColumnName("completed_at");
         b.Property(x => x.Superseded).HasColumnName("superseded");
+        b.Property(x => x.AdaptationTrigger).HasColumnName("adaptation_trigger");
     }
 }

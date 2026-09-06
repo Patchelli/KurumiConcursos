@@ -15,6 +15,7 @@ public sealed class FlashcardCommandService(
     IFlashcardRepository flashcardRepository,
     IJourneyRepository journeyRepository,
     ITimeCapsuleCommandService timeCapsuleCommandService,
+    IPerformanceAdaptationCommandService performanceAdaptationCommandService,
     IFlashcardMapper mapper,
     IValidate<MemoryCard> validation,
     INotificationHandler notification,
@@ -138,6 +139,9 @@ public sealed class FlashcardCommandService(
         GenerateLogger(EUserAction.Update, FlashcardTrace.Recall, credential.UserId, card.Id.ToString());
         await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(
             credential.UserId, card.Collection.JourneyId);
+        if (card.Collection.SyllabusNodeId.HasValue)
+            await performanceAdaptationCommandService.EvaluateFlashcardsAsync(
+                credential.UserId, card.Collection.JourneyId, card.Collection.SyllabusNodeId.Value);
         return mapper.DomainToDtoResponse(card, card.Collection);
     }
 

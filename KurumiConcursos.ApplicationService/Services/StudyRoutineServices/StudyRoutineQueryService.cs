@@ -18,6 +18,7 @@ public sealed class StudyRoutineQueryService(
     IStudyRoutineMapper studyRoutineMapper)
     : IStudyRoutineQueryService
 {
+    private static readonly SemaphoreSlim ScheduleLock = new(1, 1);
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -40,80 +41,88 @@ public sealed class StudyRoutineQueryService(
         DateOnly to,
         UserCredential credential)
     {
-        var scheduleFrom = CurrentDate();
-        // Cada materia conserva a propria fila: uma pendencia ocupa a proxima
-        // ocorrencia daquela materia e desloca os topicos seguintes em cascata.
-        var overdue = await studyRoutineBlockRepository.FindAllAsync(item =>
-            item.StudyRoutineId == routineId &&
-            item.UserId == credential.UserId &&
-            item.ScheduledFor < scheduleFrom &&
-            item.Status == EStudyBlockStatus.Pending);
-        StudyRoutineConfigurationRequest? configuration = null;
-        IList<StudyRoutineBlock>? pending = null;
-        if (overdue.Count > 0)
+        await ScheduleLock.WaitAsync();
+        try
         {
-            var routine = await studyRoutineRepository.FindByPredicateAsync(item =>
-                    item.Id == routineId && item.UserId == credential.UserId,
-                asNoTracking: true);
-            pending = await studyRoutineBlockRepository.FindAllAsync(item =>
+            var scheduleFrom = CurrentDate();
+            // Cada materia conserva a propria fila: uma pendencia ocupa a proxima
+            // ocorrencia daquela materia e desloca os topicos seguintes em cascata.
+            var overdue = await studyRoutineBlockRepository.FindAllAsync(item =>
                 item.StudyRoutineId == routineId &&
                 item.UserId == credential.UserId &&
+                item.ScheduledFor < scheduleFrom &&
                 item.Status == EStudyBlockStatus.Pending);
-            configuration = routine is null
-                ? null
-                : JsonSerializer.Deserialize<StudyRoutineConfigurationRequest>(
-                    routine.ConfigurationJson,
-                    JsonOptions);
-            await RescheduleOverdueStudiesAsync(pending, scheduleFrom, configuration, credential);
+            StudyRoutineConfigurationRequest? configuration = null;
+            IList<StudyRoutineBlock>? pending = null;
+            if (overdue.Count > 0)
+            {
+                var routine = await studyRoutineRepository.FindByPredicateAsync(item =>
+                        item.Id == routineId && item.UserId == credential.UserId,
+                    asNoTracking: true);
+                pending = await studyRoutineBlockRepository.FindAllAsync(item =>
+                    item.StudyRoutineId == routineId &&
+                    item.UserId == credential.UserId &&
+                    item.Status == EStudyBlockStatus.Pending);
+                configuration = routine is null
+                    ? null
+                    : JsonSerializer.Deserialize<StudyRoutineConfigurationRequest>(
+                        routine.ConfigurationJson,
+                        JsonOptions);
+                await RescheduleOverdueStudiesAsync(pending, scheduleFrom, configuration, credential);
 
-            // Revisoes possuem data propria e nao participam da fila de topicos.
-            foreach (var review in overdue.Where(item => item.Type == EStudyBlockType.Review))
-                await MoveBlockAsync(review, scheduleFrom);
+                // Revisoes possuem data propria e nao participam da fila de topicos.
+                foreach (var review in overdue.Where(item => item.Type == EStudyBlockType.Review))
+                    await MoveBlockAsync(review, scheduleFrom);
+            }
+
+            // Tambem corrige planos que tenham sido abertos antes desta regra e ja
+            // estejam com blocos acumulados em uma mesma data.
+            if (pending is null)
+            {
+                var routine = await studyRoutineRepository.FindByPredicateAsync(item =>
+                        item.Id == routineId && item.UserId == credential.UserId,
+                    asNoTracking: true);
+                configuration = routine is null
+                    ? null
+                    : JsonSerializer.Deserialize<StudyRoutineConfigurationRequest>(
+                        routine.ConfigurationJson,
+                        JsonOptions);
+                pending = await studyRoutineBlockRepository.FindAllAsync(item =>
+                    item.StudyRoutineId == routineId &&
+                    item.UserId == credential.UserId &&
+                    item.Status == EStudyBlockStatus.Pending);
+            }
+
+            if (configuration is not null)
+                await EnforceDailyCapacityAsync(pending, scheduleFrom, configuration);
+
+            var allBlocks = await studyRoutineBlockRepository.FindAllAsync(item =>
+                item.StudyRoutineId == routineId &&
+                item.UserId == credential.UserId &&
+                item.ScheduledFor >= from &&
+                item.ScheduledFor <= to);
+            var completedStudyNodes = (await studyRoutineBlockRepository.FindAllAsync(item =>
+                    item.StudyRoutineId == routineId &&
+                    item.UserId == credential.UserId &&
+                    item.Type == EStudyBlockType.Study &&
+                    item.Status == EStudyBlockStatus.Completed))
+                .Select(item => item.SyllabusNodeId)
+                .ToHashSet();
+
+            return allBlocks
+                .Where(item => item.Type != EStudyBlockType.Review || completedStudyNodes.Contains(item.SyllabusNodeId))
+                .GroupBy(item => new { item.ScheduledFor, item.SyllabusNodeId, item.Type })
+                .Select(group => group
+                    .OrderByDescending(item => item.Status == EStudyBlockStatus.Completed)
+                    .ThenBy(item => item.Order)
+                    .First())
+                .Select(ToResponse)
+                .ToList();
         }
-
-        // Tambem corrige planos que tenham sido abertos antes desta regra e ja
-        // estejam com blocos acumulados em uma mesma data.
-        if (pending is null)
+        finally
         {
-            var routine = await studyRoutineRepository.FindByPredicateAsync(item =>
-                    item.Id == routineId && item.UserId == credential.UserId,
-                asNoTracking: true);
-            configuration = routine is null
-                ? null
-                : JsonSerializer.Deserialize<StudyRoutineConfigurationRequest>(
-                    routine.ConfigurationJson,
-                    JsonOptions);
-            pending = await studyRoutineBlockRepository.FindAllAsync(item =>
-                item.StudyRoutineId == routineId &&
-                item.UserId == credential.UserId &&
-                item.Status == EStudyBlockStatus.Pending);
+            ScheduleLock.Release();
         }
-
-        if (configuration is not null)
-            await EnforceDailyCapacityAsync(pending, scheduleFrom, configuration);
-
-        var allBlocks = await studyRoutineBlockRepository.FindAllAsync(item =>
-            item.StudyRoutineId == routineId &&
-            item.UserId == credential.UserId &&
-            item.ScheduledFor >= from &&
-            item.ScheduledFor <= to);
-        var completedStudyNodes = (await studyRoutineBlockRepository.FindAllAsync(item =>
-                item.StudyRoutineId == routineId &&
-                item.UserId == credential.UserId &&
-                item.Type == EStudyBlockType.Study &&
-                item.Status == EStudyBlockStatus.Completed))
-            .Select(item => item.SyllabusNodeId)
-            .ToHashSet();
-
-        return allBlocks
-            .Where(item => item.Type != EStudyBlockType.Review || completedStudyNodes.Contains(item.SyllabusNodeId))
-            .GroupBy(item => new { item.ScheduledFor, item.SyllabusNodeId, item.Type })
-            .Select(group => group
-                .OrderByDescending(item => item.Status == EStudyBlockStatus.Completed)
-                .ThenBy(item => item.Order)
-                .First())
-            .Select(ToResponse)
-            .ToList();
     }
 
     private async Task RescheduleOverdueStudiesAsync(

@@ -1,4 +1,5 @@
 using KurumiConcursos.Domain.Entities.Base;
+using KurumiConcursos.Domain.Enums;
 
 namespace KurumiConcursos.Domain.Entities;
 
@@ -10,4 +11,5 @@ public sealed class ReviewAppointment : EntityBase
     public bool Completed { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
     public bool Superseded { get; set; }
+    public EAdaptationTrigger? AdaptationTrigger { get; set; }
 }

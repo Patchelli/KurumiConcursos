@@ -9,9 +9,18 @@ public sealed class QuestionAppointmentCommandService(
     IQuestionAppointmentRepository repository,
     IQuestionAppointmentMapper mapper) : IQuestionAppointmentCommandService
 {
-    public Task<bool> ScheduleAsync(Guid userId, long journeyId, SyllabusNode node, DateOnly completedOn) =>
-        repository.SaveAsync(mapper.DomainToAppointment(
-            userId, journeyId, node, completedOn.AddDays(Random.Shared.Next(1, 3))));
+    public Task<bool> ScheduleAsync(Guid userId, long journeyId, SyllabusNode node, DateOnly completedOn,
+        DateOnly? reviewDate = null)
+    {
+        var firstDay = completedOn.AddDays(1);
+        var secondDay = completedOn.AddDays(2);
+        var scheduledFor = reviewDate == firstDay
+            ? secondDay
+            : reviewDate == secondDay
+                ? firstDay
+                : completedOn.AddDays(Random.Shared.Next(1, 3));
+        return repository.SaveAsync(mapper.DomainToAppointment(userId, journeyId, node, scheduledFor));
+    }
 
     public async Task<bool> SupersedePendingAsync(Guid userId, IReadOnlyCollection<long> syllabusNodeIds)
     {

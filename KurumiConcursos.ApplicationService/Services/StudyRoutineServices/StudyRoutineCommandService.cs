@@ -21,6 +21,7 @@ public sealed class StudyRoutineCommandService(
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
     IFocusSessionRepository focusSessionRepository,
     IStudySummaryRepository studySummaryRepository,
+    IReviewAppointmentRepository reviewAppointmentRepository,
     IQuestionAppointmentCommandService questionAppointmentCommandService,
     ITimeCapsuleCommandService timeCapsuleCommandService,
     IValidate<StudyRoutine> studyRoutineValidation,
@@ -152,10 +153,6 @@ public sealed class StudyRoutineCommandService(
                                     [],
                                     new Dictionary<long, string>(),
                                     1,
-                                    7,
-                                    50,
-                                    25,
-                                    25,
                                     new Dictionary<string, decimal>(),
                                     new Dictionary<long, decimal>(),
                                     new Dictionary<long, decimal>());
@@ -292,6 +289,7 @@ public sealed class StudyRoutineCommandService(
         }
         var removeRecordedStudy = !request.Completed && request.CompletedMinutes == 0 &&
                                   block.CompletedMinutes > 0;
+        var affectedNodeIds = new HashSet<long> { block.SyllabusNodeId };
 
         if (block.Type == EStudyBlockType.Study)
         {
@@ -312,6 +310,7 @@ public sealed class StudyRoutineCommandService(
 
             var allNodes = journey!.KnowledgeAreas.SelectMany(area => area.SyllabusNodes).ToList();
             var descendants = FindDescendants(rootNode.Id, allNodes);
+            affectedNodeIds.UnionWith(descendants.Select(item => item.Id));
             var today = CurrentDate();
             rootNode.Progress = request.ClearPending
                 ? EStudyProgress.NotStarted
@@ -395,7 +394,8 @@ public sealed class StudyRoutineCommandService(
             var recordedSessions = await focusSessionRepository.FindAllAsync(item =>
                 item.UserId == credential.UserId &&
                 item.JourneyId == block.JourneyId &&
-                item.SyllabusNodeId == block.SyllabusNodeId);
+                item.SyllabusNodeId.HasValue &&
+                affectedNodeIds.Contains(item.SyllabusNodeId.Value));
             foreach (var recordedSession in recordedSessions)
                 if (!await focusSessionRepository.DeleteAsync(recordedSession))
                 {
@@ -417,8 +417,8 @@ public sealed class StudyRoutineCommandService(
 
         if (block.Type is EStudyBlockType.Study or EStudyBlockType.Review)
         {
-            var nodeIds = new HashSet<long> { block.SyllabusNodeId };
-            if (!await questionAppointmentCommandService.SupersedePendingAsync(credential.UserId, nodeIds))
+            if (!await questionAppointmentCommandService.SupersedePendingAsync(
+                    credential.UserId, affectedNodeIds))
             {
                 Notification.CreateNotification(StudyRoutineTrace.CompleteBlock,
                     "Nao foi possivel atualizar o agendamento de questoes.");
@@ -430,7 +430,8 @@ public sealed class StudyRoutineCommandService(
                 var node = await journeyRepository.FindNodeAsync(
                     block.SyllabusNodeId, credential.UserId, CancellationToken.None);
                 if (node is null || !await questionAppointmentCommandService.ScheduleAsync(
-                        credential.UserId, block.JourneyId, node, CurrentDate()))
+                        credential.UserId, block.JourneyId, node, CurrentDate(),
+                        request.ScheduleReview ? request.ReviewDate : null))
                 {
                     Notification.CreateNotification(StudyRoutineTrace.CompleteBlock,
                         "Nao foi possivel agendar as questoes.");
@@ -449,6 +450,20 @@ public sealed class StudyRoutineCommandService(
                 item.ScheduledFor >= CurrentDate());
             foreach (var review in reviews)
                 await studyRoutineBlockRepository.DeleteAsync(review);
+
+            if (!request.Completed)
+            {
+                var appointments = await reviewAppointmentRepository.FindAllAsync(item =>
+                    item.UserId == credential.UserId &&
+                    affectedNodeIds.Contains(item.SyllabusNodeId) &&
+                    !item.Completed && !item.Superseded);
+                foreach (var appointment in appointments)
+                {
+                    appointment.Superseded = true;
+                    appointment.LastUpdateDate = DateTimeOffset.UtcNow;
+                    await reviewAppointmentRepository.UpdateAsync(appointment);
+                }
+            }
         }
 
         if ((block.Type == EStudyBlockType.Study || block.Type == EStudyBlockType.Review) &&

@@ -8,6 +8,7 @@ using KurumiConcursos.ApplicationService.Services.JourneyOverviewServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
 using KurumiConcursos.ApplicationService.Services.MockAssessmentServices;
 using KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
+using KurumiConcursos.ApplicationService.Services.PerformanceAdaptationServices;
 using KurumiConcursos.ApplicationService.Services.QuestionAppointmentServices;
 using KurumiConcursos.ApplicationService.Services.StudyResourceServices;
 using KurumiConcursos.ApplicationService.Services.StudyRoutineServices;
@@ -29,6 +30,7 @@ public static class ServiceContainer
         .AddScoped<IJourneyOverviewQueryService, JourneyOverviewQueryService>()
         .AddScoped<IMockAssessmentService, MockAssessmentService>()
         .AddScoped<IPracticeEntryService, PracticeEntryService>()
+        .AddScoped<IPerformanceAdaptationCommandService, PerformanceAdaptationCommandService>()
         .AddScoped<IQuestionAppointmentCommandService, QuestionAppointmentCommandService>()
         .AddScoped<ICalendarEventCommandService, CalendarEventCommandService>()
         .AddScoped<ICalendarEventQueryService, CalendarEventQueryService>()

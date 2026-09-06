@@ -28,7 +28,7 @@ public sealed class StudyRoutineMapper : IStudyRoutineMapper
     public StudyRoutineResponse DomainToDtoResponse(StudyRoutine entity) => new(entity.Id, entity.JourneyId,
         entity.Title, entity.Kind, entity.Active,
         JsonSerializer.Deserialize<StudyRoutineConfigurationRequest>(entity.ConfigurationJson, Options) ?? new([],
-            new Dictionary<long, string>(), 2, 7, 50, 25, 25, new Dictionary<string, decimal>(),
+            new Dictionary<long, string>(), 2, new Dictionary<string, decimal>(),
             new Dictionary<long, decimal>(),
             new Dictionary<long, decimal>()));
 }

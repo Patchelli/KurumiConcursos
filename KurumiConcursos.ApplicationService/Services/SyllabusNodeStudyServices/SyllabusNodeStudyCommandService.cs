@@ -219,7 +219,11 @@ public sealed class SyllabusNodeStudyCommandService(
             await reviewAppointmentRepository.UpdateAsync(appointment);
         }
 
-        if (!await questionAppointmentCommandService.SupersedePendingAsync(
+        var hasPendingAdaptiveQuestions = request.IsReview &&
+            (await questionAppointmentRepository.FindAllAsync(item =>
+                item.UserId == credential.UserId && reviewNodeIds.Contains(item.SyllabusNodeId) &&
+                !item.Completed && !item.Superseded && item.AdaptationTrigger != null)).Count > 0;
+        if (!hasPendingAdaptiveQuestions && !await questionAppointmentCommandService.SupersedePendingAsync(
                 credential.UserId, reviewNodeIds))
         {
             Notification.CreateNotification(SyllabusNodeStudyTrace.Save,
@@ -245,10 +249,11 @@ public sealed class SyllabusNodeStudyCommandService(
         }
 
 
-        if (request.Completed)
+        if (request.Completed && !hasPendingAdaptiveQuestions)
         {
             if (!await questionAppointmentCommandService.ScheduleAsync(
-                    credential.UserId, request.JourneyId, node, today))
+                    credential.UserId, request.JourneyId, node, today,
+                    request.ScheduleReview ? request.ReviewDate : null))
             {
                 Notification.CreateNotification(SyllabusNodeStudyTrace.Save,
                     "Nao foi possivel agendar as questoes.");
