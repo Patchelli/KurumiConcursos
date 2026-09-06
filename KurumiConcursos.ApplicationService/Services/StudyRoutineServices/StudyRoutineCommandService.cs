@@ -19,6 +19,7 @@ public sealed class StudyRoutineCommandService(
     IJourneyRepository journeyRepository,
     IStudyRoutineMapper studyRoutineMapper,
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
+    IFocusSessionRepository focusSessionRepository,
     IStudySummaryRepository studySummaryRepository,
     ITimeCapsuleCommandService timeCapsuleCommandService,
     IValidate<StudyRoutine> studyRoutineValidation,
@@ -288,6 +289,8 @@ public sealed class StudyRoutineCommandService(
             Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "Bloco nao encontrado.");
             return null;
         }
+        var removeRecordedStudy = !request.Completed && request.CompletedMinutes == 0 &&
+                                  block.CompletedMinutes > 0;
 
         if (block.Type == EStudyBlockType.Study)
         {
@@ -369,9 +372,10 @@ public sealed class StudyRoutineCommandService(
             }
         }
 
-        block.CompletedMinutes = request.ClearPending
-            ? 0
-            : Math.Max(0, request.CompletedMinutes);
+        if (request.ClearPending || !request.Completed && request.CompletedMinutes == 0)
+            block.CompletedMinutes = 0;
+        else if (request.CompletedMinutes > 0)
+            block.CompletedMinutes += request.CompletedMinutes;
         block.Status = request.Completed
             ? EStudyBlockStatus.Completed
             : EStudyBlockStatus.Pending;
@@ -383,6 +387,22 @@ public sealed class StudyRoutineCommandService(
                 StudyRoutineTrace.CompleteBlock,
                 "Nao foi possivel atualizar o bloco do plano de estudos.");
             return null;
+        }
+
+        if (removeRecordedStudy)
+        {
+            var recordedSessions = await focusSessionRepository.FindAllAsync(item =>
+                item.UserId == credential.UserId &&
+                item.JourneyId == block.JourneyId &&
+                item.SyllabusNodeId == block.SyllabusNodeId);
+            foreach (var recordedSession in recordedSessions)
+                if (!await focusSessionRepository.DeleteAsync(recordedSession))
+                {
+                    Notification.CreateNotification(
+                        StudyRoutineTrace.CompleteBlock,
+                        "Nao foi possivel remover o tempo estudado.");
+                    return null;
+                }
         }
 
         if (request.Completed && !string.IsNullOrWhiteSpace(request.Summary))

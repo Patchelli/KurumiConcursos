@@ -39,6 +39,8 @@ public sealed class JourneyOverviewQueryService(
         var subtopics = allNodes.Where(item => item.ParentId.HasValue).ToList();
         var nodeArea = allNodes.ToDictionary(node => node.Id, node => node.KnowledgeAreaId);
         var studyUnits = BuildStudyUnits(sessions, blocks, nodeArea);
+        studyUnits.AddRange(assessments.Where(item => item.DurationMinutes > 0)
+            .Select(item => new StudyUnit(item.AssessmentDate, null, null, item.DurationMinutes)));
         var today = CurrentDate();
         var questionUnits = BuildQuestionUnits(practices, assessments);
         var totalQuestions = questionUnits.Sum(item => item.Questions);
@@ -65,7 +67,7 @@ public sealed class JourneyOverviewQueryService(
             subtopics.Count(item => item.Progress == EStudyProgress.Studied), subtopics.Count,
             studyUnits.Where(item => item.Date == today).Sum(item => item.Minutes), todayQuestions,
             NullablePercentage(todayCorrect, todayQuestions),
-            CountTodaySessions(sessions, blocks, today), CalculateStreak(studyDays, today));
+            CountTodaySessions(sessions, blocks, assessments, today), CalculateStreak(studyDays, today));
         var readiness = new JourneyOverviewReadinessResponse(
             score, Level(score), coverage, application, retention, consistency);
         var days = BuildDays(studyUnits, questionUnits);
@@ -159,6 +161,14 @@ public sealed class JourneyOverviewQueryService(
             .Concat(breakdowns.Select(item => item.ErrorReasonsJson)));
         var areaCards = cards.Where(item => item.Collection.KnowledgeAreaId == area.Id).ToList();
         var areaRecalls = areaCards.SelectMany(item => item.Recalls).ToList();
+        var assessmentMinutes = assessments.Sum(assessment =>
+        {
+            var total = assessment.Breakdown.Sum(item => Math.Max(0, item.TotalQuestions - item.VoidedQuestions));
+            var areaTotal = assessment.Breakdown.Where(item => item.KnowledgeAreaId == area.Id)
+                .Sum(item => Math.Max(0, item.TotalQuestions - item.VoidedQuestions));
+            return total == 0 ? 0 : (int)Math.Round(assessment.DurationMinutes * areaTotal / (decimal)total,
+                MidpointRounding.AwayFromZero);
+        });
         var predominantReason = reasons.OrderByDescending(item => item.Value).FirstOrDefault();
         var topics = nodes.Where(item => !item.ParentId.HasValue).OrderBy(item => item.Order).Select(node =>
         {
@@ -172,7 +182,7 @@ public sealed class JourneyOverviewQueryService(
                 NullablePercentage(p.Sum(item => item.CorrectAnswers), q));
         }).ToList();
         return new JourneyOverviewAreaResponse(area.Id, area.Title,
-            studies.Where(item => item.AreaId == area.Id).Sum(item => item.Minutes),
+            studies.Where(item => item.AreaId == area.Id).Sum(item => item.Minutes) + assessmentMinutes,
             Percentage(nodes.Count(item => item.Progress == EStudyProgress.Studied), nodes.Count),
             questions, correct, NullablePercentage(correct, questions), Math.Max(0, questions - correct),
             reasons.Values.Sum(), predominantReason.Key,
@@ -233,14 +243,15 @@ public sealed class JourneyOverviewQueryService(
         return count;
     }
 
-    private static int CountTodaySessions(IList<FocusSession> sessions, IList<StudyRoutineBlock> blocks, DateOnly today)
+    private static int CountTodaySessions(IList<FocusSession> sessions, IList<StudyRoutineBlock> blocks,
+        IList<MockAssessment> assessments, DateOnly today)
     {
         var focus = sessions.Where(item => item.StudyDate == today).ToList();
         var focusNodes = focus.Where(item => item.SyllabusNodeId.HasValue).Select(item => item.SyllabusNodeId!.Value)
             .ToHashSet();
         var manualBlocks = blocks.Count(item =>
             item.ScheduledFor == today && item.CompletedMinutes > 0 && !focusNodes.Contains(item.SyllabusNodeId));
-        return focus.Count + manualBlocks;
+        return focus.Count + manualBlocks + assessments.Count(item => item.AssessmentDate == today && item.DurationMinutes > 0);
     }
 
     private static decimal Percentage(int value, int total) => total <= 0 ? 0 : Round(value * 100m / total);

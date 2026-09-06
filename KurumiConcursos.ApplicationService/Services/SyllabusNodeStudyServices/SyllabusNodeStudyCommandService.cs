@@ -73,6 +73,8 @@ public sealed class SyllabusNodeStudyCommandService(
 
         var studiedSeconds = request.StudiedSeconds ?? request.StudiedMinutes * 60;
         var wasCompleted = node.Progress == EStudyProgress.Studied;
+        var removeRecordedStudy = clearPending ||
+                                  wasCompleted && !request.Completed && studiedSeconds == 0;
         if (request.Completed && studiedSeconds == 0 && !wasCompleted)
         {
             Notification.CreateNotification(
@@ -180,6 +182,25 @@ public sealed class SyllabusNodeStudyCommandService(
                 return null;
             }
         }
+        else if (removeRecordedStudy)
+        {
+            var recordedNodeIds = node.Id == rootNode.Id
+                ? descendants.Select(item => item.Id).Append(node.Id).ToHashSet()
+                : new HashSet<long> { node.Id };
+            var recordedSessions = await focusSessionRepository.FindAllAsync(item =>
+                item.UserId == credential.UserId &&
+                item.JourneyId == request.JourneyId &&
+                item.SyllabusNodeId.HasValue &&
+                recordedNodeIds.Contains(item.SyllabusNodeId.Value));
+            foreach (var recordedSession in recordedSessions)
+                if (!await focusSessionRepository.DeleteAsync(recordedSession))
+                {
+                    Notification.CreateNotification(
+                        SyllabusNodeStudyTrace.Save,
+                        "Nao foi possivel remover o tempo estudado.");
+                    return null;
+                }
+        }
 
         var reviewNodeIds = node.Id == rootNode.Id && rootChildren.Count > 0
             ? descendants.Select(item => item.Id).Append(rootNode.Id).ToHashSet()
@@ -219,7 +240,7 @@ public sealed class SyllabusNodeStudyCommandService(
                 rootNode,
                 rootChildren,
                 shouldRecordStudy ? (int)Math.Ceiling(studiedSeconds / 60d) : 0,
-                clearPending))
+                removeRecordedStudy))
             return null;
 
         if (request.Completed && !string.IsNullOrWhiteSpace(request.Summary))
@@ -263,7 +284,7 @@ public sealed class SyllabusNodeStudyCommandService(
         SyllabusNode rootNode,
         IReadOnlyCollection<SyllabusNode> rootChildren,
         int recordedMinutes,
-        bool clearPending)
+        bool removeRecordedStudy)
     {
         var today = CurrentDate();
         var block = (await studyRoutineBlockRepository.FindAllAsync(item =>
@@ -279,7 +300,7 @@ public sealed class SyllabusNodeStudyCommandService(
         if (block is null)
             return true;
 
-        if (clearPending)
+        if (removeRecordedStudy)
             block.CompletedMinutes = 0;
         else if (recordedMinutes > 0)
             block.CompletedMinutes += recordedMinutes;
