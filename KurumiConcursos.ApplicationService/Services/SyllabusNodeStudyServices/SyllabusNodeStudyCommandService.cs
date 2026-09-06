@@ -15,6 +15,8 @@ public sealed class SyllabusNodeStudyCommandService(
     IJourneyRepository journeyRepository,
     IFocusSessionRepository focusSessionRepository,
     IReviewAppointmentRepository reviewAppointmentRepository,
+    IQuestionAppointmentRepository questionAppointmentRepository,
+    IQuestionAppointmentCommandService questionAppointmentCommandService,
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
     IStudySummaryRepository studySummaryRepository,
     ITimeCapsuleCommandService timeCapsuleCommandService,
@@ -217,6 +219,14 @@ public sealed class SyllabusNodeStudyCommandService(
             await reviewAppointmentRepository.UpdateAsync(appointment);
         }
 
+        if (!await questionAppointmentCommandService.SupersedePendingAsync(
+                credential.UserId, reviewNodeIds))
+        {
+            Notification.CreateNotification(SyllabusNodeStudyTrace.Save,
+                "Nao foi possivel atualizar o agendamento de questoes.");
+            return null;
+        }
+
         if (request.Completed && request.ScheduleReview && request.ReviewDate.HasValue)
         {
             if (request.ReviewDate.Value < CurrentDate())
@@ -232,6 +242,18 @@ public sealed class SyllabusNodeStudyCommandService(
                     credential.UserId,
                     node,
                     request.ReviewDate.Value));
+        }
+
+
+        if (request.Completed)
+        {
+            if (!await questionAppointmentCommandService.ScheduleAsync(
+                    credential.UserId, request.JourneyId, node, today))
+            {
+                Notification.CreateNotification(SyllabusNodeStudyTrace.Save,
+                    "Nao foi possivel agendar as questoes.");
+                return null;
+            }
         }
 
         if (!await SyncStudyRoutineBlockAsync(
@@ -258,7 +280,8 @@ public sealed class SyllabusNodeStudyCommandService(
         var minutes = await GetStudiedMinutesAsync(node.Id, credential.UserId);
         var reviewDate = await GetReviewDateAsync(node.Id, credential.UserId);
         await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(credential.UserId, request.JourneyId);
-        return mapper.DomainToDtoResponse(node, minutes, reviewDate);
+        var questionDate = await GetQuestionDateAsync(node.Id, credential.UserId);
+        return mapper.DomainToDtoResponse(node, minutes, reviewDate) with { QuestionDate = questionDate };
     }
 
     private async Task<int> GetStudiedMinutesAsync(long nodeId, Guid userId)
@@ -275,6 +298,13 @@ public sealed class SyllabusNodeStudyCommandService(
             item.SyllabusNodeId == nodeId &&
             !item.Completed &&
             !item.Superseded);
+        return appointments.Count == 0 ? null : appointments.Min(item => item.ScheduledFor);
+    }
+
+    private async Task<DateOnly?> GetQuestionDateAsync(long nodeId, Guid userId)
+    {
+        var appointments = await questionAppointmentRepository.FindAllAsync(item =>
+            item.UserId == userId && item.SyllabusNodeId == nodeId && !item.Completed && !item.Superseded);
         return appointments.Count == 0 ? null : appointments.Min(item => item.ScheduledFor);
     }
 

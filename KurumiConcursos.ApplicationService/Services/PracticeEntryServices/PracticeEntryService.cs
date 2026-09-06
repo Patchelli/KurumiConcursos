@@ -10,6 +10,7 @@ namespace KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
 
 public sealed class PracticeEntryService(
     IPracticeEntryRepository repository,
+    IQuestionAppointmentCommandService questionAppointmentCommandService,
     IJourneyRepository journeys,
     ITimeCapsuleCommandService timeCapsuleCommandService,
     INotificationHandler notification) : IPracticeEntryService
@@ -59,6 +60,12 @@ public sealed class PracticeEntryService(
         {
             notification.CreateNotification("Registro de questões", "Não foi possível salvar o registro.");
             return null;
+        }
+
+        if (!id.HasValue && r.SyllabusNodeId.HasValue)
+        {
+            await questionAppointmentCommandService.CompletePendingAsync(
+                c.UserId, r.JourneyId, r.SyllabusNodeId.Value);
         }
 
         await timeCapsuleCommandService.EvaluateJourneyTriggersAsync(c.UserId, r.JourneyId);

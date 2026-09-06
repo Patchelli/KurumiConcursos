@@ -6,11 +6,24 @@ using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 
 namespace KurumiConcursos.ApplicationService.Services.JourneyServices;
 
-public sealed class JourneyQueryService(IJourneyRepository repository, IJourneyMapper mapper) : IJourneyQueryService
+public sealed class JourneyQueryService(
+    IJourneyRepository repository,
+    IJourneyOverviewQueryService overviewQueryService,
+    IJourneyMapper mapper) : IJourneyQueryService
 {
-    public async Task<IList<JourneySummaryResponse>> FindAllAsync(UserCredential userCredential) =>
-        mapper.DomainToDtoSummaryResponseList(
-            await repository.FindAllByAccountAsync(userCredential.UserId, CancellationToken.None));
+    public async Task<IList<JourneySummaryResponse>> FindAllAsync(UserCredential userCredential)
+    {
+        var journeys = await repository.FindAllByAccountAsync(userCredential.UserId, CancellationToken.None);
+        var response = new List<JourneySummaryResponse>(journeys.Count);
+        foreach (var journey in journeys)
+        {
+            var overview = await overviewQueryService.FindAsync(journey.Id, userCredential);
+            if (overview is not null)
+                response.Add(mapper.DomainToDtoSummaryResponse(journey, overview));
+        }
+
+        return response;
+    }
 
     public async Task<JourneyDetailsResponse?> FindByIdAsync(long id, UserCredential userCredential)
     {

@@ -10,6 +10,7 @@ public sealed class SyllabusNodeStudyQueryService(
     IJourneyRepository journeyRepository,
     IFocusSessionRepository focusSessionRepository,
     IReviewAppointmentRepository reviewAppointmentRepository,
+    IQuestionAppointmentRepository questionAppointmentRepository,
     IStudySummaryRepository studySummaryRepository,
     ISyllabusNodeStudyMapper mapper) : ISyllabusNodeStudyQueryService
 {
@@ -27,6 +28,8 @@ public sealed class SyllabusNodeStudyQueryService(
             x.UserId == credential.UserId && x.SyllabusNodeId.HasValue && ids.Contains(x.SyllabusNodeId.Value));
         var appointments = await reviewAppointmentRepository.FindAllAsync(x =>
             x.UserId == credential.UserId && ids.Contains(x.SyllabusNodeId) && !x.Completed && !x.Superseded);
+        var questionAppointments = await questionAppointmentRepository.FindAllAsync(x =>
+            x.UserId == credential.UserId && ids.Contains(x.SyllabusNodeId) && !x.Completed && !x.Superseded);
         var summaries = await studySummaryRepository.FindAllAsync(x =>
             x.UserId == credential.UserId && ids.Contains(x.SyllabusNodeId));
         var latestSummary = summaries.GroupBy(x => x.SyllabusNodeId)
@@ -43,6 +46,8 @@ public sealed class SyllabusNodeStudyQueryService(
 
         var reviewsByNode = appointments.GroupBy(x => x.SyllabusNodeId)
             .ToDictionary(group => group.Key, group => group.Min(x => x.ScheduledFor));
+        var questionsByNode = questionAppointments.GroupBy(x => x.SyllabusNodeId)
+            .ToDictionary(group => group.Key, group => group.Min(x => x.ScheduledFor));
 
         return mapper.DomainToDtoResponseList(nodes.Select(node => (
             Node: node,
@@ -51,7 +56,10 @@ public sealed class SyllabusNodeStudyQueryService(
                 ? (DateOnly?)reviewDate
                 : null))).Select(x => x with
         {
-            LatestSummary = latestSummary.GetValueOrDefault(x.SyllabusNodeId)
+            LatestSummary = latestSummary.GetValueOrDefault(x.SyllabusNodeId),
+            QuestionDate = questionsByNode.TryGetValue(x.SyllabusNodeId, out var questionDate)
+                ? questionDate
+                : null
         }).ToList();
     }
 }

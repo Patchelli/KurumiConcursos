@@ -6,5 +6,6 @@ public enum ECalendarEventType
     Payment = 2,
     Notice = 3,
     Registration = 4,
-    Reminder = 5
+    Reminder = 5,
+    Questions = 6
 }

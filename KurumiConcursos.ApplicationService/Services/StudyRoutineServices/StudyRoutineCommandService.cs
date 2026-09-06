@@ -21,6 +21,7 @@ public sealed class StudyRoutineCommandService(
     IStudyRoutineBlockRepository studyRoutineBlockRepository,
     IFocusSessionRepository focusSessionRepository,
     IStudySummaryRepository studySummaryRepository,
+    IQuestionAppointmentCommandService questionAppointmentCommandService,
     ITimeCapsuleCommandService timeCapsuleCommandService,
     IValidate<StudyRoutine> studyRoutineValidation,
     INotificationHandler notificationHandler,
@@ -413,6 +414,30 @@ public sealed class StudyRoutineCommandService(
                 IsReview = block.Type == EStudyBlockType.Review,
                 Content = request.Summary.Trim()
             });
+
+        if (block.Type is EStudyBlockType.Study or EStudyBlockType.Review)
+        {
+            var nodeIds = new HashSet<long> { block.SyllabusNodeId };
+            if (!await questionAppointmentCommandService.SupersedePendingAsync(credential.UserId, nodeIds))
+            {
+                Notification.CreateNotification(StudyRoutineTrace.CompleteBlock,
+                    "Nao foi possivel atualizar o agendamento de questoes.");
+                return null;
+            }
+
+            if (request.Completed)
+            {
+                var node = await journeyRepository.FindNodeAsync(
+                    block.SyllabusNodeId, credential.UserId, CancellationToken.None);
+                if (node is null || !await questionAppointmentCommandService.ScheduleAsync(
+                        credential.UserId, block.JourneyId, node, CurrentDate()))
+                {
+                    Notification.CreateNotification(StudyRoutineTrace.CompleteBlock,
+                        "Nao foi possivel agendar as questoes.");
+                    return null;
+                }
+            }
+        }
 
         if (block.Type == EStudyBlockType.Study)
         {

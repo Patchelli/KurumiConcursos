@@ -1,5 +1,6 @@
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request;
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Response;
+using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyOverviewDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.Domain.Entities;
 
@@ -60,18 +61,17 @@ public sealed class JourneyMapper : IJourneyMapper
         entity.LastUpdateDate = DateTimeOffset.UtcNow;
     }
 
-    public JourneySummaryResponse DomainToDtoSummaryResponse(ExamJourney entity) =>
+    public JourneySummaryResponse DomainToDtoSummaryResponse(ExamJourney entity, JourneyOverviewResponse overview) =>
         new(entity.Id, entity.Title, entity.Institution, entity.Position, entity.ExamDate,
-            entity.Stage, entity.KnowledgeAreas.Count, entity.LogoUrl);
+            entity.Stage, entity.KnowledgeAreas.Count, entity.LogoUrl, entity.IncludeInStatistics,
+            overview.Readiness.Score, overview.Readiness.Level, overview.Summary.StudiedMinutes,
+            overview.Summary.StudyDays, overview.Summary.Questions, overview.Summary.CorrectAnswers);
 
     public JourneyDetailsResponse DomainToDtoDetailsResponse(ExamJourney entity) =>
         new(entity.Id, entity.Title, entity.Institution, entity.ExamBoard, entity.Position,
             entity.Salary, entity.Openings, entity.NoticeUrl, entity.ExamDate, entity.Stage,
             entity.IncludeInStatistics, entity.LogoUrl,
             entity.KnowledgeAreas.OrderBy(item => item.Order).Select(MapAreaResponse).ToList());
-
-    public IList<JourneySummaryResponse> DomainToDtoSummaryResponseList(IList<ExamJourney> entities) =>
-        entities.Select(DomainToDtoSummaryResponse).ToList();
 
     private static KnowledgeArea MapArea(ExamJourney journey, KnowledgeAreaStructureRequest dto)
     {

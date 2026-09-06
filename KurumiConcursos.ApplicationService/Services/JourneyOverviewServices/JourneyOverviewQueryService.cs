@@ -38,7 +38,8 @@ public sealed class JourneyOverviewQueryService(
         var rootTopics = allNodes.Where(item => !item.ParentId.HasValue).ToList();
         var subtopics = allNodes.Where(item => item.ParentId.HasValue).ToList();
         var nodeArea = allNodes.ToDictionary(node => node.Id, node => node.KnowledgeAreaId);
-        var studyUnits = BuildStudyUnits(sessions, blocks, nodeArea);
+        var learningUnits = BuildStudyUnits(sessions, blocks, nodeArea);
+        var studyUnits = learningUnits.ToList();
         studyUnits.AddRange(assessments.Where(item => item.DurationMinutes > 0)
             .Select(item => new StudyUnit(item.AssessmentDate, null, null, item.DurationMinutes)));
         var today = CurrentDate();
@@ -46,7 +47,7 @@ public sealed class JourneyOverviewQueryService(
         var totalQuestions = questionUnits.Sum(item => item.Questions);
         var totalCorrect = questionUnits.Sum(item => item.Correct);
         var completedTopics = rootTopics.Count(item => item.Progress == EStudyProgress.Studied);
-        var studyDays = studyUnits.Select(item => item.Date).Distinct().Order().ToList();
+        var studyDays = learningUnits.Select(item => item.Date).Distinct().Order().ToList();
         var todayQuestions = questionUnits.Where(item => item.Date == today).Sum(item => item.Questions);
         var todayCorrect = questionUnits.Where(item => item.Date == today).Sum(item => item.Correct);
 

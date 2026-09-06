@@ -20,6 +20,7 @@ public static class RepositoryContainer
         .AddScoped<IFocusSessionRepository, FocusSessionRepository>()
         .AddScoped<IStudyTimerSessionRepository, StudyTimerSessionRepository>()
         .AddScoped<IReviewAppointmentRepository, ReviewAppointmentRepository>()
+        .AddScoped<IQuestionAppointmentRepository, QuestionAppointmentRepository>()
         .AddScoped<IMockAssessmentRepository, MockAssessmentRepository>()
         .AddScoped<IStudySummaryRepository, StudySummaryRepository>()
         .AddScoped<IPracticeEntryRepository, PracticeEntryRepository>()

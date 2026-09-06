@@ -9,5 +9,6 @@ public interface ICalendarEventMapper
     CalendarEvent DtoRegisterToDomain(Guid userId, CalendarEventRegisterRequest dto);
     CalendarEvent DtoUpdateToDomain(CalendarEvent entity, CalendarEventUpdateRequest dto);
     CalendarEventResponse DomainToDtoResponse(CalendarEvent entity);
+    CalendarEventResponse DomainToDtoResponse(QuestionAppointment entity);
     IList<CalendarEventResponse> DomainToDtoResponseList(IList<CalendarEvent> entities);
 }

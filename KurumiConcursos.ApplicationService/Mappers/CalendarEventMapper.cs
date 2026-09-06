@@ -22,6 +22,17 @@ public sealed class CalendarEventMapper : ICalendarEventMapper
 
     public CalendarEventResponse DomainToDtoResponse(CalendarEvent e) => new(e.Id, e.Date, e.Title, e.Type, e.Note);
 
+    public CalendarEventResponse DomainToDtoResponse(QuestionAppointment entity) => new(
+        -entity.Id,
+        entity.ScheduledFor,
+        $"Questões: {entity.SyllabusNode.Title}",
+        Domain.Enums.ECalendarEventType.Questions,
+        entity.SyllabusNode.KnowledgeArea.Title,
+        true,
+        entity.JourneyId,
+        entity.SyllabusNode.KnowledgeAreaId,
+        entity.SyllabusNodeId);
+
     public IList<CalendarEventResponse> DomainToDtoResponseList(IList<CalendarEvent> entities) =>
         entities.Select(DomainToDtoResponse).ToList();
 }

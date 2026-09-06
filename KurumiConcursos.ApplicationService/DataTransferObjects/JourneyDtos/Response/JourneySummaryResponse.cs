@@ -10,4 +10,11 @@ public sealed record JourneySummaryResponse(
     DateOnly? ExamDate,
     EJourneyStage Stage,
     int KnowledgeAreas,
-    string? LogoUrl);
+    string? LogoUrl,
+    bool IncludeInStatistics,
+    decimal Progress,
+    string ReadinessLevel,
+    int StudiedMinutes,
+    int StudyDays,
+    int QuestionsSolved,
+    int CorrectAnswers);
