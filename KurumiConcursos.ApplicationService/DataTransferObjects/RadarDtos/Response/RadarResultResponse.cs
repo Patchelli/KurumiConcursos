@@ -1,0 +1,3 @@
+namespace KurumiConcursos.ApplicationService.DataTransferObjects.RadarDtos.Response;
+
+public sealed record RadarResultResponse(IReadOnlyList<RadarContestResponse> Contests, DateTimeOffset UpdatedAt);

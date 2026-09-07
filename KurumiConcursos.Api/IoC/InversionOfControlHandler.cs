@@ -14,5 +14,5 @@ public static class InversionOfControlHandler
         .AddScoped<INotificationHandler, NotificationHandler>()
         .AddScoped(typeof(IPaginationQueryService<>), typeof(PaginationQueryService<>))
         .AddServiceContainer().AddMapperContainer().AddRepositoryContainer()
-        .AddValidationContainer();
+        .AddValidationContainer().AddRadarIntegrationContainer();
 }

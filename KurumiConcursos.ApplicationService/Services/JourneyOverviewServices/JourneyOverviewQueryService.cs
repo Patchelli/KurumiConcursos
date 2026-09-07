@@ -167,8 +167,10 @@ public sealed class JourneyOverviewQueryService(
             var total = assessment.Breakdown.Sum(item => Math.Max(0, item.TotalQuestions - item.VoidedQuestions));
             var areaTotal = assessment.Breakdown.Where(item => item.KnowledgeAreaId == area.Id)
                 .Sum(item => Math.Max(0, item.TotalQuestions - item.VoidedQuestions));
-            return total == 0 ? 0 : (int)Math.Round(assessment.DurationMinutes * areaTotal / (decimal)total,
-                MidpointRounding.AwayFromZero);
+            return total == 0
+                ? 0
+                : (int)Math.Round(assessment.DurationMinutes * areaTotal / (decimal)total,
+                    MidpointRounding.AwayFromZero);
         });
         var predominantReason = reasons.OrderByDescending(item => item.Value).FirstOrDefault();
         var topics = nodes.Where(item => !item.ParentId.HasValue).OrderBy(item => item.Order).Select(node =>
@@ -252,7 +254,8 @@ public sealed class JourneyOverviewQueryService(
             .ToHashSet();
         var manualBlocks = blocks.Count(item =>
             item.ScheduledFor == today && item.CompletedMinutes > 0 && !focusNodes.Contains(item.SyllabusNodeId));
-        return focus.Count + manualBlocks + assessments.Count(item => item.AssessmentDate == today && item.DurationMinutes > 0);
+        return focus.Count + manualBlocks +
+               assessments.Count(item => item.AssessmentDate == today && item.DurationMinutes > 0);
     }
 
     private static decimal Percentage(int value, int total) => total <= 0 ? 0 : Round(value * 100m / total);

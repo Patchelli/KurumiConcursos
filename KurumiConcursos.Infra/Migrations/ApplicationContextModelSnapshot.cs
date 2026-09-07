@@ -1625,6 +1625,9 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnName("preferred_language")
                         .HasColumnOrder(18);
 
+                    b.Property<string>("RadarPreferencesJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp")

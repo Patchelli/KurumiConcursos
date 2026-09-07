@@ -2,6 +2,7 @@ using System.Text.Json;
 using KurumiConcursos.ApplicationService.DataTransferObjects.StudyRoutineDtos.Request;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
+using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Enums;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 
@@ -36,9 +37,11 @@ public sealed class PerformanceAdaptationCommandService(
             item.SyllabusNodeId == syllabusNodeId && item.CreationDate > cycleStart.StartedAt);
         var answered = entries.Sum(item => Math.Max(0, item.QuestionsAnswered - item.VoidedQuestions));
         var minimum = configuration.AdaptationMinimumQuestions > 0
-            ? configuration.AdaptationMinimumQuestions : 10;
+            ? configuration.AdaptationMinimumQuestions
+            : 10;
         var threshold = configuration.AdaptationAccuracyThreshold > 0
-            ? configuration.AdaptationAccuracyThreshold : 60;
+            ? configuration.AdaptationAccuracyThreshold
+            : 60;
         var reached = answered >= minimum &&
                       entries.Sum(item => item.CorrectAnswers) * 100m / answered < threshold;
         if (cycleStart.Pending)
@@ -47,6 +50,7 @@ public sealed class PerformanceAdaptationCommandService(
                 await CancelPendingAsync(userId, syllabusNodeId, EAdaptationTrigger.Questions);
             return;
         }
+
         if (reached)
             await ScheduleAsync(userId, journeyId, syllabusNodeId, EAdaptationTrigger.Questions);
     }
@@ -65,7 +69,8 @@ public sealed class PerformanceAdaptationCommandService(
         var errors = cards.SelectMany(item => item.Recalls).Count(item =>
             item.Grade == ERecallGrade.Again && item.AnsweredAt > cycleStart.StartedAt);
         var threshold = configuration.AdaptationFlashcardErrorThreshold > 0
-            ? configuration.AdaptationFlashcardErrorThreshold : 10;
+            ? configuration.AdaptationFlashcardErrorThreshold
+            : 10;
         if (errors >= threshold)
             await ScheduleAsync(userId, journeyId, syllabusNodeId, EAdaptationTrigger.Flashcards);
     }
@@ -147,10 +152,10 @@ public sealed class PerformanceAdaptationCommandService(
             userId, journeyId, syllabusNodeId, today.AddDays(2), trigger));
     }
 
-    private static DateTimeOffset CycleBoundary(KurumiConcursos.Domain.Entities.ReviewAppointment item) =>
+    private static DateTimeOffset CycleBoundary(ReviewAppointment item) =>
         item.CompletedAt ?? item.LastUpdateDate ?? item.CreationDate;
 
-    private static DateTimeOffset CycleBoundary(KurumiConcursos.Domain.Entities.QuestionAppointment item) =>
+    private static DateTimeOffset CycleBoundary(QuestionAppointment item) =>
         item.CompletedAt ?? item.LastUpdateDate ?? item.CreationDate;
 
     private static DateOnly CurrentDate()

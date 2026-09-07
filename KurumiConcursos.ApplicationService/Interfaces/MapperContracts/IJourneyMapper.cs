@@ -14,5 +14,4 @@ public interface IJourneyMapper
     JourneySummaryResponse DomainToDtoSummaryResponse(ExamJourney entity, JourneyOverviewResponse overview);
 
     JourneyDetailsResponse DomainToDtoDetailsResponse(ExamJourney entity);
-
 }

@@ -3,13 +3,14 @@ using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 using KurumiConcursos.ApplicationService.Services.AuthenticationServices;
 using KurumiConcursos.ApplicationService.Services.CalendarServices;
 using KurumiConcursos.ApplicationService.Services.FlashcardServices;
-using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.JourneyOverviewServices;
+using KurumiConcursos.ApplicationService.Services.JourneyServices;
 using KurumiConcursos.ApplicationService.Services.LoggerHandlerServices;
 using KurumiConcursos.ApplicationService.Services.MockAssessmentServices;
-using KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
 using KurumiConcursos.ApplicationService.Services.PerformanceAdaptationServices;
+using KurumiConcursos.ApplicationService.Services.PracticeEntryServices;
 using KurumiConcursos.ApplicationService.Services.QuestionAppointmentServices;
+using KurumiConcursos.ApplicationService.Services.RadarServices;
 using KurumiConcursos.ApplicationService.Services.StudyResourceServices;
 using KurumiConcursos.ApplicationService.Services.StudyRoutineServices;
 using KurumiConcursos.ApplicationService.Services.StudyTimerServices;
@@ -48,5 +49,7 @@ public static class ServiceContainer
         .AddScoped<ITimeCapsuleQueryService, TimeCapsuleQueryService>()
         .AddScoped<IUserQueryService, UserQueryService>()
         .AddScoped<IUserCommandService, UserCommandService>()
+        .AddScoped<IRadarCommandService, RadarCommandService>()
+        .AddScoped<IRadarQueryService, RadarQueryService>()
         .AddSingleton<ITokenService, JwtTokenService>();
 }

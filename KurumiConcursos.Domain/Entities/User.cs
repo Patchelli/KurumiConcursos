@@ -6,6 +6,7 @@ namespace KurumiConcursos.Domain.Entities;
 
 public class User : IdentityUser<Guid>
 {
+    public string? RadarPreferencesJson { get; set; }
     public EUserStatus Status { get; set; } = EUserStatus.Active;
     public string Identifier { get; set; } = Guid.NewGuid().ToString("N");
     public ELanguage PreferredLanguage { get; set; } = ELanguage.PtBr;

@@ -25,7 +25,8 @@ public sealed class QuestionAppointmentCommandService(
     public async Task<bool> SupersedePendingAsync(Guid userId, IReadOnlyCollection<long> syllabusNodeIds)
     {
         var appointments = await repository.FindAllAsync(item => item.UserId == userId &&
-            syllabusNodeIds.Contains(item.SyllabusNodeId) && !item.Completed && !item.Superseded);
+                                                                 syllabusNodeIds.Contains(item.SyllabusNodeId) &&
+                                                                 !item.Completed && !item.Superseded);
         foreach (var appointment in appointments)
         {
             appointment.Superseded = true;
@@ -39,8 +40,9 @@ public sealed class QuestionAppointmentCommandService(
     public async Task<bool> CompletePendingAsync(Guid userId, long journeyId, long syllabusNodeId)
     {
         var appointments = await repository.FindAllAsync(item => item.UserId == userId &&
-            item.JourneyId == journeyId && item.SyllabusNodeId == syllabusNodeId &&
-            !item.Completed && !item.Superseded);
+                                                                 item.JourneyId == journeyId &&
+                                                                 item.SyllabusNodeId == syllabusNodeId &&
+                                                                 !item.Completed && !item.Superseded);
         foreach (var appointment in appointments)
         {
             appointment.Completed = true;

@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using KurumiConcursos.Domain.Entities;
-using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Domain.Handlers.PaginationHandler;
 using KurumiConcursos.Domain.Handlers.PaginationHandler.Filters;
+using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Infra.Interfaces.ServiceContracts;
 using KurumiConcursos.Infra.ORM.Context;
 using KurumiConcursos.Infra.Repositories.Base;

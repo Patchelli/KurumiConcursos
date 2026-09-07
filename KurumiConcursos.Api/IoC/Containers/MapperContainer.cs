@@ -1,5 +1,7 @@
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Mappers;
+using KurumiConcursos.Infra.Interfaces.MapperContracts;
+using KurumiConcursos.Infra.Mappers;
 
 namespace KurumiConcursos.Api.IoC.Containers;
 
@@ -8,6 +10,8 @@ public static class MapperContainer
     public static IServiceCollection AddMapperContainer(this IServiceCollection services) => services
         .AddTransient<IPersonalDataMapper, PersonalDataMapper>()
         .AddTransient<IUserMapper, UserMapper>()
+        .AddTransient<IRadarMapper, RadarMapper>()
+        .AddTransient<IPciContestMapper, PciContestMapper>()
         .AddTransient<IJourneyMapper, JourneyMapper>()
         .AddTransient<IJourneyOverviewMapper, JourneyOverviewMapper>()
         .AddTransient<ICalendarEventMapper, CalendarEventMapper>()

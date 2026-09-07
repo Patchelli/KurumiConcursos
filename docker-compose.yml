@@ -37,6 +37,7 @@ services:
       Jwt__RequireHttpsMetadata: ${JWT_REQUIRE_HTTPS_METADATA:-true}
       CorsConfiguration__Web: ${FRONT_WEB:?configure FRONT_WEB in .env}
       CorsConfiguration__Mobile: ${FRONT_MOBILE:-}
+      CorsConfiguration__AdditionalOrigins__0: ${CORS_ADDITIONAL_ORIGIN:-}
       CorsConfiguration__Methods__0: GET
       CorsConfiguration__Methods__1: POST
       CorsConfiguration__Methods__2: PUT

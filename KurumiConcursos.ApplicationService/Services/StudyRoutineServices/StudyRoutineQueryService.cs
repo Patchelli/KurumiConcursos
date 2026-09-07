@@ -19,6 +19,7 @@ public sealed class StudyRoutineQueryService(
     : IStudyRoutineQueryService
 {
     private static readonly SemaphoreSlim ScheduleLock = new(1, 1);
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true

@@ -12,14 +12,17 @@ public interface IQuestionAppointmentRepository
     Task<bool> UpdateAsync(QuestionAppointment appointment);
     Task<bool> DeleteAsync(QuestionAppointment appointment);
     Task<bool> ExistsAsync(Expression<Func<QuestionAppointment, bool>> predicate);
+
     Task<QuestionAppointment?> FindByPredicateAsync(
         Expression<Func<QuestionAppointment, bool>> predicate,
         Func<IQueryable<QuestionAppointment>, IIncludableQueryable<QuestionAppointment, object>>? include = null,
         bool asNoTracking = false);
+
     Task<PageList<QuestionAppointment>> FindAllWithPaginationAsync(
         PageParams pageParams,
         Expression<Func<QuestionAppointment, bool>>? predicate = null,
         Func<IQueryable<QuestionAppointment>, IIncludableQueryable<QuestionAppointment, object>>? include = null);
+
     Task<IList<QuestionAppointment>> FindAllAsync(
         Expression<Func<QuestionAppointment, bool>>? predicate = null,
         Func<IQueryable<QuestionAppointment>, IIncludableQueryable<QuestionAppointment, object>>? include = null);

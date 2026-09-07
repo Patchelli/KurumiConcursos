@@ -220,9 +220,11 @@ public sealed class SyllabusNodeStudyCommandService(
         }
 
         var hasPendingAdaptiveQuestions = request.IsReview &&
-            (await questionAppointmentRepository.FindAllAsync(item =>
-                item.UserId == credential.UserId && reviewNodeIds.Contains(item.SyllabusNodeId) &&
-                !item.Completed && !item.Superseded && item.AdaptationTrigger != null)).Count > 0;
+                                          (await questionAppointmentRepository.FindAllAsync(item =>
+                                              item.UserId == credential.UserId &&
+                                              reviewNodeIds.Contains(item.SyllabusNodeId) &&
+                                              !item.Completed && !item.Superseded && item.AdaptationTrigger != null))
+                                          .Count > 0;
         if (!hasPendingAdaptiveQuestions && !await questionAppointmentCommandService.SupersedePendingAsync(
                 credential.UserId, reviewNodeIds))
         {

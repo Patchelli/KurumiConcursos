@@ -10,7 +10,10 @@ public static class CorsSettings
         var corsConfiguration = configuration.GetSection(CorsConfigurationOptions.SectionName)
             .Get<CorsConfigurationOptions>()!;
         var allowedOrigins = new[] { corsConfiguration.Web, corsConfiguration.Mobile }
+            .Concat(corsConfiguration.AdditionalOrigins)
             .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Select(origin => origin.Trim().TrimEnd('/'))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
         services.AddCors(options => options.AddPolicy(CorsName.DefaultPolicy, builder =>

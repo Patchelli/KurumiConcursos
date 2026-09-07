@@ -287,6 +287,7 @@ public sealed class StudyRoutineCommandService(
             Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "Bloco nao encontrado.");
             return null;
         }
+
         var removeRecordedStudy = !request.Completed && request.CompletedMinutes == 0 &&
                                   block.CompletedMinutes > 0;
         var affectedNodeIds = new HashSet<long> { block.SyllabusNodeId };

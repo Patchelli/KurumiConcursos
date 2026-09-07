@@ -2,6 +2,7 @@ using KurumiConcursos.ApplicationService.DataTransferObjects.CalendarEventDtos.R
 using KurumiConcursos.ApplicationService.DataTransferObjects.CalendarEventDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.Domain.Entities;
+using KurumiConcursos.Domain.Enums;
 
 namespace KurumiConcursos.ApplicationService.Mappers;
 
@@ -26,7 +27,7 @@ public sealed class CalendarEventMapper : ICalendarEventMapper
         -entity.Id,
         entity.ScheduledFor,
         $"Questões: {entity.SyllabusNode.Title}",
-        Domain.Enums.ECalendarEventType.Questions,
+        ECalendarEventType.Questions,
         entity.SyllabusNode.KnowledgeArea.Title,
         true,
         entity.JourneyId,
