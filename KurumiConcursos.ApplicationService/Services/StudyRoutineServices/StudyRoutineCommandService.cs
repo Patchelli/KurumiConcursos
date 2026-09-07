@@ -288,8 +288,11 @@ public sealed class StudyRoutineCommandService(
             return null;
         }
 
-        var removeRecordedStudy = !request.Completed && request.CompletedMinutes == 0 &&
-                                  block.CompletedMinutes > 0;
+        if (request.ClearPending)
+            request = request with { Completed = false, CompletedMinutes = 0, ScheduleReview = false, ReviewDate = null };
+
+        var resetStudy = request.ClearPending || !request.Completed && request.CompletedMinutes == 0;
+        var removeRecordedStudy = resetStudy;
         var affectedNodeIds = new HashSet<long> { block.SyllabusNodeId };
 
         if (block.Type == EStudyBlockType.Study)
@@ -313,14 +316,12 @@ public sealed class StudyRoutineCommandService(
             var descendants = FindDescendants(rootNode.Id, allNodes);
             affectedNodeIds.UnionWith(descendants.Select(item => item.Id));
             var today = CurrentDate();
-            rootNode.Progress = request.ClearPending
+            rootNode.Progress = resetStudy
                 ? EStudyProgress.NotStarted
                 : request.Completed
                     ? EStudyProgress.Studied
-                    : rootNode.StudyStartedOn.HasValue
-                        ? EStudyProgress.InProgress
-                        : EStudyProgress.NotStarted;
-            if (request.ClearPending)
+                    : EStudyProgress.InProgress;
+            if (resetStudy)
             {
                 rootNode.StudyStartedOn = null;
                 rootNode.StudiedOn = null;
@@ -332,6 +333,7 @@ public sealed class StudyRoutineCommandService(
             }
             else
             {
+                rootNode.StudyStartedOn ??= today;
                 rootNode.StudiedOn = null;
             }
 
@@ -339,14 +341,12 @@ public sealed class StudyRoutineCommandService(
 
             foreach (var descendant in descendants)
             {
-                descendant.Progress = request.ClearPending
+                // Salvar tempo parcial do pai não altera os subtópicos.
+                if (!request.Completed && !resetStudy) continue;
+                descendant.Progress = resetStudy
                     ? EStudyProgress.NotStarted
-                    : request.Completed
-                        ? EStudyProgress.Studied
-                        : descendant.StudyStartedOn.HasValue
-                            ? EStudyProgress.InProgress
-                            : EStudyProgress.NotStarted;
-                if (request.ClearPending)
+                    : EStudyProgress.Studied;
+                if (resetStudy)
                 {
                     descendant.StudyStartedOn = null;
                     descendant.StudiedOn = null;

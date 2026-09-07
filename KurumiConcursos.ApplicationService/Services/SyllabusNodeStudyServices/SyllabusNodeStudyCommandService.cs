@@ -76,7 +76,7 @@ public sealed class SyllabusNodeStudyCommandService(
         var studiedSeconds = request.StudiedSeconds ?? request.StudiedMinutes * 60;
         var wasCompleted = node.Progress == EStudyProgress.Studied;
         var removeRecordedStudy = clearPending ||
-                                  wasCompleted && !request.Completed && studiedSeconds == 0;
+                                  !request.Completed && studiedSeconds == 0;
         if (request.Completed && studiedSeconds == 0 && !wasCompleted)
         {
             Notification.CreateNotification(
@@ -89,13 +89,15 @@ public sealed class SyllabusNodeStudyCommandService(
         var shouldRecordStudy = studiedSeconds > 0 &&
                                 !(wasCompleted && request.Completed && request.ScheduleReview);
 
-        node.Progress = clearPending
+        // Desfazer a conclusão também desfaz o início criado por ela.
+        // Uma data herdada do pai não é evidência de estudo parcial.
+        node.Progress = removeRecordedStudy
             ? EStudyProgress.NotStarted
             : request.Completed
                 ? EStudyProgress.Studied
                 : EStudyProgress.InProgress;
         var today = CurrentDate();
-        if (clearPending)
+        if (removeRecordedStudy)
         {
             node.StudyStartedOn = null;
             node.StudiedOn = null;
@@ -116,18 +118,14 @@ public sealed class SyllabusNodeStudyCommandService(
         var descendants = FindDescendants(rootNode.Id, allNodes);
 
         // A conclusao do topico-pai conclui toda a sua arvore de subtópicos.
-        if (node.Id == rootNode.Id && rootChildren.Count > 0)
+        if (node.Id == rootNode.Id && rootChildren.Count > 0 && (request.Completed || removeRecordedStudy))
         {
             foreach (var descendant in descendants)
             {
-                descendant.Progress = clearPending
+                descendant.Progress = removeRecordedStudy
                     ? EStudyProgress.NotStarted
-                    : request.Completed
-                        ? EStudyProgress.Studied
-                        : descendant.StudyStartedOn.HasValue
-                            ? EStudyProgress.InProgress
-                            : EStudyProgress.NotStarted;
-                if (clearPending)
+                    : EStudyProgress.Studied;
+                if (removeRecordedStudy)
                 {
                     descendant.StudyStartedOn = null;
                     descendant.StudiedOn = null;
@@ -146,9 +144,10 @@ public sealed class SyllabusNodeStudyCommandService(
             rootNode.Progress = completedChildren == rootChildren.Count
                 ? EStudyProgress.Studied
                 : completedChildren > 0 || rootChildren.Any(item => item.Progress == EStudyProgress.InProgress)
+                    || node.Id == rootNode.Id && !removeRecordedStudy && !request.Completed && studiedSeconds > 0
                     ? EStudyProgress.InProgress
                     : EStudyProgress.NotStarted;
-            if (clearPending)
+            if (rootNode.Progress == EStudyProgress.NotStarted)
                 rootNode.StudyStartedOn = null;
             else
                 rootNode.StudyStartedOn ??= node.StudyStartedOn;
@@ -268,6 +267,7 @@ public sealed class SyllabusNodeStudyCommandService(
                 credential.UserId,
                 rootNode,
                 rootChildren,
+                descendants.Select(item => item.Id).Append(rootNode.Id).ToHashSet(),
                 shouldRecordStudy ? (int)Math.Ceiling(studiedSeconds / 60d) : 0,
                 removeRecordedStudy))
             return null;
@@ -320,6 +320,7 @@ public sealed class SyllabusNodeStudyCommandService(
         Guid userId,
         SyllabusNode rootNode,
         IReadOnlyCollection<SyllabusNode> rootChildren,
+        IReadOnlyCollection<long> rootNodeIds,
         int recordedMinutes,
         bool removeRecordedStudy)
     {
@@ -338,7 +339,12 @@ public sealed class SyllabusNodeStudyCommandService(
             return true;
 
         if (removeRecordedStudy)
-            block.CompletedMinutes = 0;
+        {
+            var remainingSessions = await focusSessionRepository.FindAllAsync(item =>
+                item.UserId == userId && item.JourneyId == request.JourneyId &&
+                item.SyllabusNodeId.HasValue && rootNodeIds.Contains(item.SyllabusNodeId.Value));
+            block.CompletedMinutes = (int)Math.Ceiling(remainingSessions.Sum(item => item.DurationSeconds) / 60d);
+        }
         else if (recordedMinutes > 0)
             block.CompletedMinutes += recordedMinutes;
 
