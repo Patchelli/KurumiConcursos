@@ -10,4 +10,5 @@ public sealed record SyllabusNodeStudyRequest(
     bool ClearPending = false,
     int? StudiedSeconds = null,
     string? Summary = null,
-    bool IsReview = false);
+    bool IsReview = false,
+    string? StudyLocation = null);

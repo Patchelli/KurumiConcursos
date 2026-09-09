@@ -7,4 +7,5 @@ public sealed record StudyRoutineBlockCompleteRequest(
     bool ScheduleReview,
     DateOnly? ReviewDate,
     bool ClearPending = false,
-    string? Summary = null);
+    string? Summary = null,
+    string? StudyLocation = null);

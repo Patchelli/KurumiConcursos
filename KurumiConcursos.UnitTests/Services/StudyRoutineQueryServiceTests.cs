@@ -92,7 +92,8 @@ public sealed class StudyRoutineQueryServiceTests
     public async Task OverdueTopic_UsesNextSlotOfSameSubjectAndPushesItsContent()
     {
         var userId = Guid.NewGuid();
-        var from = new DateOnly(2026, 9, 5);
+        var from = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeBySystemTimeZoneId(
+            DateTimeOffset.UtcNow, "America/Sao_Paulo").DateTime);
         var blocks = new List<StudyRoutineBlock>
         {
             Block(1, userId, 101, from.AddDays(-1), 0),

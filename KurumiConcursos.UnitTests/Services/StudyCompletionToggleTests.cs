@@ -21,6 +21,68 @@ namespace KurumiConcursos.UnitTests.Services;
 public sealed class StudyCompletionToggleTests
 {
     [Theory]
+    [InlineData(false, 0)]
+    [InlineData(true, 0)]
+    [InlineData(false, 10)]
+    [InlineData(true, 10)]
+    public async Task UndoOrPendingClearsLocation_AndRecompletionDoesNotRestoreIt(bool throughPlan, int minutes)
+    {
+        var fixture = new Fixture();
+        await fixture.Save(throughPlan, true, 20, studyLocation: "Escritorio");
+        await fixture.Save(throughPlan, false, minutes);
+        Assert.Null(fixture.Nodes[0].LastStudyLocation);
+        if (minutes == 0)
+            Assert.All(fixture.Nodes, node => Assert.Null(node.LastStudyLocation));
+        await fixture.Save(throughPlan, true, 20);
+        Assert.Null(fixture.Nodes[0].LastStudyLocation);
+    }
+
+    [Theory]
+    [InlineData(EStudyProgress.NotStarted)]
+    [InlineData(EStudyProgress.InProgress)]
+    public void IncompleteTopicDoesNotExposeLegacyLocation(EStudyProgress progress)
+    {
+        var node = new SyllabusNode { Progress = progress, LastStudyLocation = "Escritorio" };
+        Assert.Null(new SyllabusNodeStudyMapper().DomainToDtoResponse(node, 0, null).LastStudyLocation);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CompletionRecordsLocation_AndBlankPreservesLastLocation(bool throughPlan)
+    {
+        var fixture = new Fixture();
+        await fixture.Save(throughPlan, true, 20, studyLocation: "  Biblioteca  ");
+        Assert.All(fixture.Nodes, node => Assert.Equal("Biblioteca", node.LastStudyLocation));
+        await fixture.Save(throughPlan, true, 10, studyLocation: "  ");
+        Assert.All(fixture.Nodes, node => Assert.Equal("Biblioteca", node.LastStudyLocation));
+        await fixture.Save(throughPlan, true, 10, studyLocation: "Escritorio");
+        Assert.All(fixture.Nodes, node => Assert.Equal("Escritorio", node.LastStudyLocation));
+    }
+
+    [Fact]
+    public async Task ReviewUpdatesOnlyReviewedNodeLocation()
+    {
+        var fixture = new Fixture();
+        await fixture.Save(true, true, 20, studyLocation: "Biblioteca");
+        fixture.Block.Type = EStudyBlockType.Review;
+        await fixture.Save(true, true, 10, studyLocation: "Casa");
+        Assert.Equal("Casa", fixture.Nodes[0].LastStudyLocation);
+        Assert.All(fixture.Nodes.Skip(1), node => Assert.Equal("Biblioteca", node.LastStudyLocation));
+        Assert.Equal("Casa", new SyllabusNodeStudyMapper().DomainToDtoResponse(fixture.Nodes[0], 0, null).LastStudyLocation);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PartialStudyDoesNotReplaceCompletionLocation(bool throughPlan)
+    {
+        var fixture = new Fixture();
+        await fixture.Save(throughPlan, false, 10, studyLocation: "Casa");
+        Assert.All(fixture.Nodes, node => Assert.Null(node.LastStudyLocation));
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task CompleteAndUndoParentRepeatedly_ResetsAllDescendants(bool throughPlan)
@@ -151,18 +213,18 @@ public sealed class StudyCompletionToggleTests
                 Mock.Of<IValidate<StudyRoutine>>(), notifications, logger);
         }
 
-        public async Task Save(bool throughPlan, bool completed, int minutes, bool clearPending = false)
+        public async Task Save(bool throughPlan, bool completed, int minutes, bool clearPending = false, string? studyLocation = null)
         {
             if (throughPlan)
-                Assert.NotNull(await planService.CompleteBlockAsync(new StudyRoutineBlockCompleteRequest(1, completed, minutes, false, null, clearPending), credential));
+                Assert.NotNull(await planService.CompleteBlockAsync(new StudyRoutineBlockCompleteRequest(1, completed, minutes, false, null, clearPending, StudyLocation: studyLocation), credential));
             else
-                await SaveNode(1, completed, minutes, clearPending);
+                await SaveNode(1, completed, minutes, clearPending, studyLocation);
             Assert.False(notifications.HasNotification());
         }
 
-        public async Task SaveNode(long id, bool completed, int minutes, bool clearPending = false)
+        public async Task SaveNode(long id, bool completed, int minutes, bool clearPending = false, string? studyLocation = null)
         {
-            Assert.NotNull(await nodeService.SaveAsync(new SyllabusNodeStudyRequest(1, id, completed, minutes, false, null, clearPending), credential));
+            Assert.NotNull(await nodeService.SaveAsync(new SyllabusNodeStudyRequest(1, id, completed, minutes, false, null, clearPending, StudyLocation: studyLocation), credential));
             Assert.False(notifications.HasNotification());
         }
     }

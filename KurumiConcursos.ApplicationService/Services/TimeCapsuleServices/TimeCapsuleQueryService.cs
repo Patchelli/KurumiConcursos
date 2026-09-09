@@ -10,6 +10,11 @@ public sealed class TimeCapsuleQueryService(
     ITimeCapsuleRepository repository,
     ITimeCapsuleMapper mapper) : ITimeCapsuleQueryService
 {
+    public async Task<IList<TimeCapsuleResponse>> FindDeliveredAsync(UserCredential credential) =>
+        mapper.DomainToDtoResponseList(await repository.FindAllAsync(item =>
+            item.UserId == credential.UserId &&
+            item.Status == KurumiConcursos.Domain.Enums.ECapsuleStatus.Delivered));
+
     public async Task<IList<TimeCapsuleResponse>> FindAllAsync(long journeyId, UserCredential credential) =>
         mapper.DomainToDtoResponseList(await repository.FindAllAsync(item =>
             item.UserId == credential.UserId && item.JourneyId == journeyId));

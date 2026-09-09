@@ -10,4 +10,5 @@ public sealed record SyllabusNodeStudyResponse(
     int StudiedMinutes,
     DateOnly? ReviewDate,
     string? LatestSummary = null,
-    DateOnly? QuestionDate = null);
+    DateOnly? QuestionDate = null,
+    string? LastStudyLocation = null);

@@ -18,6 +18,7 @@ public sealed class SyllabusNodeMapping : MappingBase, IEntityTypeConfiguration<
         b.Property(x => x.Progress).HasColumnName("progress");
         b.Property(x => x.StudyStartedOn).HasColumnName("study_started_on");
         b.Property(x => x.StudiedOn).HasColumnName("studied_on");
+        b.Property(x => x.LastStudyLocation).HasColumnName("last_study_location").HasMaxLength(200);
         b.HasOne(x => x.KnowledgeArea).WithMany(x => x.SyllabusNodes).HasForeignKey(x => x.KnowledgeAreaId)
             .OnDelete(DeleteBehavior.Cascade);
         b.HasOne(x => x.Parent).WithMany(x => x.Children).HasForeignKey(x => x.ParentId)

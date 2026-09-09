@@ -11,6 +11,10 @@ namespace KurumiConcursos.Api.Controllers;
 public sealed class TimeCapsuleController(ITimeCapsuleCommandService command, ITimeCapsuleQueryService query)
     : ControllerBase
 {
+    [HttpGet("delivered")]
+    public Task<IList<TimeCapsuleResponse>> FindDelivered() =>
+        query.FindDeliveredAsync(User.GetUserCredential());
+
     [HttpGet("list")]
     public Task<IList<TimeCapsuleResponse>> FindAll([FromQuery] long journeyId) =>
         query.FindAllAsync(journeyId, User.GetUserCredential());

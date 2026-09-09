@@ -42,6 +42,12 @@ public sealed class SyllabusNodeStudyCommandService(
             return null;
         }
 
+        if (request.StudyLocation?.Trim().Length > 200)
+        {
+            Notification.CreateNotification(SyllabusNodeStudyTrace.Save, "O local de estudo deve ter no maximo 200 caracteres.");
+            return null;
+        }
+
         var journey = await journeyRepository.FindByIdAsync(
             request.JourneyId,
             credential.UserId,
@@ -75,6 +81,8 @@ public sealed class SyllabusNodeStudyCommandService(
 
         var studiedSeconds = request.StudiedSeconds ?? request.StudiedMinutes * 60;
         var wasCompleted = node.Progress == EStudyProgress.Studied;
+        if (!wasCompleted || !request.Completed)
+            node.LastStudyLocation = null;
         var removeRecordedStudy = clearPending ||
                                   !request.Completed && studiedSeconds == 0;
         if (request.Completed && studiedSeconds == 0 && !wasCompleted)
@@ -106,6 +114,8 @@ public sealed class SyllabusNodeStudyCommandService(
             node.StudyStartedOn ??= today;
 
         node.StudiedOn = request.Completed ? today : null;
+        if (request.Completed && !string.IsNullOrWhiteSpace(request.StudyLocation))
+            node.LastStudyLocation = request.StudyLocation.Trim();
         node.LastUpdateDate = DateTimeOffset.UtcNow;
 
         var allNodes = journey!.KnowledgeAreas
@@ -134,6 +144,10 @@ public sealed class SyllabusNodeStudyCommandService(
                     descendant.StudyStartedOn ??= today;
 
                 descendant.StudiedOn = request.Completed ? today : null;
+                if (!request.Completed)
+                    descendant.LastStudyLocation = null;
+                if (request.Completed && !string.IsNullOrWhiteSpace(request.StudyLocation))
+                    descendant.LastStudyLocation = request.StudyLocation.Trim();
                 descendant.LastUpdateDate = DateTimeOffset.UtcNow;
             }
         }
@@ -154,6 +168,8 @@ public sealed class SyllabusNodeStudyCommandService(
             rootNode.StudiedOn = rootNode.Progress == EStudyProgress.Studied
                 ? CurrentDate()
                 : null;
+            if (rootNode.Progress != EStudyProgress.Studied)
+                rootNode.LastStudyLocation = null;
             rootNode.LastUpdateDate = DateTimeOffset.UtcNow;
         }
 

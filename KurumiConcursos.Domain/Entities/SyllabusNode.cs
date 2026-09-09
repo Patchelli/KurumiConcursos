@@ -14,5 +14,6 @@ public sealed class SyllabusNode : EntityBase
     public EStudyProgress Progress { get; set; } = EStudyProgress.NotStarted;
     public DateOnly? StudyStartedOn { get; set; }
     public DateOnly? StudiedOn { get; set; }
+    public string? LastStudyLocation { get; set; }
     public ICollection<SyllabusNode> Children { get; set; } = [];
 }

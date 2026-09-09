@@ -279,6 +279,12 @@ public sealed class StudyRoutineCommandService(
             return null;
         }
 
+        if (request.StudyLocation?.Trim().Length > 200)
+        {
+            Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "O local de estudo deve ter no maximo 200 caracteres.");
+            return null;
+        }
+
         var block = await studyRoutineBlockRepository.FindByPredicateAsync(
             item => item.Id == request.BlockId && item.UserId == credential.UserId,
             asNoTracking: false);
@@ -316,6 +322,8 @@ public sealed class StudyRoutineCommandService(
             var descendants = FindDescendants(rootNode.Id, allNodes);
             affectedNodeIds.UnionWith(descendants.Select(item => item.Id));
             var today = CurrentDate();
+            if (!request.Completed || rootNode.Progress != EStudyProgress.Studied)
+                rootNode.LastStudyLocation = null;
             rootNode.Progress = resetStudy
                 ? EStudyProgress.NotStarted
                 : request.Completed
@@ -338,11 +346,15 @@ public sealed class StudyRoutineCommandService(
             }
 
             rootNode.LastUpdateDate = DateTimeOffset.UtcNow;
+            if (request.Completed && !string.IsNullOrWhiteSpace(request.StudyLocation))
+                rootNode.LastStudyLocation = request.StudyLocation.Trim();
 
             foreach (var descendant in descendants)
             {
                 // Salvar tempo parcial do pai não altera os subtópicos.
                 if (!request.Completed && !resetStudy) continue;
+                if (!request.Completed || descendant.Progress != EStudyProgress.Studied)
+                    descendant.LastStudyLocation = null;
                 descendant.Progress = resetStudy
                     ? EStudyProgress.NotStarted
                     : EStudyProgress.Studied;
@@ -362,6 +374,8 @@ public sealed class StudyRoutineCommandService(
                 }
 
                 descendant.LastUpdateDate = DateTimeOffset.UtcNow;
+                if (request.Completed && !string.IsNullOrWhiteSpace(request.StudyLocation))
+                    descendant.LastStudyLocation = request.StudyLocation.Trim();
             }
 
             if (!await journeyRepository.UpdateNodeAsync(rootNode))
@@ -369,6 +383,24 @@ public sealed class StudyRoutineCommandService(
                 Notification.CreateNotification(
                     StudyRoutineTrace.CompleteBlock,
                     "Nao foi possivel atualizar o progresso do topico.");
+                return null;
+            }
+        }
+
+        if (block.Type == EStudyBlockType.Review && request.Completed && !string.IsNullOrWhiteSpace(request.StudyLocation))
+        {
+            var node = await journeyRepository.FindNodeAsync(block.SyllabusNodeId, credential.UserId,
+                CancellationToken.None, false);
+            if (node is null)
+            {
+                Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "Topico do bloco nao encontrado.");
+                return null;
+            }
+            node.LastStudyLocation = request.StudyLocation.Trim();
+            node.LastUpdateDate = DateTimeOffset.UtcNow;
+            if (!await journeyRepository.UpdateNodeAsync(node))
+            {
+                Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "Nao foi possivel salvar o local de estudo.");
                 return null;
             }
         }
