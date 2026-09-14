@@ -6,6 +6,7 @@ public sealed record SyllabusNodeResponse(
     long Id,
     long? ParentId,
     string Title,
+    string? CognitivePairing,
     int Order,
     EStudyProgress Progress,
     DateOnly? StudyStartedOn,

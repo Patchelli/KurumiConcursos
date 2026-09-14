@@ -117,7 +117,7 @@ public sealed class JourneyMapper : IJourneyMapper
             .ToDictionary(group => group.Key, group => group.OrderBy(node => node.Order).ToList());
 
         SyllabusNodeResponse MapNodeResponse(SyllabusNode node) =>
-            new(node.Id, node.ParentId, node.Title, node.Order, node.Progress,
+            new(node.Id, node.ParentId, node.Title, node.CognitivePairing, node.Order, node.Progress,
                 node.StudyStartedOn, node.StudiedOn,
                 childrenByParent.TryGetValue(node.Id, out var children)
                     ? children.Select(MapNodeResponse).ToList()

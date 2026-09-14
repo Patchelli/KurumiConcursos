@@ -14,6 +14,7 @@ public sealed class SyllabusNodeMapping : MappingBase, IEntityTypeConfiguration<
         b.Property(x => x.KnowledgeAreaId).HasColumnName("knowledge_area_id");
         b.Property(x => x.ParentId).HasColumnName("parent_id");
         b.Property(x => x.Title).HasColumnName("title").HasMaxLength(300);
+        b.Property(x => x.CognitivePairing).HasColumnName("cognitive_pairing").HasMaxLength(500);
         b.Property(x => x.Order).HasColumnName("display_order");
         b.Property(x => x.Progress).HasColumnName("progress");
         b.Property(x => x.StudyStartedOn).HasColumnName("study_started_on");

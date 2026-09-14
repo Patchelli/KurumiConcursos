@@ -5,4 +5,5 @@ public sealed record SyllabusNodeRegisterRequest(
     long KnowledgeAreaId,
     long? ParentId,
     string Title,
-    int Order);
+    int Order,
+    string? CognitivePairing = null);

@@ -21,6 +21,9 @@ public sealed class SyllabusNodeValidation : Validate<SyllabusNode>
             .NotEmpty().WithMessage("Nome do tópico obrigatório.")
             .MaximumLength(300).WithMessage("Nome do tópico deve ter no máximo 300 caracteres.");
 
+        RuleFor(entity => entity.CognitivePairing)
+            .MaximumLength(500).WithMessage("O emparelhamento cognitivo deve ter no maximo 500 caracteres.");
+
         RuleFor(entity => entity.Order)
             .GreaterThanOrEqualTo(0).WithMessage("Ordem do tópico inválida.");
     }

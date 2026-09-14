@@ -10,6 +10,7 @@ public sealed class SyllabusNode : EntityBase
     public long? ParentId { get; set; }
     public SyllabusNode? Parent { get; set; }
     public string Title { get; set; } = string.Empty;
+    public string? CognitivePairing { get; set; }
     public int Order { get; set; }
     public EStudyProgress Progress { get; set; } = EStudyProgress.NotStarted;
     public DateOnly? StudyStartedOn { get; set; }
