@@ -14,12 +14,14 @@ public sealed class StudyResourceQueryService(
     public async Task<IList<StudyResourceResponse>> FindAllAsync(
         long journeyId,
         long? syllabusNodeId,
+        long? knowledgeAreaId,
         UserCredential credential)
     {
         var resources = await studyResourceRepository.FindAllAsync(item =>
             item.UserId == credential.UserId &&
             item.JourneyId == journeyId &&
-            (!syllabusNodeId.HasValue || item.SyllabusNodeId == syllabusNodeId));
+            (!syllabusNodeId.HasValue || item.SyllabusNodeId == syllabusNodeId) &&
+            (!knowledgeAreaId.HasValue || item.KnowledgeAreaId == knowledgeAreaId));
 
         return studyResourceMapper.DomainToDtoResponseList(resources);
     }

@@ -13,8 +13,9 @@ public sealed class StudyResourceController(
     IStudyResourceQueryService query) : ControllerBase
 {
     [HttpGet("list")]
-    public Task<IList<StudyResourceResponse>> List([FromQuery] long journeyId, [FromQuery] long? syllabusNodeId) =>
-        query.FindAllAsync(journeyId, syllabusNodeId, User.GetUserCredential());
+    public Task<IList<StudyResourceResponse>> List([FromQuery] long journeyId, [FromQuery] long? syllabusNodeId,
+        [FromQuery] long? knowledgeAreaId) =>
+        query.FindAllAsync(journeyId, syllabusNodeId, knowledgeAreaId, User.GetUserCredential());
 
     [HttpPost("register")]
     public Task<StudyResourceResponse?> Register(StudyResourceRegisterRequest request) =>
