@@ -12,7 +12,8 @@ public sealed class TopicMaterialValidation : Validate<TopicMaterial>
             .WithMessage("O material deve pertencer a uma materia ou a um topico.");
         RuleFor(item => item.Name).NotEmpty().MaximumLength(260);
         RuleFor(item => item.NextcloudPath).NotEmpty().MaximumLength(2048)
-            .Must(path => path.StartsWith('/') && !path.Contains("..", StringComparison.Ordinal) && !path.Contains('\\'));
+            .Must(path => path.StartsWith('/') && !path.Contains('\\') && path.Split('/', StringSplitOptions.RemoveEmptyEntries)
+                .All(segment => segment is not "." and not ".."));
         RuleFor(item => item.MimeType).Equal("application/pdf");
     }
 }
