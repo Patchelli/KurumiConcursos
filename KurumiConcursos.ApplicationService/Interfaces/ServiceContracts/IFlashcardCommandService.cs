@@ -8,6 +8,7 @@ public interface IFlashcardCommandService
 {
     Task<FlashcardResponse?> RegisterAsync(FlashcardRegisterRequest request, UserCredential credential);
     Task<FlashcardResponse?> RecallAsync(FlashcardRecallRequest request, UserCredential credential);
+    Task<bool> SaveReviewIntervalsAsync(FlashcardReviewIntervalsRequest request, UserCredential credential);
     Task<FlashcardResponse?> UpdateAsync(FlashcardUpdateRequest request, UserCredential credential);
     Task<bool> DeleteAsync(long id, UserCredential credential);
 }

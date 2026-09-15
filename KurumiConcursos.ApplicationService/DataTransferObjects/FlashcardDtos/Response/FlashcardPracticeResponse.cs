@@ -5,4 +5,5 @@ public sealed record FlashcardPracticeResponse(
     int ReviewCards,
     int NewCards,
     int CorrectToday,
-    IList<FlashcardResponse> Cards);
+    IList<FlashcardResponse> Cards,
+    FlashcardReviewIntervalsResponse Intervals);

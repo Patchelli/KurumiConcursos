@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace KurumiConcursos.ApplicationService.Services.RadarServices;
 
 public sealed class RadarQueryService(
-    IUserRepository users,
+    IStudentProfileRepository profiles,
     IRadarMapper mapper,
     IPciContestQueryService pci,
     INotificationHandler notification,
@@ -20,8 +20,8 @@ public sealed class RadarQueryService(
 {
     public async Task<RadarPreferencesResponse?> GetPreferencesAsync(UserCredential credential)
     {
-        var user = await users.FindByPredicateAsync(item => item.Id == credential.UserId, toQuery: true);
-        if (user is not null) return mapper.DomainToPreferencesResponse(user);
+        var profile = await profiles.FindByPredicateAsync(item => item.UserId == credential.UserId, asNoTracking: true);
+        if (profile is not null) return mapper.DomainToPreferencesResponse(profile);
         notification.CreateNotification(RadarTrace.Query, "Usuário não encontrado.");
         return null;
     }

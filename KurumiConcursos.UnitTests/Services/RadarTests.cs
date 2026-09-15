@@ -11,7 +11,6 @@ using KurumiConcursos.Domain.ValueObjects;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Infra.Mappers;
 using KurumiConcursos.Infra.Services.PciContestServices;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
@@ -84,29 +83,29 @@ public sealed class RadarTests
     public void PreferencesRoundTripAndDefaultToAllBrazil()
     {
         var mapper = new RadarMapper();
-        var user = new User();
-        Assert.Equal(new RadarPreferencesResponse(), mapper.DomainToPreferencesResponse(user));
-        mapper.DtoUpdateToDomain(user,
+        var profile = new StudentProfile();
+        Assert.Equal(new RadarPreferencesResponse(), mapper.DomainToPreferencesResponse(profile));
+        mapper.DtoUpdateToDomain(profile,
             new() { State = "SP", Education = "superior", Role = " analista ", IncludeNational = false });
         Assert.Equal(
             new RadarPreferencesResponse(State: "SP", Education: "superior", Role: "analista", IncludeNational: false),
-            mapper.DomainToPreferencesResponse(user));
+            mapper.DomainToPreferencesResponse(profile));
     }
 
     [Fact]
-    public async Task CommandOnlyUpdatesAuthenticatedUser()
+    public async Task CommandOnlyUpdatesAuthenticatedStudentProfile()
     {
-        var current = new User { Id = Guid.NewGuid() };
-        var other = new User { Id = Guid.NewGuid() };
-        var repository = new Mock<IUserRepository>();
-        repository.Setup(x => x.FindByPredicateAsync(It.IsAny<Expression<Func<User, bool>>>(), null, false))
-            .Returns((Expression<Func<User, bool>> predicate,
-                    Func<IQueryable<User>, IIncludableQueryable<User, object>>? _, bool _) =>
+        var current = new StudentProfile { UserId = Guid.NewGuid() };
+        var other = new StudentProfile { UserId = Guid.NewGuid() };
+        var repository = new Mock<IStudentProfileRepository>();
+        repository.Setup(x => x.FindByPredicateAsync(It.IsAny<Expression<Func<StudentProfile, bool>>>(), null, false))
+            .Returns((Expression<Func<StudentProfile, bool>> predicate,
+                    Func<IQueryable<StudentProfile>, IIncludableQueryable<StudentProfile, object>>? _, bool _) =>
                 Task.FromResult(new[] { current, other }.FirstOrDefault(predicate.Compile())));
-        repository.Setup(x => x.UpdateAsync(current)).ReturnsAsync(IdentityResult.Success);
+        repository.Setup(x => x.UpdateAsync(current)).ReturnsAsync(true);
         var service = new RadarCommandService(repository.Object, new RadarMapper(), new NotificationHandler());
         Assert.True(await service.SavePreferencesAsync(new() { State = "SP" },
-            new UserCredential { UserId = current.Id, Roles = [] }));
+            new UserCredential { UserId = current.UserId, Roles = [] }));
         Assert.NotNull(current.RadarPreferencesJson);
         Assert.Null(other.RadarPreferencesJson);
         repository.Verify(x => x.UpdateAsync(current), Times.Once);
@@ -115,7 +114,7 @@ public sealed class RadarTests
     [Fact]
     public async Task InvalidPreferencesNeverReachPersistence()
     {
-        var repository = new Mock<IUserRepository>(MockBehavior.Strict);
+        var repository = new Mock<IStudentProfileRepository>(MockBehavior.Strict);
         var notifications = new NotificationHandler();
         var service = new RadarCommandService(repository.Object, new RadarMapper(), notifications);
         Assert.False(await service.SavePreferencesAsync(new() { State = "XX" }, new UserCredential { Roles = [] }));

@@ -12,6 +12,7 @@ public sealed class MemoryCard : EntityBase
     public string Type { get; set; } = string.Empty;
     public bool? CorrectAnswer { get; set; }
     public DateOnly? NextReviewOn { get; set; }
+    public DateTimeOffset? NextReviewAt { get; set; }
     public int IntervalDays { get; set; }
     public decimal EaseFactor { get; set; } = 2.5m;
     public ICollection<MemoryRecall> Recalls { get; set; } = [];

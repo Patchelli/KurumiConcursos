@@ -9,9 +9,17 @@ namespace KurumiConcursos.ApplicationService.Services.FlashcardServices;
 
 public sealed class FlashcardQueryService(
     IFlashcardRepository flashcardRepository,
+    IStudentProfileRepository profileRepository,
     IJourneyRepository journeyRepository,
     IFlashcardMapper mapper) : IFlashcardQueryService
 {
+    public async Task<FlashcardReviewIntervalsResponse?> GetReviewIntervalsAsync(UserCredential credential)
+    {
+        var profile = await profileRepository.FindByPredicateAsync(
+            item => item.UserId == credential.UserId, asNoTracking: true);
+        return profile is null ? null : FlashcardReviewIntervals.FromJson(profile.FlashcardIntervalsJson);
+    }
+
     public async Task<IList<FlashcardResponse>> FindAllAsync(
         long journeyId, long? knowledgeAreaId, long? syllabusNodeId, UserCredential credential)
     {
@@ -33,7 +41,7 @@ public sealed class FlashcardQueryService(
                 journeyId, credential.UserId, CancellationToken.None, includeStructure: true);
             var nodes = journey?.KnowledgeAreas.SelectMany(area => area.SyllabusNodes).ToList() ?? [];
             if (!nodes.Any(node => node.Id == syllabusNodeId.Value))
-                return new FlashcardPracticeResponse(0, 0, 0, 0, []);
+                return new FlashcardPracticeResponse(0, 0, 0, 0, [], await ReviewIntervalsOrDefaultAsync(credential));
             var ids = new HashSet<long> { syllabusNodeId.Value };
             if (includeDescendants)
             {
@@ -53,8 +61,9 @@ public sealed class FlashcardQueryService(
         var cards = await flashcardRepository.FindCardsAsync(
             credential.UserId, journeyId, knowledgeAreaId, nodeIds);
         var today = CurrentDate();
+        var now = DateTimeOffset.UtcNow;
         var eligible = cards
-            .Where(card => !card.NextReviewOn.HasValue || card.NextReviewOn <= today)
+            .Where(card => !card.NextReviewAt.HasValue ? !card.NextReviewOn.HasValue || card.NextReviewOn <= today : card.NextReviewAt <= now)
             .OrderBy(card => card.NextReviewOn.HasValue ? 0 : 1)
             .ThenBy(card => card.NextReviewOn)
             .ThenBy(card => card.Id)
@@ -70,7 +79,8 @@ public sealed class FlashcardQueryService(
             cards.Count(card => card.NextReviewOn.HasValue && card.NextReviewOn <= today),
             cards.Count(card => !card.NextReviewOn.HasValue),
             correctToday,
-            eligible);
+            eligible,
+            await ReviewIntervalsOrDefaultAsync(credential));
     }
 
     private static TimeZoneInfo TimeZone() => TimeZoneInfo.FindSystemTimeZoneById(
@@ -78,4 +88,7 @@ public sealed class FlashcardQueryService(
 
     private static DateOnly CurrentDate() =>
         DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZone()));
+
+    private async Task<FlashcardReviewIntervalsResponse> ReviewIntervalsOrDefaultAsync(UserCredential credential) =>
+        await GetReviewIntervalsAsync(credential) ?? new();
 }

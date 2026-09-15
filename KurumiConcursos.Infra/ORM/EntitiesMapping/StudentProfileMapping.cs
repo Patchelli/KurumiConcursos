@@ -38,6 +38,14 @@ public sealed class StudentProfileMapping
             .HasColumnName("updated_at")
             .HasColumnOrder(4);
 
+        builder.Property(profile => profile.FlashcardIntervalsJson)
+            .HasColumnType("text")
+            .HasColumnName("flashcard_intervals_json");
+
+        builder.Property(profile => profile.RadarPreferencesJson)
+            .HasColumnType("text")
+            .HasColumnName("radar_preferences_json");
+
         builder.HasOne(profile => profile.User)
             .WithOne(user => user.StudentProfile)
             .HasForeignKey<StudentProfile>(profile => profile.UserId)

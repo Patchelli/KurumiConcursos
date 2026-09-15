@@ -7,7 +7,7 @@ namespace KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 
 public interface IRadarMapper
 {
-    void DtoUpdateToDomain(User user, RadarPreferencesRequest request);
-    RadarPreferencesResponse DomainToPreferencesResponse(User user);
+    void DtoUpdateToDomain(StudentProfile profile, RadarPreferencesRequest request);
+    RadarPreferencesResponse DomainToPreferencesResponse(StudentProfile profile);
     RadarResultResponse DomainToResultResponse(ContestFeed feed);
 }

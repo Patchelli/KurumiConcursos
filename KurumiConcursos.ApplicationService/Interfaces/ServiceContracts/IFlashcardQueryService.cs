@@ -5,6 +5,7 @@ namespace KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 
 public interface IFlashcardQueryService
 {
+    Task<FlashcardReviewIntervalsResponse?> GetReviewIntervalsAsync(UserCredential credential);
     Task<FlashcardPracticeResponse> FindPracticeAsync(
         long journeyId, long? knowledgeAreaId, long? syllabusNodeId,
         bool includeDescendants, UserCredential credential);

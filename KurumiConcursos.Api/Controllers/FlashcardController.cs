@@ -10,6 +10,14 @@ namespace KurumiConcursos.Api.Controllers;
 [ApiController, Route("api/[controller]"), Authorize]
 public sealed class FlashcardController(IFlashcardCommandService command, IFlashcardQueryService query) : ControllerBase
 {
+    [HttpGet("review-intervals")]
+    public Task<FlashcardReviewIntervalsResponse?> ReviewIntervals() =>
+        query.GetReviewIntervalsAsync(User.GetUserCredential());
+
+    [HttpPut("review-intervals")]
+    public Task<bool> SaveReviewIntervals(FlashcardReviewIntervalsRequest request) =>
+        command.SaveReviewIntervalsAsync(request, User.GetUserCredential());
+
     [HttpPost("register")]
     public Task<FlashcardResponse?> Register(FlashcardRegisterRequest request) =>
         command.RegisterAsync(request, User.GetUserCredential());

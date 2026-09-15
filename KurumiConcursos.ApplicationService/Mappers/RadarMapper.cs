@@ -20,12 +20,12 @@ public sealed class RadarMapper : IRadarMapper
             contest.RegistrationEnd?.DayNumber - today.DayNumber, contest.Url)).ToArray(), feed.UpdatedAt);
     }
 
-    public void DtoUpdateToDomain(User user, RadarPreferencesRequest request) =>
-        user.RadarPreferencesJson = JsonSerializer.Serialize(new RadarPreferencesResponse(
+    public void DtoUpdateToDomain(StudentProfile profile, RadarPreferencesRequest request) =>
+        profile.RadarPreferencesJson = JsonSerializer.Serialize(new RadarPreferencesResponse(
             request.Region, request.State, request.Education, request.Role.Trim(), request.IncludeNational));
 
-    public RadarPreferencesResponse DomainToPreferencesResponse(User user) =>
-        string.IsNullOrWhiteSpace(user.RadarPreferencesJson)
+    public RadarPreferencesResponse DomainToPreferencesResponse(StudentProfile profile) =>
+        string.IsNullOrWhiteSpace(profile.RadarPreferencesJson)
             ? new()
-            : JsonSerializer.Deserialize<RadarPreferencesResponse>(user.RadarPreferencesJson) ?? new();
+            : JsonSerializer.Deserialize<RadarPreferencesResponse>(profile.RadarPreferencesJson) ?? new();
 }

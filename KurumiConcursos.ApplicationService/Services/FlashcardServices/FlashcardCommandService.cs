@@ -1,3 +1,4 @@
+using System.Text.Json;
 using KurumiConcursos.ApplicationService.DataTransferObjects.FlashcardDtos.Request;
 using KurumiConcursos.ApplicationService.DataTransferObjects.FlashcardDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
@@ -13,6 +14,7 @@ namespace KurumiConcursos.ApplicationService.Services.FlashcardServices;
 
 public sealed class FlashcardCommandService(
     IFlashcardRepository flashcardRepository,
+    IStudentProfileRepository profileRepository,
     IJourneyRepository journeyRepository,
     ITimeCapsuleCommandService timeCapsuleCommandService,
     IPerformanceAdaptationCommandService performanceAdaptationCommandService,
@@ -101,17 +103,14 @@ public sealed class FlashcardCommandService(
             return null;
         }
 
-        var previousInterval = card.IntervalDays;
-        var newInterval = request.Grade switch
+        var profile = await profileRepository.FindByPredicateAsync(item => item.UserId == credential.UserId);
+        if (profile is null)
         {
-            ERecallGrade.Again => 1,
-            ERecallGrade.Hard => Math.Max(1, (int)Math.Round(Math.Max(1, previousInterval) * 1.2)),
-            ERecallGrade.Good when previousInterval == 0 => 1,
-            ERecallGrade.Good when previousInterval == 1 => 3,
-            ERecallGrade.Good => Math.Max(1, (int)Math.Round(previousInterval * card.EaseFactor)),
-            ERecallGrade.Easy when previousInterval == 0 => 4,
-            _ => Math.Max(1, (int)Math.Round(previousInterval * card.EaseFactor * 1.3m))
-        };
+            Notification.CreateNotification(FlashcardTrace.Recall, "Usuario nao encontrado.");
+            return null;
+        }
+
+        var previousInterval = card.IntervalDays;
         card.EaseFactor = request.Grade switch
         {
             ERecallGrade.Again => Math.Max(1.3m, card.EaseFactor - .2m),
@@ -119,16 +118,20 @@ public sealed class FlashcardCommandService(
             ERecallGrade.Easy => Math.Min(3.5m, card.EaseFactor + .15m),
             _ => card.EaseFactor
         };
-        card.IntervalDays = newInterval;
-        card.NextReviewOn = CurrentDate().AddDays(newInterval);
-        card.LastUpdateDate = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow;
+        var intervalHours = FlashcardReviewIntervals.ForGrade(
+            FlashcardReviewIntervals.FromJson(profile.FlashcardIntervalsJson), request.Grade);
+        card.IntervalDays = Math.Max(1, (int)Math.Ceiling(intervalHours / 24d));
+        card.NextReviewAt = now.AddHours(intervalHours);
+        card.NextReviewOn = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now.AddHours(intervalHours), TimeZone()).DateTime);
+        card.LastUpdateDate = now;
         var recall = new MemoryRecall
         {
             MemoryCardId = card.Id,
             Grade = request.Grade,
             AnsweredAt = DateTimeOffset.UtcNow,
             PreviousIntervalDays = previousInterval,
-            NewIntervalDays = newInterval
+            NewIntervalDays = card.IntervalDays
         };
         if (!await flashcardRepository.SaveRecallAsync(card, recall))
         {
@@ -143,6 +146,30 @@ public sealed class FlashcardCommandService(
             await performanceAdaptationCommandService.EvaluateFlashcardsAsync(
                 credential.UserId, card.Collection.JourneyId, card.Collection.SyllabusNodeId.Value);
         return mapper.DomainToDtoResponse(card, card.Collection);
+    }
+
+    public async Task<bool> SaveReviewIntervalsAsync(
+        FlashcardReviewIntervalsRequest request, UserCredential credential)
+    {
+        var intervals = FlashcardReviewIntervals.FromRequest(request);
+        if (!FlashcardReviewIntervals.IsValid(intervals))
+        {
+            Notification.CreateNotification(FlashcardTrace.Update, "Os intervalos devem estar entre 1 hora e 365 dias.");
+            return false;
+        }
+
+        var profile = await profileRepository.FindByPredicateAsync(item => item.UserId == credential.UserId);
+        if (profile is null)
+        {
+            Notification.CreateNotification(FlashcardTrace.Update, "Usuario nao encontrado.");
+            return false;
+        }
+
+        profile.FlashcardIntervalsJson = JsonSerializer.Serialize(intervals);
+        var result = await profileRepository.UpdateAsync(profile);
+        if (!result)
+            Notification.CreateNotification(FlashcardTrace.Update, "Nao foi possivel salvar os intervalos de revisao.");
+        return result;
     }
 
     public async Task<FlashcardResponse?> UpdateAsync(FlashcardUpdateRequest request, UserCredential credential)
@@ -194,10 +221,6 @@ public sealed class FlashcardCommandService(
         return true;
     }
 
-    private static DateOnly CurrentDate()
-    {
-        var zone = TimeZoneInfo.FindSystemTimeZoneById(
-            OperatingSystem.IsWindows() ? "E. South America Standard Time" : "America/Sao_Paulo");
-        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zone));
-    }
+    private static TimeZoneInfo TimeZone() => TimeZoneInfo.FindSystemTimeZoneById(
+        OperatingSystem.IsWindows() ? "E. South America Standard Time" : "America/Sao_Paulo");
 }

@@ -3,14 +3,13 @@ using KurumiConcursos.ApplicationService.DataTransferObjects.RadarDtos.Request;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 using KurumiConcursos.ApplicationService.Traces;
-using KurumiConcursos.Domain.Extensions;
 using KurumiConcursos.Domain.Interface;
 using KurumiConcursos.Domain.ValueObjects;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 
 namespace KurumiConcursos.ApplicationService.Services.RadarServices;
 
-public sealed class RadarCommandService(IUserRepository users, IRadarMapper mapper, INotificationHandler notification)
+public sealed class RadarCommandService(IStudentProfileRepository profiles, IRadarMapper mapper, INotificationHandler notification)
     : IRadarCommandService
 {
     public async Task<bool> SavePreferencesAsync(RadarPreferencesRequest request, UserCredential credential)
@@ -22,17 +21,17 @@ public sealed class RadarCommandService(IUserRepository users, IRadarMapper mapp
             return false;
         }
 
-        var user = await users.FindByPredicateAsync(item => item.Id == credential.UserId);
-        if (user is null)
+        var profile = await profiles.FindByPredicateAsync(item => item.UserId == credential.UserId);
+        if (profile is null)
         {
             notification.CreateNotification(RadarTrace.Update, "Usuário não encontrado.");
             return false;
         }
 
-        mapper.DtoUpdateToDomain(user, request);
-        var result = await users.UpdateAsync(user);
-        if (!result.Succeeded)
-            notification.CreateNotifications(result.SetNotificationByIdentityResult(RadarTrace.Update));
-        return result.Succeeded;
+        mapper.DtoUpdateToDomain(profile, request);
+        var result = await profiles.UpdateAsync(profile);
+        if (!result)
+            notification.CreateNotification(RadarTrace.Update, "Nao foi possivel salvar as preferencias.");
+        return result;
     }
 }
