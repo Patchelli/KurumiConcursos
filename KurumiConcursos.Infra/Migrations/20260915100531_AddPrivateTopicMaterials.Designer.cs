@@ -3,6 +3,7 @@ using System;
 using KurumiConcursos.Infra.ORM.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KurumiConcursos.Infra.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260915100531_AddPrivateTopicMaterials")]
+    partial class AddPrivateTopicMaterials
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1572,10 +1575,6 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("creation_date");
 
-                    b.Property<long?>("KnowledgeAreaId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("knowledge_area_id");
-
                     b.Property<DateTimeOffset?>("LastUpdateDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_update_date");
@@ -1598,13 +1597,11 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("character varying(2048)")
                         .HasColumnName("nextcloud_path");
 
-                    b.Property<long?>("SyllabusNodeId")
+                    b.Property<long>("SyllabusNodeId")
                         .HasColumnType("bigint")
                         .HasColumnName("syllabus_node_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("KnowledgeAreaId");
 
                     b.HasIndex("SyllabusNodeId");
 
@@ -1911,17 +1908,11 @@ namespace KurumiConcursos.Infra.Migrations
 
             modelBuilder.Entity("KurumiConcursos.Domain.Entities.TopicMaterial", b =>
                 {
-                    b.HasOne("KurumiConcursos.Domain.Entities.KnowledgeArea", "KnowledgeArea")
-                        .WithMany()
-                        .HasForeignKey("KnowledgeAreaId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("KurumiConcursos.Domain.Entities.SyllabusNode", "SyllabusNode")
                         .WithMany()
                         .HasForeignKey("SyllabusNodeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("KnowledgeArea");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("SyllabusNode");
                 });

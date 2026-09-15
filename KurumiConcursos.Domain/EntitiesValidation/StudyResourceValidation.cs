@@ -24,9 +24,7 @@ public sealed class StudyResourceValidation : Validate<StudyResource>
 
         RuleFor(entity => entity.Url)
             .NotEmpty()
-            .WithMessage("URL do material obrigatoria.")
-            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))
-            .WithMessage("URL do material invalida.");
+            .WithMessage("Endereco do material obrigatorio.");
 
         RuleFor(entity => entity.Kind)
             .IsInEnum()

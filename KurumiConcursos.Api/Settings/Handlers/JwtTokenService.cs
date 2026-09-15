@@ -4,6 +4,7 @@ using System.Text;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Providers;
+using KurumiConcursos.Domain.UserPolicies;
 using Microsoft.IdentityModel.Tokens;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
@@ -33,6 +34,11 @@ public sealed class JwtTokenService(JwtOptions jwt) : ITokenService
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
+
+        foreach (var permission in (user.UserClaims ?? [])
+                     .Where(claim => claim.ClaimType == PrivateMaterials.ClaimType && !string.IsNullOrWhiteSpace(claim.ClaimValue))
+                     .Select(claim => claim.ClaimValue!).Distinct(StringComparer.Ordinal))
+            claims.Add(new Claim(PrivateMaterials.ClaimType, permission));
 
         if (roles.Count > 0)
             claims.Add(new Claim("profile", roles[0]));

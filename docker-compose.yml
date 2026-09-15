@@ -26,6 +26,9 @@ services:
     restart: unless-stopped
     ports:
       - "5000:8080"
+    # Resolve nomes MagicDNS (*.ts.net) do Nextcloud privado dentro do container.
+    dns:
+      - 100.100.100.100
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       EnvironmentConfiguration__ActiveSwagger: ${ACTIVE_SWAGGER:-false}
@@ -38,6 +41,12 @@ services:
       CorsConfiguration__Web: ${FRONT_WEB:?configure FRONT_WEB in .env}
       CorsConfiguration__Mobile: ${FRONT_MOBILE:-}
       CorsConfiguration__AdditionalOrigins__0: ${CORS_ADDITIONAL_ORIGIN:-}
+      Nextcloud__Url: ${NEXTCLOUD_URL:-}
+      Nextcloud__User: ${NEXTCLOUD_USER:-}
+      Nextcloud__AppPassword: ${NEXTCLOUD_APP_PASSWORD:-}
+      Nextcloud__RootPath: ${NEXTCLOUD_ROOT_PATH:-/}
+      Nextcloud__TimeoutSeconds: ${NEXTCLOUD_TIMEOUT_SECONDS:-120}
+      PrivateMaterials__AllowedUsers: ${PRIVATE_MATERIALS_USERS:-}
       CorsConfiguration__Methods__0: GET
       CorsConfiguration__Methods__1: POST
       CorsConfiguration__Methods__2: PUT

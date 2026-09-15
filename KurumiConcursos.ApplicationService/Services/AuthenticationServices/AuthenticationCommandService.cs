@@ -77,7 +77,8 @@ public sealed class AuthenticationCommandService(
             query => query
                 .Include(candidate => candidate.PersonalData!)
                 .Include(candidate => candidate.UserRoles!)
-                .ThenInclude(userRole => userRole.Role!));
+                .ThenInclude(userRole => userRole.Role!)
+                .Include(candidate => candidate.UserClaims!));
         if (user is null)
         {
             notificationHandler.CreateNotification(

@@ -3,6 +3,7 @@ using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Infra.ORM.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using KurumiConcursos.Domain.Providers;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 
@@ -14,8 +15,9 @@ public static class MigrationHandlerSettings
         var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
         var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+        var privateMaterials = scope.ServiceProvider.GetRequiredService<PrivateMaterialsAccessOptions>();
         await context.Database.MigrateAsync();
-        var seedHandler = new DbInitializer(context, userRepository, passwordHasher);
+        var seedHandler = new DbInitializer(context, userRepository, passwordHasher, privateMaterials);
         await seedHandler.Seed();
     }
 }

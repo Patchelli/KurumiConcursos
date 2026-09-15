@@ -10,5 +10,7 @@ public static class ProviderSettings
         services.SetConfigureOptions<ConnectionStringOptions>(configuration, ConnectionStringOptions.SectionName);
         services.SetConfigureOptions<JwtOptions>(configuration, JwtOptions.SectionName);
         services.SetConfigureOptions<PciConcursosOptions>(configuration, PciConcursosOptions.SectionName);
+        services.SetConfigureOptions<NextcloudOptions>(configuration, NextcloudOptions.SectionName);
+        services.SetConfigureOptions<PrivateMaterialsAccessOptions>(configuration, PrivateMaterialsAccessOptions.SectionName);
     }
 }
