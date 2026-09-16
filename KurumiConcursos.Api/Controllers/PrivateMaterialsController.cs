@@ -16,14 +16,17 @@ public sealed class PrivateMaterialsController(IPrivateMaterialService service) 
         service.BrowseAsync(path, User.GetUserCredential(), cancellationToken);
 
     [HttpGet("topics/{topicId:long}/materials")]
-    public Task<IList<PrivateMaterialResponse>> List(long topicId) => service.FindAllAsync(topicId, User.GetUserCredential());
+    public Task<IList<PrivateMaterialResponse>> List(long topicId) =>
+        service.FindAllAsync(topicId, User.GetUserCredential());
 
     [HttpPost("topics/{topicId:long}/materials")]
-    public Task<PrivateMaterialResponse?> Link(long topicId, PrivateMaterialLinkRequest request, CancellationToken cancellationToken) =>
+    public Task<PrivateMaterialResponse?> Link(long topicId, PrivateMaterialLinkRequest request,
+        CancellationToken cancellationToken) =>
         service.LinkAsync(topicId, request, User.GetUserCredential(), cancellationToken);
 
     [HttpDelete("topics/{topicId:long}/materials/{materialId:long}")]
-    public Task<bool> Delete(long topicId, long materialId) => service.DeleteAsync(topicId, materialId, User.GetUserCredential());
+    public Task<bool> Delete(long topicId, long materialId) =>
+        service.DeleteAsync(topicId, materialId, User.GetUserCredential());
 
     [HttpGet("topics/{topicId:long}/materials/{materialId:long}/file")]
     public async Task<IActionResult> File(long topicId, long materialId, CancellationToken cancellationToken)
@@ -34,15 +37,23 @@ public sealed class PrivateMaterialsController(IPrivateMaterialService service) 
         return base.File(file.Stream, "application/pdf", enableRangeProcessing: false);
     }
 
+    [HttpPut("topics/{topicId:long}/materials/{materialId:long}/study-location")]
+    public Task<PrivateMaterialResponse?> UpdateStudyLocation(long topicId, long materialId,
+        PrivateMaterialStudyLocationRequest request) =>
+        service.UpdateStudyLocationAsync(topicId, materialId, request.StudyLocation, User.GetUserCredential());
+
     [HttpGet("knowledge-areas/{areaId:long}/materials")]
-    public Task<IList<PrivateMaterialResponse>> ListArea(long areaId) => service.FindAllByAreaAsync(areaId, User.GetUserCredential());
+    public Task<IList<PrivateMaterialResponse>> ListArea(long areaId) =>
+        service.FindAllByAreaAsync(areaId, User.GetUserCredential());
 
     [HttpPost("knowledge-areas/{areaId:long}/materials")]
-    public Task<PrivateMaterialResponse?> LinkArea(long areaId, PrivateMaterialLinkRequest request, CancellationToken cancellationToken) =>
+    public Task<PrivateMaterialResponse?> LinkArea(long areaId, PrivateMaterialLinkRequest request,
+        CancellationToken cancellationToken) =>
         service.LinkToAreaAsync(areaId, request, User.GetUserCredential(), cancellationToken);
 
     [HttpDelete("knowledge-areas/{areaId:long}/materials/{materialId:long}")]
-    public Task<bool> DeleteArea(long areaId, long materialId) => service.DeleteByAreaAsync(areaId, materialId, User.GetUserCredential());
+    public Task<bool> DeleteArea(long areaId, long materialId) =>
+        service.DeleteByAreaAsync(areaId, materialId, User.GetUserCredential());
 
     [HttpGet("knowledge-areas/{areaId:long}/materials/{materialId:long}/file")]
     public async Task<IActionResult> AreaFile(long areaId, long materialId, CancellationToken cancellationToken)
@@ -52,4 +63,9 @@ public sealed class PrivateMaterialsController(IPrivateMaterialService service) 
         HttpContext.Response.RegisterForDispose(file.Disposable);
         return base.File(file.Stream, "application/pdf", enableRangeProcessing: false);
     }
+
+    [HttpPut("knowledge-areas/{areaId:long}/materials/{materialId:long}/study-location")]
+    public Task<PrivateMaterialResponse?> UpdateAreaStudyLocation(long areaId, long materialId,
+        PrivateMaterialStudyLocationRequest request) =>
+        service.UpdateAreaStudyLocationAsync(areaId, materialId, request.StudyLocation, User.GetUserCredential());
 }

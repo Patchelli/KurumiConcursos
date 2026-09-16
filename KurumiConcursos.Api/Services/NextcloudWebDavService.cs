@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Xml.Linq;
 using KurumiConcursos.ApplicationService.DataTransferObjects.PrivateMaterialDtos.Response;
@@ -18,16 +17,18 @@ public sealed class NextcloudWebDavService(HttpClient client, NextcloudOptions o
         using var request = new HttpRequestMessage(new HttpMethod("PROPFIND"), BuildUri(normalized));
         request.Headers.Add("Depth", "1");
         request.Content = new StringContent("""
-            <?xml version="1.0" encoding="utf-8" ?>
-            <d:propfind xmlns:d="DAV:"><d:prop><d:displayname/><d:resourcetype/><d:getcontenttype/><d:getcontentlength/></d:prop></d:propfind>
-            """, Encoding.UTF8, "application/xml");
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                                            <?xml version="1.0" encoding="utf-8" ?>
+                                            <d:propfind xmlns:d="DAV:"><d:prop><d:displayname/><d:resourcetype/><d:getcontenttype/><d:getcontentlength/></d:prop></d:propfind>
+                                            """, Encoding.UTF8, "application/xml");
+        using var response =
+            await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden) return [];
         response.EnsureSuccessStatusCode();
         var document = XDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
         return document.Descendants(Dav + "response").Select(ParseEntry)
             .Where(item => item is not null && item.Path != normalized)
-            .Select(item => item!).Where(item => item.IsDirectory || IsPdf(item.Name, item.MimeType)).OrderByDescending(item => item.IsDirectory)
+            .Select(item => item!).Where(item => item.IsDirectory || IsPdf(item.Name, item.MimeType))
+            .OrderByDescending(item => item.IsDirectory)
             .ThenBy(item => item.Name, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
@@ -36,7 +37,8 @@ public sealed class NextcloudWebDavService(HttpClient client, NextcloudOptions o
         var normalized = NormalizePath(path);
         if (!normalized.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)) return null;
         using var request = new HttpRequestMessage(HttpMethod.Head, BuildUri(normalized));
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        using var response =
+            await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
         var mime = response.Content.Headers.ContentType?.MediaType;
@@ -53,12 +55,14 @@ public sealed class NextcloudWebDavService(HttpClient client, NextcloudOptions o
             response.Dispose();
             return null;
         }
+
         response.EnsureSuccessStatusCode();
         if (!IsPdf(normalized, response.Content.Headers.ContentType?.MediaType))
         {
             response.Dispose();
             return null;
         }
+
         return new PrivateMaterialFile(Path.GetFileName(normalized),
             await response.Content.ReadAsStreamAsync(cancellationToken), response);
     }
@@ -84,21 +88,25 @@ public sealed class NextcloudWebDavService(HttpClient client, NextcloudOptions o
             long.TryParse(property?.Element(Dav + "getcontentlength")?.Value, out var size) ? size : null);
     }
 
-    private Uri BuildUri(string path) => new($"{options.Url.TrimEnd('/')}/remote.php/dav/files/{Uri.EscapeDataString(options.User)}{string.Join(string.Empty, path.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(segment => "/" + Uri.EscapeDataString(segment)))}");
+    private Uri BuildUri(string path) => new(
+        $"{options.Url.TrimEnd('/')}/remote.php/dav/files/{Uri.EscapeDataString(options.User)}{string.Join(string.Empty, path.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(segment => "/" + Uri.EscapeDataString(segment)))}");
 
     private string NormalizePath(string? path)
     {
-        var candidate = Uri.UnescapeDataString(string.IsNullOrWhiteSpace(path) || path == "/" ? options.RootPath : path).Replace('\\', '/').Trim();
+        var candidate = Uri.UnescapeDataString(string.IsNullOrWhiteSpace(path) || path == "/" ? options.RootPath : path)
+            .Replace('\\', '/').Trim();
         if (!candidate.StartsWith('/')) candidate = "/" + candidate;
         if (candidate.Split('/', StringSplitOptions.RemoveEmptyEntries).Any(segment => segment is "." or ".."))
             throw new InvalidOperationException("Caminho do Nextcloud invalido.");
         var root = options.RootPath.Trim().Trim('/');
         var normalized = "/" + string.Join('/', candidate.Split('/', StringSplitOptions.RemoveEmptyEntries));
-        if (!string.IsNullOrEmpty(root) && normalized != "/" + root && !normalized.StartsWith("/" + root + "/", StringComparison.Ordinal))
+        if (!string.IsNullOrEmpty(root) && normalized != "/" + root &&
+            !normalized.StartsWith("/" + root + "/", StringComparison.Ordinal))
             throw new InvalidOperationException("Caminho fora da pasta privada configurada.");
         return normalized;
     }
 
     private static bool IsPdf(string name, string? mime) => name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(mime, "application/pdf", StringComparison.OrdinalIgnoreCase);
+                                                            string.Equals(mime, "application/pdf",
+                                                                StringComparison.OrdinalIgnoreCase);
 }

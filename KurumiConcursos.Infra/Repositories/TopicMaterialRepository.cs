@@ -44,4 +44,10 @@ public sealed class TopicMaterialRepository(ApplicationContext context) : ITopic
         context.Remove(material);
         return await context.SaveChangesAsync() > 0;
     }
+
+    public async Task<bool> UpdateAsync(TopicMaterial material)
+    {
+        context.Update(material);
+        return await context.SaveChangesAsync() > 0;
+    }
 }

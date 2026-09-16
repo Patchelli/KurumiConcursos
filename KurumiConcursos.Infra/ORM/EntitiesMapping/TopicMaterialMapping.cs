@@ -16,6 +16,7 @@ public sealed class TopicMaterialMapping : MappingBase, IEntityTypeConfiguration
         builder.Property(item => item.Name).HasColumnName("name").HasMaxLength(260);
         builder.Property(item => item.NextcloudPath).HasColumnName("nextcloud_path").HasMaxLength(2048);
         builder.Property(item => item.MimeType).HasColumnName("mime_type").HasMaxLength(100);
+        builder.Property(item => item.StudyLocation).HasColumnName("study_location").HasMaxLength(500);
         builder.HasOne(item => item.SyllabusNode).WithMany().HasForeignKey(item => item.SyllabusNodeId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(item => item.KnowledgeArea).WithMany().HasForeignKey(item => item.KnowledgeAreaId)

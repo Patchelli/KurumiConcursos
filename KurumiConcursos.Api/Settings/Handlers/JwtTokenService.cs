@@ -36,8 +36,9 @@ public sealed class JwtTokenService(JwtOptions jwt) : ITokenService
         }
 
         foreach (var permission in (user.UserClaims ?? [])
-                     .Where(claim => claim.ClaimType == PrivateMaterials.ClaimType && !string.IsNullOrWhiteSpace(claim.ClaimValue))
-                     .Select(claim => claim.ClaimValue!).Distinct(StringComparer.Ordinal))
+                 .Where(claim =>
+                     claim.ClaimType == PrivateMaterials.ClaimType && !string.IsNullOrWhiteSpace(claim.ClaimValue))
+                 .Select(claim => claim.ClaimValue!).Distinct(StringComparer.Ordinal))
             claims.Add(new Claim(PrivateMaterials.ClaimType, permission));
 
         if (roles.Count > 0)

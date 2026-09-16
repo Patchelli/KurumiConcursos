@@ -11,4 +11,5 @@ public sealed class TopicMaterial : EntityBase
     public string Name { get; set; } = string.Empty;
     public string NextcloudPath { get; set; } = string.Empty;
     public string MimeType { get; set; } = "application/pdf";
+    public string? StudyLocation { get; set; }
 }

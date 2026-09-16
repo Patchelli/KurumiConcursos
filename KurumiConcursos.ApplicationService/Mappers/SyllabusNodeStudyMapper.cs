@@ -2,6 +2,7 @@ using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Request
 using KurumiConcursos.ApplicationService.DataTransferObjects.JourneyDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.Domain.Entities;
+using KurumiConcursos.Domain.Enums;
 
 namespace KurumiConcursos.ApplicationService.Mappers;
 
@@ -29,8 +30,9 @@ public sealed class SyllabusNodeStudyMapper : ISyllabusNodeStudyMapper
 
     public SyllabusNodeStudyResponse DomainToDtoResponse(SyllabusNode node, int studiedMinutes, DateOnly? reviewDate) =>
         new(node.Id, node.Progress, node.StudyStartedOn, node.StudiedOn, studiedMinutes, reviewDate,
-            LastStudyLocation: node.Progress == KurumiConcursos.Domain.Enums.EStudyProgress.Studied
-                ? node.LastStudyLocation : null);
+            LastStudyLocation: node.Progress == EStudyProgress.Studied
+                ? node.LastStudyLocation
+                : null);
 
     public IList<SyllabusNodeStudyResponse> DomainToDtoResponseList(
         IEnumerable<(SyllabusNode Node, int StudiedMinutes, DateOnly? ReviewDate)> values) =>

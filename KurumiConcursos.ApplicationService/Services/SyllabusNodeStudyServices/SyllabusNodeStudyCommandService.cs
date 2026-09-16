@@ -44,7 +44,8 @@ public sealed class SyllabusNodeStudyCommandService(
 
         if (request.StudyLocation?.Trim().Length > 200)
         {
-            Notification.CreateNotification(SyllabusNodeStudyTrace.Save, "O local de estudo deve ter no maximo 200 caracteres.");
+            Notification.CreateNotification(SyllabusNodeStudyTrace.Save,
+                "O local de estudo deve ter no maximo 200 caracteres.");
             return null;
         }
 
@@ -158,7 +159,8 @@ public sealed class SyllabusNodeStudyCommandService(
             rootNode.Progress = completedChildren == rootChildren.Count
                 ? EStudyProgress.Studied
                 : completedChildren > 0 || rootChildren.Any(item => item.Progress == EStudyProgress.InProgress)
-                    || node.Id == rootNode.Id && !removeRecordedStudy && !request.Completed && studiedSeconds > 0
+                                        || node.Id == rootNode.Id && !removeRecordedStudy && !request.Completed &&
+                                        studiedSeconds > 0
                     ? EStudyProgress.InProgress
                     : EStudyProgress.NotStarted;
             if (rootNode.Progress == EStudyProgress.NotStarted)

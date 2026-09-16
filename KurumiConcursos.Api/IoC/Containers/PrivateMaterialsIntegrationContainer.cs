@@ -15,7 +15,8 @@ public static class PrivateMaterialsIntegrationContainer
             var options = provider.GetRequiredService<NextcloudOptions>();
             if (!Uri.TryCreate(options.Url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps ||
                 string.IsNullOrWhiteSpace(options.User) || string.IsNullOrWhiteSpace(options.AppPassword))
-                throw new InvalidOperationException("Nextcloud:Url, Nextcloud:User e Nextcloud:AppPassword devem ser configurados.");
+                throw new InvalidOperationException(
+                    "Nextcloud:Url, Nextcloud:User e Nextcloud:AppPassword devem ser configurados.");
             client.Timeout = TimeSpan.FromSeconds(Math.Clamp(options.TimeoutSeconds, 10, 300));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
                 Convert.ToBase64String(Encoding.UTF8.GetBytes($"{options.User}:{options.AppPassword}")));

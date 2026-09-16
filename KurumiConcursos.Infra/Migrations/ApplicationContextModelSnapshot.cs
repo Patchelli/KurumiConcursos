@@ -1110,6 +1110,11 @@ namespace KurumiConcursos.Infra.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("syllabus_node_id");
 
+                    b.Property<string>("StudyLocation")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("study_location");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(180)
@@ -1601,6 +1606,11 @@ namespace KurumiConcursos.Infra.Migrations
                     b.Property<long?>("SyllabusNodeId")
                         .HasColumnType("bigint")
                         .HasColumnName("syllabus_node_id");
+
+                    b.Property<string>("StudyLocation")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("study_location");
 
                     b.HasKey("Id");
 

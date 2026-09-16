@@ -281,7 +281,8 @@ public sealed class StudyRoutineCommandService(
 
         if (request.StudyLocation?.Trim().Length > 200)
         {
-            Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "O local de estudo deve ter no maximo 200 caracteres.");
+            Notification.CreateNotification(StudyRoutineTrace.CompleteBlock,
+                "O local de estudo deve ter no maximo 200 caracteres.");
             return null;
         }
 
@@ -295,7 +296,10 @@ public sealed class StudyRoutineCommandService(
         }
 
         if (request.ClearPending)
-            request = request with { Completed = false, CompletedMinutes = 0, ScheduleReview = false, ReviewDate = null };
+            request = request with
+            {
+                Completed = false, CompletedMinutes = 0, ScheduleReview = false, ReviewDate = null
+            };
 
         var resetStudy = request.ClearPending || !request.Completed && request.CompletedMinutes == 0;
         var removeRecordedStudy = resetStudy;
@@ -387,7 +391,8 @@ public sealed class StudyRoutineCommandService(
             }
         }
 
-        if (block.Type == EStudyBlockType.Review && request.Completed && !string.IsNullOrWhiteSpace(request.StudyLocation))
+        if (block.Type == EStudyBlockType.Review && request.Completed &&
+            !string.IsNullOrWhiteSpace(request.StudyLocation))
         {
             var node = await journeyRepository.FindNodeAsync(block.SyllabusNodeId, credential.UserId,
                 CancellationToken.None, false);
@@ -396,11 +401,13 @@ public sealed class StudyRoutineCommandService(
                 Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "Topico do bloco nao encontrado.");
                 return null;
             }
+
             node.LastStudyLocation = request.StudyLocation.Trim();
             node.LastUpdateDate = DateTimeOffset.UtcNow;
             if (!await journeyRepository.UpdateNodeAsync(node))
             {
-                Notification.CreateNotification(StudyRoutineTrace.CompleteBlock, "Nao foi possivel salvar o local de estudo.");
+                Notification.CreateNotification(StudyRoutineTrace.CompleteBlock,
+                    "Nao foi possivel salvar o local de estudo.");
                 return null;
             }
         }

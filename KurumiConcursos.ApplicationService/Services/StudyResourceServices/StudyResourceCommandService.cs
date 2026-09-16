@@ -85,4 +85,29 @@ public sealed class StudyResourceCommandService(
 
         return true;
     }
+
+    public async Task<StudyResourceResponse?> UpdateStudyLocationAsync(long id, string? studyLocation,
+        UserCredential credential)
+    {
+        var resource = await studyResourceRepository.FindByPredicateAsync(
+            item => item.Id == id && item.UserId == credential.UserId, asNoTracking: false);
+        if (resource is null)
+        {
+            Notification.CreateNotification(StudyResourceTrace.Register, $"{EntityName} nao encontrado.");
+            return null;
+        }
+
+        var location = string.IsNullOrWhiteSpace(studyLocation) ? null : studyLocation.Trim();
+        if (location?.Length > 500)
+        {
+            Notification.CreateNotification(StudyResourceTrace.Register,
+                "O marcador pode ter no maximo 500 caracteres.");
+            return null;
+        }
+
+        resource.StudyLocation = location;
+        if (!await studyResourceRepository.UpdateAsync(resource))
+            return null;
+        return studyResourceMapper.DomainToDtoResponse(resource);
+    }
 }

@@ -1,11 +1,11 @@
 using KurumiConcursos.Domain.Entities;
 using KurumiConcursos.Domain.Entities.IdentityEntities;
+using KurumiConcursos.Domain.Providers;
+using KurumiConcursos.Domain.UserPolicies;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 using KurumiConcursos.Infra.ORM.DataSeeds;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using KurumiConcursos.Domain.Providers;
-using KurumiConcursos.Domain.UserPolicies;
 
 namespace KurumiConcursos.Infra.ORM.Context;
 
@@ -90,10 +90,13 @@ public sealed class DbInitializer
     {
         if (_privateMaterials.Emails.Count == 0) return;
         var users = await _context.Set<User>().Where(user => user.NormalizedEmail != null &&
-            _privateMaterials.Emails.Contains(user.NormalizedEmail)).ToListAsync();
+                                                             _privateMaterials.Emails.Contains(user.NormalizedEmail))
+            .ToListAsync();
         var ids = users.Select(user => user.Id).ToHashSet();
         var existing = await _context.Set<UserClaim>().Where(claim => ids.Contains(claim.UserId) &&
-            claim.ClaimType == PrivateMaterials.ClaimType && claim.ClaimValue == PrivateMaterials.Permission).ToListAsync();
+                                                                      claim.ClaimType == PrivateMaterials.ClaimType &&
+                                                                      claim.ClaimValue == PrivateMaterials.Permission)
+            .ToListAsync();
         var granted = existing.Select(claim => claim.UserId).ToHashSet();
         var missing = users.Where(user => !granted.Contains(user.Id)).Select(user => new UserClaim
         {

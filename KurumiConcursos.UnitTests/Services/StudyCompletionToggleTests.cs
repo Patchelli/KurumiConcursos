@@ -69,7 +69,8 @@ public sealed class StudyCompletionToggleTests
         await fixture.Save(true, true, 10, studyLocation: "Casa");
         Assert.Equal("Casa", fixture.Nodes[0].LastStudyLocation);
         Assert.All(fixture.Nodes.Skip(1), node => Assert.Equal("Biblioteca", node.LastStudyLocation));
-        Assert.Equal("Casa", new SyllabusNodeStudyMapper().DomainToDtoResponse(fixture.Nodes[0], 0, null).LastStudyLocation);
+        Assert.Equal("Casa",
+            new SyllabusNodeStudyMapper().DomainToDtoResponse(fixture.Nodes[0], 0, null).LastStudyLocation);
     }
 
     [Theory]
@@ -162,6 +163,7 @@ public sealed class StudyCompletionToggleTests
         private readonly SyllabusNodeStudyCommandService nodeService;
         private readonly StudyRoutineCommandService planService;
         public List<FocusSession> Sessions { get; } = [];
+
         public SyllabusNode[] Nodes { get; } =
         [
             new() { Id = 1, KnowledgeAreaId = 1, Progress = EStudyProgress.NotStarted },
@@ -169,62 +171,92 @@ public sealed class StudyCompletionToggleTests
             new() { Id = 3, ParentId = 1, KnowledgeAreaId = 1, Progress = EStudyProgress.NotStarted },
             new() { Id = 4, ParentId = 2, KnowledgeAreaId = 1, Progress = EStudyProgress.NotStarted }
         ];
+
         public StudyRoutineBlock Block { get; }
 
         public Fixture()
         {
-            Block = new() { Id = 1, JourneyId = 1, SyllabusNodeId = 1, StudyRoutineId = 1,
+            Block = new()
+            {
+                Id = 1, JourneyId = 1, SyllabusNodeId = 1, StudyRoutineId = 1,
                 UserId = credential.UserId, Type = EStudyBlockType.Study, Status = EStudyBlockStatus.Pending,
-                ScheduledFor = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow, "America/Sao_Paulo").DateTime) };
-            var journey = new ExamJourney { Id = 1, UserId = credential.UserId,
-                KnowledgeAreas = [new KnowledgeArea { Id = 1, SyllabusNodes = Nodes }] };
+                ScheduledFor = DateOnly.FromDateTime(TimeZoneInfo
+                    .ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow, "America/Sao_Paulo").DateTime)
+            };
+            var journey = new ExamJourney
+            {
+                Id = 1, UserId = credential.UserId,
+                KnowledgeAreas = [new KnowledgeArea { Id = 1, SyllabusNodes = Nodes }]
+            };
             var journeys = new Mock<IJourneyRepository>();
-            journeys.Setup(x => x.FindByIdAsync(1, credential.UserId, It.IsAny<CancellationToken>(), true, true)).ReturnsAsync(journey);
-            journeys.Setup(x => x.FindNodeAsync(1, credential.UserId, It.IsAny<CancellationToken>(), false)).ReturnsAsync(Nodes[0]);
+            journeys.Setup(x => x.FindByIdAsync(1, credential.UserId, It.IsAny<CancellationToken>(), true, true))
+                .ReturnsAsync(journey);
+            journeys.Setup(x => x.FindNodeAsync(1, credential.UserId, It.IsAny<CancellationToken>(), false))
+                .ReturnsAsync(Nodes[0]);
             journeys.Setup(x => x.UpdateNodeAsync(It.IsAny<SyllabusNode>())).ReturnsAsync(true);
             var blocks = new Mock<IStudyRoutineBlockRepository>();
-            blocks.Setup(x => x.FindByPredicateAsync(It.IsAny<Expression<Func<StudyRoutineBlock, bool>>>(), null, false)).ReturnsAsync(Block);
+            blocks
+                .Setup(x => x.FindByPredicateAsync(It.IsAny<Expression<Func<StudyRoutineBlock, bool>>>(), null, false))
+                .ReturnsAsync(Block);
             blocks.Setup(x => x.FindAllAsync(It.IsAny<Expression<Func<StudyRoutineBlock, bool>>>(), null))
-                .ReturnsAsync((Expression<Func<StudyRoutineBlock, bool>> predicate, Func<IQueryable<StudyRoutineBlock>, IIncludableQueryable<StudyRoutineBlock, object>>? _) =>
+                .ReturnsAsync((Expression<Func<StudyRoutineBlock, bool>> predicate,
+                        Func<IQueryable<StudyRoutineBlock>, IIncludableQueryable<StudyRoutineBlock, object>>? _) =>
                     (IList<StudyRoutineBlock>)new[] { Block }.Where(predicate.Compile()).ToList());
             blocks.Setup(x => x.UpdateAsync(It.IsAny<StudyRoutineBlock>())).ReturnsAsync(true);
             var sessions = new Mock<IFocusSessionRepository>();
             sessions.Setup(x => x.FindAllAsync(It.IsAny<Expression<Func<FocusSession, bool>>>(), null))
-                .ReturnsAsync((Expression<Func<FocusSession, bool>> predicate, Func<IQueryable<FocusSession>, IIncludableQueryable<FocusSession, object>>? _) =>
+                .ReturnsAsync((Expression<Func<FocusSession, bool>> predicate,
+                        Func<IQueryable<FocusSession>, IIncludableQueryable<FocusSession, object>>? _) =>
                     (IList<FocusSession>)Sessions.Where(predicate.Compile()).ToList());
-            sessions.Setup(x => x.SaveAsync(It.IsAny<FocusSession>())).Callback<FocusSession>(Sessions.Add).ReturnsAsync(true);
-            sessions.Setup(x => x.DeleteAsync(It.IsAny<FocusSession>())).Callback<FocusSession>(session => Sessions.Remove(session)).ReturnsAsync(true);
+            sessions.Setup(x => x.SaveAsync(It.IsAny<FocusSession>())).Callback<FocusSession>(Sessions.Add)
+                .ReturnsAsync(true);
+            sessions.Setup(x => x.DeleteAsync(It.IsAny<FocusSession>()))
+                .Callback<FocusSession>(session => Sessions.Remove(session)).ReturnsAsync(true);
             var reviews = new Mock<IReviewAppointmentRepository>();
-            reviews.Setup(x => x.FindAllAsync(It.IsAny<Expression<Func<ReviewAppointment, bool>>>(), null)).ReturnsAsync(new List<ReviewAppointment>());
+            reviews.Setup(x => x.FindAllAsync(It.IsAny<Expression<Func<ReviewAppointment, bool>>>(), null))
+                .ReturnsAsync(new List<ReviewAppointment>());
             var questions = new Mock<IQuestionAppointmentRepository>();
-            questions.Setup(x => x.FindAllAsync(It.IsAny<Expression<Func<QuestionAppointment, bool>>>(), null)).ReturnsAsync(new List<QuestionAppointment>());
+            questions.Setup(x => x.FindAllAsync(It.IsAny<Expression<Func<QuestionAppointment, bool>>>(), null))
+                .ReturnsAsync(new List<QuestionAppointment>());
             var questionCommands = new Mock<IQuestionAppointmentCommandService>();
-            questionCommands.Setup(x => x.SupersedePendingAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<long>>())).ReturnsAsync(true);
-            questionCommands.Setup(x => x.ScheduleAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<SyllabusNode>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly?>())).ReturnsAsync(true);
+            questionCommands
+                .Setup(x => x.SupersedePendingAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyCollection<long>>()))
+                .ReturnsAsync(true);
+            questionCommands.Setup(x => x.ScheduleAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<SyllabusNode>(),
+                It.IsAny<DateOnly>(), It.IsAny<DateOnly?>())).ReturnsAsync(true);
             var validation = new Mock<IValidate<SyllabusNode>>();
-            validation.Setup(x => x.ValidationAsync(It.IsAny<SyllabusNode>())).ReturnsAsync(ValidationResponse.CreateResponse([]));
+            validation.Setup(x => x.ValidationAsync(It.IsAny<SyllabusNode>()))
+                .ReturnsAsync(ValidationResponse.CreateResponse([]));
             var summaries = Mock.Of<IStudySummaryRepository>();
             var capsules = Mock.Of<ITimeCapsuleCommandService>();
             var logger = Mock.Of<ILoggerHandler>();
-            nodeService = new(journeys.Object, sessions.Object, reviews.Object, questions.Object, questionCommands.Object,
-                blocks.Object, summaries, capsules, new SyllabusNodeStudyMapper(), validation.Object, notifications, logger);
+            nodeService = new(journeys.Object, sessions.Object, reviews.Object, questions.Object,
+                questionCommands.Object,
+                blocks.Object, summaries, capsules, new SyllabusNodeStudyMapper(), validation.Object, notifications,
+                logger);
             planService = new(Mock.Of<IStudyRoutineRepository>(), journeys.Object, Mock.Of<IStudyRoutineMapper>(),
                 blocks.Object, sessions.Object, summaries, reviews.Object, questionCommands.Object, capsules,
                 Mock.Of<IValidate<StudyRoutine>>(), notifications, logger);
         }
 
-        public async Task Save(bool throughPlan, bool completed, int minutes, bool clearPending = false, string? studyLocation = null)
+        public async Task Save(bool throughPlan, bool completed, int minutes, bool clearPending = false,
+            string? studyLocation = null)
         {
             if (throughPlan)
-                Assert.NotNull(await planService.CompleteBlockAsync(new StudyRoutineBlockCompleteRequest(1, completed, minutes, false, null, clearPending, StudyLocation: studyLocation), credential));
+                Assert.NotNull(await planService.CompleteBlockAsync(
+                    new StudyRoutineBlockCompleteRequest(1, completed, minutes, false, null, clearPending,
+                        StudyLocation: studyLocation), credential));
             else
                 await SaveNode(1, completed, minutes, clearPending, studyLocation);
             Assert.False(notifications.HasNotification());
         }
 
-        public async Task SaveNode(long id, bool completed, int minutes, bool clearPending = false, string? studyLocation = null)
+        public async Task SaveNode(long id, bool completed, int minutes, bool clearPending = false,
+            string? studyLocation = null)
         {
-            Assert.NotNull(await nodeService.SaveAsync(new SyllabusNodeStudyRequest(1, id, completed, minutes, false, null, clearPending, StudyLocation: studyLocation), credential));
+            Assert.NotNull(await nodeService.SaveAsync(
+                new SyllabusNodeStudyRequest(1, id, completed, minutes, false, null, clearPending,
+                    StudyLocation: studyLocation), credential));
             Assert.False(notifications.HasNotification());
         }
     }

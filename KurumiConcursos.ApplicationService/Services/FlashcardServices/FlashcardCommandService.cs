@@ -123,7 +123,8 @@ public sealed class FlashcardCommandService(
             FlashcardReviewIntervals.FromJson(profile.FlashcardIntervalsJson), request.Grade);
         card.IntervalDays = Math.Max(1, (int)Math.Ceiling(intervalHours / 24d));
         card.NextReviewAt = now.AddHours(intervalHours);
-        card.NextReviewOn = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now.AddHours(intervalHours), TimeZone()).DateTime);
+        card.NextReviewOn =
+            DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now.AddHours(intervalHours), TimeZone()).DateTime);
         card.LastUpdateDate = now;
         var recall = new MemoryRecall
         {
@@ -154,7 +155,8 @@ public sealed class FlashcardCommandService(
         var intervals = FlashcardReviewIntervals.FromRequest(request);
         if (!FlashcardReviewIntervals.IsValid(intervals))
         {
-            Notification.CreateNotification(FlashcardTrace.Update, "Os intervalos devem estar entre 1 hora e 365 dias.");
+            Notification.CreateNotification(FlashcardTrace.Update,
+                "Os intervalos devem estar entre 1 hora e 365 dias.");
             return false;
         }
 

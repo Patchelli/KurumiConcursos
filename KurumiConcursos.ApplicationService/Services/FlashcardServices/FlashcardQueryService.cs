@@ -63,7 +63,10 @@ public sealed class FlashcardQueryService(
         var today = CurrentDate();
         var now = DateTimeOffset.UtcNow;
         var eligible = cards
-            .Where(card => !card.NextReviewAt.HasValue ? !card.NextReviewOn.HasValue || card.NextReviewOn <= today : card.NextReviewAt <= now)
+            .Where(card =>
+                !card.NextReviewAt.HasValue
+                    ? !card.NextReviewOn.HasValue || card.NextReviewOn <= today
+                    : card.NextReviewAt <= now)
             .OrderBy(card => card.NextReviewOn.HasValue ? 0 : 1)
             .ThenBy(card => card.NextReviewOn)
             .ThenBy(card => card.Id)

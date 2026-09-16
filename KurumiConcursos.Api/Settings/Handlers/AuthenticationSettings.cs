@@ -1,10 +1,10 @@
 using System.Text;
 using KurumiConcursos.Domain.Providers;
+using KurumiConcursos.Domain.UserPolicies;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using KurumiConcursos.Domain.UserPolicies;
 
 namespace KurumiConcursos.Api.Settings.Handlers;
 
@@ -35,7 +35,8 @@ public static class AuthenticationSettings
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(IdentityConstants.ApplicationScheme);
         services.AddAuthorization(options => options.AddPolicy(PrivateMaterials.PolicyName,
-            policy => policy.RequireAuthenticatedUser().RequireClaim(PrivateMaterials.ClaimType, PrivateMaterials.Permission)));
+            policy => policy.RequireAuthenticatedUser()
+                .RequireClaim(PrivateMaterials.ClaimType, PrivateMaterials.Permission)));
         return services;
     }
 }

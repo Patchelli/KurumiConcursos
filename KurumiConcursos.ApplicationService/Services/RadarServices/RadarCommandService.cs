@@ -9,7 +9,10 @@ using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 
 namespace KurumiConcursos.ApplicationService.Services.RadarServices;
 
-public sealed class RadarCommandService(IStudentProfileRepository profiles, IRadarMapper mapper, INotificationHandler notification)
+public sealed class RadarCommandService(
+    IStudentProfileRepository profiles,
+    IRadarMapper mapper,
+    INotificationHandler notification)
     : IRadarCommandService
 {
     public async Task<bool> SavePreferencesAsync(RadarPreferencesRequest request, UserCredential credential)

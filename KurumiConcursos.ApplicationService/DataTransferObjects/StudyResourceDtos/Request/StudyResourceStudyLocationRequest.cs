@@ -1,0 +1,3 @@
+namespace KurumiConcursos.ApplicationService.DataTransferObjects.StudyResourceDtos.Request;
+
+public sealed record StudyResourceStudyLocationRequest(string? StudyLocation);

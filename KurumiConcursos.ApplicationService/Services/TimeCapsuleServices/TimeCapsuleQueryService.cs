@@ -1,6 +1,7 @@
 using KurumiConcursos.ApplicationService.DataTransferObjects.TimeCapsuleDtos.Response;
 using KurumiConcursos.ApplicationService.Interfaces.MapperContracts;
 using KurumiConcursos.ApplicationService.Interfaces.ServiceContracts;
+using KurumiConcursos.Domain.Enums;
 using KurumiConcursos.Domain.ValueObjects;
 using KurumiConcursos.Infra.Interfaces.RepositoryContracts;
 
@@ -13,7 +14,7 @@ public sealed class TimeCapsuleQueryService(
     public async Task<IList<TimeCapsuleResponse>> FindDeliveredAsync(UserCredential credential) =>
         mapper.DomainToDtoResponseList(await repository.FindAllAsync(item =>
             item.UserId == credential.UserId &&
-            item.Status == KurumiConcursos.Domain.Enums.ECapsuleStatus.Delivered));
+            item.Status == ECapsuleStatus.Delivered));
 
     public async Task<IList<TimeCapsuleResponse>> FindAllAsync(long journeyId, UserCredential credential) =>
         mapper.DomainToDtoResponseList(await repository.FindAllAsync(item =>

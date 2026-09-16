@@ -165,7 +165,9 @@ public sealed class JourneyCommandService(
         var node = new SyllabusNode
         {
             KnowledgeAreaId = area.Id, ParentId = request.ParentId, Title = request.Title.Trim(),
-            CognitivePairing = string.IsNullOrWhiteSpace(request.CognitivePairing) ? null : request.CognitivePairing.Trim(),
+            CognitivePairing = string.IsNullOrWhiteSpace(request.CognitivePairing)
+                ? null
+                : request.CognitivePairing.Trim(),
             Order = request.Order
         };
         if (!await ValidateEntityAsync(syllabusNodeValidation, node)) return false;
@@ -188,7 +190,8 @@ public sealed class JourneyCommandService(
             return Notification.CreateNotification(JourneyTrace.UpdateSyllabusNode, "Tópico não encontrado.");
 
         node.Title = request.Title.Trim();
-        node.CognitivePairing = string.IsNullOrWhiteSpace(request.CognitivePairing) ? null : request.CognitivePairing.Trim();
+        node.CognitivePairing =
+            string.IsNullOrWhiteSpace(request.CognitivePairing) ? null : request.CognitivePairing.Trim();
         node.Order = request.Order;
 
         if (!await ValidateEntityAsync(syllabusNodeValidation, node)) return false;

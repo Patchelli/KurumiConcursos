@@ -9,4 +9,5 @@ public sealed record StudyResourceResponse(
     long? SyllabusNodeId,
     string Title,
     string Url,
-    EResourceKind Kind);
+    EResourceKind Kind,
+    string? StudyLocation);

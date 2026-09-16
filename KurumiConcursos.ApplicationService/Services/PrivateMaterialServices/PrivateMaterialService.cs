@@ -38,12 +38,14 @@ public sealed class PrivateMaterialService(
             return null;
         }
 
-        var material = new TopicMaterial { SyllabusNodeId = topic.Id, Name = remote.Name, NextcloudPath = remote.Path, MimeType = remote.MimeType };
+        var material = new TopicMaterial
+            { SyllabusNodeId = topic.Id, Name = remote.Name, NextcloudPath = remote.Path, MimeType = remote.MimeType };
         if (!validation.Validation(material).Valid || !await materials.SaveAsync(material))
         {
             notification.CreateNotification("Materiais privados", "Nao foi possivel vincular o material.");
             return null;
         }
+
         return Map(material);
     }
 
@@ -62,6 +64,10 @@ public sealed class PrivateMaterialService(
         return material is null ? null : await nextcloud.OpenPdfAsync(material.NextcloudPath, cancellationToken);
     }
 
+    public Task<PrivateMaterialResponse?> UpdateStudyLocationAsync(long topicId, long materialId, string? studyLocation,
+        UserCredential credential) =>
+        UpdateLocationAsync(() => materials.FindAsync(materialId, topicId, credential.UserId, true), studyLocation);
+
     public async Task<IList<PrivateMaterialResponse>> FindAllByAreaAsync(long areaId, UserCredential credential) =>
         (await materials.FindAllByAreaAsync(areaId, credential.UserId)).Select(Map).ToList();
 
@@ -72,7 +78,8 @@ public sealed class PrivateMaterialService(
         if (area is null) return null;
         var remote = await nextcloud.FindPdfAsync(request.NextcloudPath, cancellationToken);
         if (remote is null) return null;
-        var material = new TopicMaterial { KnowledgeAreaId = area.Id, Name = remote.Name, NextcloudPath = remote.Path, MimeType = remote.MimeType };
+        var material = new TopicMaterial
+            { KnowledgeAreaId = area.Id, Name = remote.Name, NextcloudPath = remote.Path, MimeType = remote.MimeType };
         return !validation.Validation(material).Valid || !await materials.SaveAsync(material) ? null : Map(material);
     }
 
@@ -89,6 +96,23 @@ public sealed class PrivateMaterialService(
         return material is null ? null : await nextcloud.OpenPdfAsync(material.NextcloudPath, cancellationToken);
     }
 
+    public Task<PrivateMaterialResponse?> UpdateAreaStudyLocationAsync(long areaId, long materialId,
+        string? studyLocation, UserCredential credential) =>
+        UpdateLocationAsync(() => materials.FindByAreaAsync(materialId, areaId, credential.UserId, true),
+            studyLocation);
+
+    private async Task<PrivateMaterialResponse?> UpdateLocationAsync(Func<Task<TopicMaterial?>> find,
+        string? studyLocation)
+    {
+        var material = await find();
+        var location = string.IsNullOrWhiteSpace(studyLocation) ? null : studyLocation.Trim();
+        if (material is null || location?.Length > 500) return null;
+        material.StudyLocation = location;
+        if (!await materials.UpdateAsync(material)) return null;
+        return Map(material);
+    }
+
     private static PrivateMaterialResponse Map(TopicMaterial material) =>
-        new(material.Id, material.SyllabusNodeId ?? material.KnowledgeAreaId!.Value, material.Name, material.MimeType, material.CreationDate);
+        new(material.Id, material.SyllabusNodeId ?? material.KnowledgeAreaId!.Value, material.Name, material.MimeType,
+            material.CreationDate, material.StudyLocation);
 }

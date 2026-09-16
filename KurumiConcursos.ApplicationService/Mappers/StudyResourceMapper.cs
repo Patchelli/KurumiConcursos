@@ -14,7 +14,7 @@ public sealed class StudyResourceMapper : IStudyResourceMapper
     };
 
     public StudyResourceResponse DomainToDtoResponse(StudyResource e) => new(e.Id, e.JourneyId, e.KnowledgeAreaId,
-        e.SyllabusNodeId, e.Title, e.Url, e.Kind);
+        e.SyllabusNodeId, e.Title, e.Url, e.Kind, e.StudyLocation);
 
     public IList<StudyResourceResponse> DomainToDtoResponseList(IList<StudyResource> entities) =>
         entities.Select(DomainToDtoResponse).ToList();

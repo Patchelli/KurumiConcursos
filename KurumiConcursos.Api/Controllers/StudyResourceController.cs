@@ -23,4 +23,8 @@ public sealed class StudyResourceController(
 
     [HttpDelete("{id:long}")]
     public Task<bool> Delete(long id) => command.DeleteAsync(id, User.GetUserCredential());
+
+    [HttpPut("{id:long}/study-location")]
+    public Task<StudyResourceResponse?> UpdateStudyLocation(long id, StudyResourceStudyLocationRequest request) =>
+        command.UpdateStudyLocationAsync(id, request.StudyLocation, User.GetUserCredential());
 }

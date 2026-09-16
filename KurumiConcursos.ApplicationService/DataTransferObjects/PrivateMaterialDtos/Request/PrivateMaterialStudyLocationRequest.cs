@@ -1,0 +1,3 @@
+namespace KurumiConcursos.ApplicationService.DataTransferObjects.PrivateMaterialDtos.Request;
+
+public sealed record PrivateMaterialStudyLocationRequest(string? StudyLocation);

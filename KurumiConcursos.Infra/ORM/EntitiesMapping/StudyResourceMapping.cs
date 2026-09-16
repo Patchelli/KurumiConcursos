@@ -18,5 +18,6 @@ public sealed class StudyResourceMapping : MappingBase, IEntityTypeConfiguration
         b.Property(x => x.Title).HasColumnName("title").HasMaxLength(180);
         b.Property(x => x.Url).HasColumnName("url");
         b.Property(x => x.Kind).HasColumnName("kind");
+        b.Property(x => x.StudyLocation).HasColumnName("study_location").HasMaxLength(500);
     }
 }

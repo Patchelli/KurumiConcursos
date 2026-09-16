@@ -9,5 +9,6 @@ public interface ITopicMaterialRepository
     Task<IList<TopicMaterial>> FindAllByAreaAsync(long knowledgeAreaId, Guid userId);
     Task<TopicMaterial?> FindByAreaAsync(long id, long knowledgeAreaId, Guid userId, bool tracking = false);
     Task<bool> SaveAsync(TopicMaterial material);
+    Task<bool> UpdateAsync(TopicMaterial material);
     Task<bool> DeleteAsync(TopicMaterial material);
 }

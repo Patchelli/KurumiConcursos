@@ -11,4 +11,5 @@ public interface IStudyResourceCommandService
         UserCredential credential);
 
     Task<bool> DeleteAsync(long id, UserCredential credential);
+    Task<StudyResourceResponse?> UpdateStudyLocationAsync(long id, string? studyLocation, UserCredential credential);
 }

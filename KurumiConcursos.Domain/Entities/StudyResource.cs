@@ -12,4 +12,5 @@ public sealed class StudyResource : EntityBase
     public string Title { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
     public EResourceKind Kind { get; set; }
+    public string? StudyLocation { get; set; }
 }
